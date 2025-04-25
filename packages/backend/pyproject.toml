@@ -11,6 +11,9 @@ dev = "uvicorn app.server:app --reload --reload-include .env"
 lint = "ruff format --check . && ruff check --diff"
 format = "ruff format"
 mypy = "mypy ."
+makemigrations = "alembic revision --autogenerate -m"
+migrate = "alembic upgrade head"
+printmigrations = "./scripts/print_migrations.sh"
 
 [tool.poetry.dependencies]
 python = "^3.12"
@@ -21,6 +24,8 @@ structlog = "^25.2.0"
 pydantic = "^2.11.3"
 pydantic-settings = "^2.9.1"
 uvicorn = {extras = ["standard"], version = "^0.34.2"}
+telethon = {extras = ["cryptg"], version = "^1.40.0"}
+sqlalchemy-utils = {extras = ["encrypted", "password"], version = "^0.41.2"}
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.15.0"
@@ -54,6 +59,10 @@ warn_return_any = true
 warn_unused_configs = true
 strict_equality = true
 exclude = ["^examples/"]
+
+[[tool.mypy.overrides]]
+module = ["sqlalchemy_utils.*", "telethon.*"]
+ignore_missing_imports = true
 
 [tool.ruff]
 # https://docs.astral.sh/ruff/configuration

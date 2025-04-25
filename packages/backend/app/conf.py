@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import cast
 
 import tomllib
+from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -26,6 +27,9 @@ class Settings(BaseSettings):
     VERSION: str = get_version()
     ENV: Env = Env.dev
     DEBUG: bool = False
+
+    # Required
+    DATABASE_URL: SecretStr
 
 
 # https://github.com/pydantic/pydantic/issues/3753
