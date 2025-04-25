@@ -8,6 +8,9 @@
   "packageManager": "pnpm@9.15.3",
   "description": "AI SMM Agent",
   "scripts": {
+    "backend:format": "cd packages/backend && task format",
+    "backend:lint": "cd packages/backend && task lint",
+    "backend:mypy": "cd packages/backend && task mypy",
     "prepare": "husky"
   },
   "keywords": [],
