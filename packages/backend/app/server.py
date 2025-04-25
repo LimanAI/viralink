@@ -1,15 +1,22 @@
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from typing import TypedDict
 
 from fastapi import FastAPI
 
 from app.conf import settings
+from app.tgbot.main import TGApp, start_tg_app
+
+
+class AppState(TypedDict):
+    tg_app: TGApp
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+async def lifespan(app: FastAPI) -> AsyncGenerator[AppState, None]:
     try:
-        yield
+        async with start_tg_app() as tg_app:
+            yield AppState(tg_app=tg_app)
     finally:
         ...
 

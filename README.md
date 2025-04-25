@@ -10,3 +10,8 @@ AI SMM Agent
    ```bash
    pnpm install
    ```
+
+## Setup telegram
+
+1. Create telegram bot with [@BotFather](https://t.me/botfather)
+2. Set TGBOT_TOKEN in `.env` file

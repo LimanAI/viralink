@@ -30,6 +30,10 @@ class Settings(BaseSettings):
 
     # Required
     DATABASE_URL: SecretStr
+    TGBOT_TOKEN: SecretStr
+
+    # Optional
+    TGBOT_POOLING: bool = True
 
 
 # https://github.com/pydantic/pydantic/issues/3753

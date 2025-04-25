@@ -50,6 +50,7 @@ const Configuration = {
         // custom
         "frontend",
         "backend",
+        "tgbot",
       ],
     ],
   },

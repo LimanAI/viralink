@@ -26,6 +26,7 @@ pydantic-settings = "^2.9.1"
 uvicorn = {extras = ["standard"], version = "^0.34.2"}
 telethon = {extras = ["cryptg"], version = "^1.40.0"}
 sqlalchemy-utils = {extras = ["encrypted", "password"], version = "^0.41.2"}
+python-telegram-bot = "^22.0"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.15.0"
