@@ -48,7 +48,7 @@ const Configuration = {
         "ci",
         "scripts",
         // custom
-        "frontend",
+        "web",
         "backend",
         "tgbot",
       ],
