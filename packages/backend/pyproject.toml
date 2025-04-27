@@ -14,6 +14,7 @@ mypy = "mypy ."
 makemigrations = "alembic revision --autogenerate -m"
 migrate = "alembic upgrade head"
 printmigrations = "./scripts/print_migrations.sh"
+generate_openapi = "python -m scripts.generate_openapi"
 
 [tool.poetry.dependencies]
 python = "^3.12"
