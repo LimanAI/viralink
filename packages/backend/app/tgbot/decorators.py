@@ -5,38 +5,66 @@ from typing import Any, Callable, cast, overload
 from telegram import Update
 from telegram.ext._utils.types import HandlerCallback
 
+from app.tgbot.auth.services import TGUserService
 from app.tgbot.context import Context
+from app.tgbot.utils import extract_user_data
 
 TCallback = HandlerCallback[Update, Context, None]
-ExtTCallback = Callable[[None, Update, Context], Coroutine[Any, Any, None]]
 
 
 @overload
-def requires_auth(func: ExtTCallback) -> TCallback: ...
+def requires_auth(func: TCallback) -> TCallback: ...
 
 
 @overload
-def requires_auth(*, is_admin: bool = False) -> Callable[[ExtTCallback], TCallback]: ...
+def requires_auth(*, is_admin: bool = False) -> Callable[[TCallback], TCallback]: ...
 
 
 def requires_auth(
     *args: Any, **kwargs: Any
-) -> TCallback | Callable[[ExtTCallback], TCallback]:
-    def _inner(is_admin: bool = False) -> Callable[[ExtTCallback], TCallback]:
+) -> TCallback | Callable[[TCallback], TCallback]:
+    def _inner(is_admin: bool = False) -> Callable[[TCallback], TCallback]:
         def requires_auth(
-            call: ExtTCallback,
+            call: TCallback,
         ) -> TCallback:
             @wraps(call)
-            def wrapper(
+            async def wrapper(
                 update: Update, context: Context, *args: Any, **kwargs: Any
-            ) -> Coroutine[Any, Any, None]:
-                user = None
-                return call(user, update, context, *args, **kwargs)
+            ) -> None:
+                if not context.db_session:
+                    raise ValueError(
+                        "DB session is None, please wrap handler with @db_session"
+                    )
+
+                user_data = extract_user_data(update)
+                if not user_data:
+                    raise ValueError("User data is None")
+
+                tguser_svc = TGUserService(context.db_session)
+                tguser = await tguser_svc.get_user_and_update(user_data)
+                # TODO: swtich on dependency injection
+                # https://github.com/reagento/dishka/issues/450
+                context.tguser = tguser
+                return await call(update, context, *args, **kwargs)
 
             return wrapper
 
         return requires_auth
 
     if len(args) == 1 and callable(args[0]):
-        return _inner()(cast(ExtTCallback, args[0]))
+        return _inner()(cast(TCallback, args[0]))
     return _inner(*args, **kwargs)
+
+
+def db_session(
+    func: Callable[..., Coroutine[Any, Any, None]],
+) -> Callable[..., Coroutine[Any, Any, None]]:
+    @wraps(func)
+    async def wrapper(update: Update, context: Context, **kwargs: Any) -> None:
+        async with context.db_session_maker() as db_session:
+            # TODO: swtich on dependency injection
+            # https://github.com/reagento/dishka/issues/450
+            context.db_session = db_session
+            return await func(update, context, **kwargs)
+
+    return wrapper

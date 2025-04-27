@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     VERSION: str = get_version()
     ENV: Env = Env.dev
     DEBUG: bool = False
+    DEBUG_SQL: bool = False
 
     # Required
     DATABASE_URL: SecretStr

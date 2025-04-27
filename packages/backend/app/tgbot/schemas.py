@@ -1,8 +1,10 @@
-from pydantic import BaseModel
+from typing import Annotated
+
+from pydantic import BaseModel, Field
 
 
 class UserTGData(BaseModel):
-    id: int
+    tg_id: Annotated[int, Field(alias="id")]
     username: str = ""
     first_name: str = ""
     last_name: str = ""

@@ -5,7 +5,9 @@ from typing import TypedDict
 from fastapi import FastAPI
 
 from app.conf import settings
-from app.tgbot.main import TGApp, start_tg_app
+from app.db import create_async_engine, create_session_maker
+from app.tgbot.app import TGApp
+from app.tgbot.main import start_tg_app
 
 
 class AppState(TypedDict):
@@ -14,8 +16,11 @@ class AppState(TypedDict):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[AppState, None]:
+    engine = create_async_engine(settings.DATABASE_URL, "app")
+    session_maker = create_session_maker(engine)
+
     try:
-        async with start_tg_app() as tg_app:
+        async with start_tg_app(session_maker) as tg_app:
             yield AppState(tg_app=tg_app)
     finally:
         ...
