@@ -78,7 +78,7 @@ export default function SignInForm({
           */}
         </div>
 
-        <button type="submit" className="btn btn-neutral w-full" disabled={isSubmitting}>
+        <button type="submit" className="btn btn-primary w-full" disabled={isSubmitting}>
           {isSubmitting ? "Signing In..." : "Sign In"}
         </button>
         {authProviders.length > 0 ? (
@@ -103,7 +103,7 @@ export default function SignInForm({
 
         <p className="text-sm text-center text-gray-600">
           Don&apos;t have an account?{" "}
-          <a href={urls.signUp} className="link link-primary">
+          <a href={urls.signUp} className="link">
             Sign up here
           </a>
         </p>

@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 type SignUpFormData = {
   email: string;
   password: string;
-  username: string;
   fullname: string;
 };
 
@@ -49,26 +48,6 @@ export default function SignUpForm({ urls, authProviders }: { urls: { signIn: st
             placeholder="Enter your email"
           />
           {errors.email && <span className="text-error text-sm">{errors.email.message}</span>}
-        </div>
-
-        <div className="space-y-1">
-          <label className="label" htmlFor="username">
-            Username
-          </label>
-          <input
-            className={`input w-full ${errors.username ? "input-error" : ""}`}
-            id="username"
-            type="text"
-            {...register("username", {
-              required: "Username is required",
-              pattern: {
-                value: /^[a-zA-Z0-9._-]{3,32}$/,
-                message: "Username must be 3-32 characters and can only contain letters, numbers, and ._-",
-              },
-            })}
-            placeholder="Choose a username"
-          />
-          {errors.username && <span className="text-error text-sm">{errors.username.message}</span>}
         </div>
 
         <div className="space-y-1">
@@ -115,7 +94,7 @@ export default function SignUpForm({ urls, authProviders }: { urls: { signIn: st
           {errors.password && <span className="text-error text-sm">{errors.password.message}</span>}
         </div>
 
-        <button type="submit" className="btn btn-neutral w-full" disabled={isSubmitting}>
+        <button type="submit" className="btn btn-primary w-full" disabled={isSubmitting}>
           {isSubmitting ? "Creating Account..." : "Create Account"}
         </button>
 
@@ -141,7 +120,7 @@ export default function SignUpForm({ urls, authProviders }: { urls: { signIn: st
 
         <p className="text-sm text-center text-gray-600">
           Already have an account?{" "}
-          <a href={urls.signIn} className="link link-primary">
+          <a href={urls.signIn} className="link">
             Sign in here
           </a>
         </p>
