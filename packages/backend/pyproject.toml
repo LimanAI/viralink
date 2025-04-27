@@ -21,12 +21,14 @@ sqlalchemy = {extras = ["asyncio"], version = "^2.0.40"}
 fastapi = "^0.115.12"
 asyncpg = "^0.30.0"
 structlog = "^25.2.0"
-pydantic = "^2.11.3"
+pydantic = {extras = ["email"], version = "^2.11.3"}
 pydantic-settings = "^2.9.1"
 uvicorn = {extras = ["standard"], version = "^0.34.2"}
 telethon = {extras = ["cryptg"], version = "^1.40.0"}
 sqlalchemy-utils = {extras = ["encrypted", "password"], version = "^0.41.2"}
 python-telegram-bot = "^22.0"
+dishka = "^1.5.3"
+authlib = "^1.5.2"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.15.0"
@@ -62,7 +64,7 @@ strict_equality = true
 exclude = ["^examples/"]
 
 [[tool.mypy.overrides]]
-module = ["sqlalchemy_utils.*", "telethon.*"]
+module = ["sqlalchemy_utils.*", "telethon.*", "authlib.*"]
 ignore_missing_imports = true
 
 [tool.ruff]

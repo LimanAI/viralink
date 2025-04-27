@@ -4,6 +4,7 @@ from typing import TypedDict
 
 from fastapi import FastAPI
 
+from app.auth.api import router as auth_router
 from app.conf import settings
 from app.db import create_async_engine, create_session_maker
 from app.tgbot.app import TGApp
@@ -30,6 +31,8 @@ app = FastAPI(
     version=settings.VERSION,
     lifespan=lifespan,
 )
+
+app.include_router(auth_router)
 
 
 @app.get("/")
