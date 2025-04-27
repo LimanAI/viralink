@@ -6,7 +6,12 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "format": "prettier --write **/*.ts",
+    "format:check": "prettier --check **/*.ts",
+    "ts": "tsc --noEmit",
+    "tsw": "tsc --noEmit --watch",
+    "test": "echo \"No tests specified\" && exit 0"
   },
   "dependencies": {
     "next": "15.3.1",

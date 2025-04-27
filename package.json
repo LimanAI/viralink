@@ -8,6 +8,11 @@
   "packageManager": "pnpm@9.15.3",
   "description": "AI SMM Agent",
   "scripts": {
+    "web:dev": "pnpm -F viralink_web dev",
+    "web:lint": "pnpm -F viralink_web lint",
+    "web:format:check": "pnpm -F viralink_web format:check",
+    "web:ts": "pnpm -F viralink_web ts",
+    "web:test": "pnpm -F viralink_web test",
     "backend:format": "cd packages/backend && task format",
     "backend:lint": "cd packages/backend && task lint",
     "backend:mypy": "cd packages/backend && task mypy",
