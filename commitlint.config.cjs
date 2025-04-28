@@ -51,6 +51,7 @@ const Configuration = {
         "web",
         "backend",
         "tgbot",
+        "sdk",
       ],
     ],
   },
