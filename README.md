@@ -10,6 +10,10 @@ AI SMM Agent
    ```bash
    pnpm install
    ```
+4. Generate OpenAPI SDK
+   ```bash
+   pnpm generate_openapi
+   ```
 
 ## Setup telegram
 

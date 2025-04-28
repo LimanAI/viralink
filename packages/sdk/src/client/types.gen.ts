@@ -21,7 +21,6 @@ export type SignInRequest = {
 export type SignUpRequest = {
   email: string;
   password: string;
-  username: string | null;
   fullname: string | null;
 };
 

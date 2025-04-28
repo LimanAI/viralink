@@ -17,7 +17,6 @@ class HTTPUnauthorizedError(BaseModel):
 class SignUpRequest(BaseModel):
     email: EmailStr
     password: str
-    username: str | None
     fullname: str | None
 
 

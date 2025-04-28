@@ -3,6 +3,9 @@ import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 
+import { api } from "@/api";
+import { setToken } from "@/utils/auth";
+
 type SignInFormData = {
   email: string;
   password: string;
@@ -16,14 +19,32 @@ export default function SignInForm({
   authProviders: string[];
 }) {
   const router = useRouter();
-  const [error] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const {
     handleSubmit,
     register,
     formState: { errors, isSubmitting },
   } = useForm<SignInFormData>();
 
-  const onSubmit = useCallback(async (data: SignInFormData) => {}, [router]);
+  const onSubmit = useCallback(
+    async (data: SignInFormData) => {
+      setError(null);
+      const { data: accessToken, response } = await api.auth.signin({ body: data, credentials: "include" });
+
+      if (!accessToken) {
+        if (response.status === 401) {
+          setError("Incorrect email or password");
+          return;
+        }
+        setError("Something went wrong");
+        return;
+      }
+
+      setToken(accessToken.token);
+      router.push("/chat");
+    },
+    [router],
+  );
 
   return (
     <div>

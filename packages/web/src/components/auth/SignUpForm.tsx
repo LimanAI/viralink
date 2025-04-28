@@ -3,6 +3,8 @@ import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 
+import { api } from "@/api";
+
 type SignUpFormData = {
   email: string;
   password: string;
@@ -11,14 +13,38 @@ type SignUpFormData = {
 
 export default function SignUpForm({ urls, authProviders }: { urls: { signIn: string }; authProviders: string[] }) {
   const router = useRouter();
-  const [error] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const {
     handleSubmit,
     register,
     formState: { errors, isSubmitting },
   } = useForm<SignUpFormData>();
 
-  const onSubmit = useCallback(async (data: SignUpFormData) => {}, [router, urls.signIn]);
+  const onSubmit = useCallback(
+    async (data: SignUpFormData) => {
+      try {
+        setError(null);
+        const { response } = await api.auth.signup({
+          body: data,
+        });
+
+        if (!response.ok) {
+          if (response.status === 409) {
+            setError("Email already registered");
+            return;
+          }
+          setError("Something went wrong");
+          return;
+        }
+
+        // Successful signup - redirect to signin
+        router.push(urls.signIn);
+      } catch {
+        setError("Network error. Please try again.");
+      }
+    },
+    [router, urls.signIn],
+  );
 
   return (
     <div>

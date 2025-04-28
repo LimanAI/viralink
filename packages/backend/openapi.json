@@ -268,17 +268,6 @@
                         "type": "string",
                         "title": "Password"
                     },
-                    "username": {
-                        "anyOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
-                        "title": "Username"
-                    },
                     "fullname": {
                         "anyOf": [
                             {
@@ -295,7 +284,6 @@
                 "required": [
                     "email",
                     "password",
-                    "username",
                     "fullname"
                 ],
                 "title": "SignUpRequest"

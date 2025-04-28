@@ -16,6 +16,9 @@
     "backend:format": "cd packages/backend && task format",
     "backend:lint": "cd packages/backend && task lint",
     "backend:mypy": "cd packages/backend && task mypy",
+    "backend:generate_openapi": "cd packages/backend && task generate_openapi",
+    "sdk:generate_openapi": "pnpm -F @viralink-ai/sdk generate_openapi && pnpm -F @viralink-ai/sdk build",
+    "generate_openapi": "pnpm backend:generate_openapi && pnpm sdk:generate_openapi",
     "prepare": "husky"
   },
   "keywords": [],
