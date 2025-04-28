@@ -44,6 +44,7 @@ class Settings(BaseSettings):
 
     # Optional
     TGBOT_POOLING: bool = True
+    CORS_ALLOW_ORIGINS: list[str] = []
 
     # JWT
     JWT: JWTSettings = JWTSettings()

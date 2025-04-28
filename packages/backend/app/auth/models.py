@@ -29,6 +29,10 @@ class UserModel(RecordModel):
     is_admin: Mapped[bool] = mapped_column(default=False, nullable=False)
     is_verified: Mapped[bool] = mapped_column(default=False, nullable=False)
 
+    sessions: Mapped[list["SessionModel"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
+
 
 class SessionModel(RecordModel):
     __tablename__ = "auth_sessions"
