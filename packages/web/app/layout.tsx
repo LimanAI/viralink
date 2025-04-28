@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Wallstr.chat: AI-Powered Equity Research",
-  description: "AI-Powered Document Analysis",
+  title: "ViraLink AI",
+  description: "AI SMM Agent",
 };
 
 export default async function RootLayout({
