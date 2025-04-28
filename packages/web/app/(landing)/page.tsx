@@ -247,6 +247,10 @@ export default function LandingPage() {
                     </div>
                   </motion.div>
                 </motion.div>
+
+                {/* Background decorations */}
+                <div className="absolute -bottom-10 -right-10 h-40 w-40 bg-primary opacity-20 rounded-full blur-md"></div>
+                <div className="absolute -z-10 -top-5 -left-5 h-40 w-40 bg-primary/60 opacity-20 rounded-full blur-md"></div>
               </div>
             </div>
           </div>
