@@ -15,7 +15,6 @@ import { RiRobot2Line } from "react-icons/ri";
 import { FiZap } from "react-icons/fi";
 import { PiTelegramLogo, PiXLogoBold, PiInstagramLogo } from "react-icons/pi";
 import { BiLogoTiktok } from "react-icons/bi";
-import Image from "next/image";
 
 import { Benefit } from "./_components/Benefit";
 import { Platforms, TPlatform } from "./_components/Platforms";
