@@ -15,7 +15,9 @@
   },
   "dependencies": {
     "@hey-api/client-fetch": "^0.10.0",
+    "@hookform/resolvers": "^5.0.1",
     "@viralink-ai/sdk": "workspace:*",
+    "clsx": "^2.1.1",
     "framer-motion": "^12.9.2",
     "next": "15.3.1",
     "next-themes": "^0.4.6",

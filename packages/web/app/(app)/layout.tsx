@@ -27,7 +27,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header isAdmin={usePathname() === "/admin"} className="border-b border-gray-200" />
+      <Header isAdmin={usePathname().startsWith("/admin")} className="border-b border-gray-200" />
 
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
@@ -39,13 +39,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   <button
                     onClick={() => router.push(item.href)}
                     className={`relative w-full flex items-center cursor-pointer ${
-                      usePathname() === item.href ? "bg-primary/10 text-primary font-medium" : "hover:bg-gray-50"
+                      usePathname().startsWith(item.href)
+                        ? "bg-primary/10 text-primary font-medium"
+                        : "hover:bg-gray-50"
                     } rounded-lg p-3 transition-colors group`}
                   >
                     <div className="flex items-center w-full">
                       <div
                         className={`${
-                          usePathname() === item.href ? "text-primary" : "text-gray-500 group-hover:text-primary"
+                          usePathname().startsWith(item.href)
+                            ? "text-primary"
+                            : "text-gray-500 group-hover:text-primary"
                         }`}
                       >
                         {item.icon}
