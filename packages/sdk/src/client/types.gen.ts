@@ -5,6 +5,17 @@ export type AccessToken = {
   token_type?: string;
 };
 
+export type CodeRequest = {
+  phone_number: string;
+  api_id: number;
+};
+
+export type CreateAccountRequest = {
+  phone_number: string;
+  api_id: number;
+  api_hash: string;
+};
+
 export type HttpUnauthorizedError = {
   detail: string;
 };
@@ -13,16 +24,18 @@ export type HttpValidationError = {
   detail?: Array<ValidationError>;
 };
 
-export type SignInRequest = {
-  email: string;
-  password: string;
-};
-
 export type SignUpRequest = {
   email: string;
   password: string;
   fullname: string | null;
 };
+
+export type TgAccount = {
+  id: string;
+  status: TgAccountStatus;
+};
+
+export type TgAccountStatus = "initial" | "sent_code" | "active" | "disabled";
 
 export type User = {
   id: string;
@@ -37,39 +50,50 @@ export type ValidationError = {
   type: string;
 };
 
-export type SignupData = {
+export type AppAuthSchemasSignInRequest = {
+  email: string;
+  password: string;
+};
+
+export type AppTgbotAccountsSchemasSignInRequest = {
+  api_id: number;
+  code: number;
+  password?: string | null;
+};
+
+export type AuthSignupData = {
   body: SignUpRequest;
   path?: never;
   query?: never;
   url: "/auth/signup";
 };
 
-export type SignupErrors = {
+export type AuthSignupErrors = {
   /**
    * Validation Error
    */
   422: HttpValidationError;
 };
 
-export type SignupError = SignupErrors[keyof SignupErrors];
+export type AuthSignupError = AuthSignupErrors[keyof AuthSignupErrors];
 
-export type SignupResponses = {
+export type AuthSignupResponses = {
   /**
    * Successful Response
    */
   201: User;
 };
 
-export type SignupResponse = SignupResponses[keyof SignupResponses];
+export type AuthSignupResponse = AuthSignupResponses[keyof AuthSignupResponses];
 
-export type SigninData = {
-  body: SignInRequest;
+export type AuthSigninData = {
+  body: AppAuthSchemasSignInRequest;
   path?: never;
   query?: never;
   url: "/auth/signin";
 };
 
-export type SigninErrors = {
+export type AuthSigninErrors = {
   /**
    * Unauthorized
    */
@@ -80,66 +104,160 @@ export type SigninErrors = {
   422: HttpValidationError;
 };
 
-export type SigninError = SigninErrors[keyof SigninErrors];
+export type AuthSigninError = AuthSigninErrors[keyof AuthSigninErrors];
 
-export type SigninResponses = {
+export type AuthSigninResponses = {
   /**
    * Successful Response
    */
   200: AccessToken;
 };
 
-export type SigninResponse = SigninResponses[keyof SigninResponses];
+export type AuthSigninResponse = AuthSigninResponses[keyof AuthSigninResponses];
 
-export type RefreshTokenData = {
+export type AuthRefreshTokenData = {
   body?: never;
   path?: never;
   query?: never;
   url: "/auth/refresh-token";
 };
 
-export type RefreshTokenResponses = {
+export type AuthRefreshTokenResponses = {
   /**
    * Successful Response
    */
   200: AccessToken;
 };
 
-export type RefreshTokenResponse =
-  RefreshTokenResponses[keyof RefreshTokenResponses];
+export type AuthRefreshTokenResponse =
+  AuthRefreshTokenResponses[keyof AuthRefreshTokenResponses];
 
-export type SignoutData = {
+export type AuthSignoutData = {
   body?: never;
   path?: never;
   query?: never;
   url: "/auth/signout";
 };
 
-export type SignoutResponses = {
+export type AuthSignoutResponses = {
   /**
    * Successful Response
    */
   204: void;
 };
 
-export type SignoutResponse = SignoutResponses[keyof SignoutResponses];
+export type AuthSignoutResponse =
+  AuthSignoutResponses[keyof AuthSignoutResponses];
 
-export type GetCurrentUserData = {
+export type AuthGetCurrentUserData = {
   body?: never;
   path?: never;
   query?: never;
   url: "/auth/me";
 };
 
-export type GetCurrentUserResponses = {
+export type AuthGetCurrentUserResponses = {
   /**
    * Successful Response
    */
   200: User;
 };
 
-export type GetCurrentUserResponse =
-  GetCurrentUserResponses[keyof GetCurrentUserResponses];
+export type AuthGetCurrentUserResponse =
+  AuthGetCurrentUserResponses[keyof AuthGetCurrentUserResponses];
+
+export type TgbotAccountsCreateData = {
+  body: CreateAccountRequest;
+  path?: never;
+  query?: never;
+  url: "/tgbot/accounts/";
+};
+
+export type TgbotAccountsCreateErrors = {
+  /**
+   * Bad Request
+   */
+  400: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type TgbotAccountsCreateError =
+  TgbotAccountsCreateErrors[keyof TgbotAccountsCreateErrors];
+
+export type TgbotAccountsCreateResponses = {
+  /**
+   * Successful Response
+   */
+  201: TgAccount;
+};
+
+export type TgbotAccountsCreateResponse =
+  TgbotAccountsCreateResponses[keyof TgbotAccountsCreateResponses];
+
+export type TgbotAccountsSendCodeData = {
+  body: CodeRequest;
+  path?: never;
+  query?: never;
+  url: "/tgbot/accounts/send-code";
+};
+
+export type TgbotAccountsSendCodeErrors = {
+  /**
+   * Account not found
+   */
+  404: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type TgbotAccountsSendCodeError =
+  TgbotAccountsSendCodeErrors[keyof TgbotAccountsSendCodeErrors];
+
+export type TgbotAccountsSendCodeResponses = {
+  /**
+   * Successful Response
+   */
+  200: TgAccount;
+};
+
+export type TgbotAccountsSendCodeResponse =
+  TgbotAccountsSendCodeResponses[keyof TgbotAccountsSendCodeResponses];
+
+export type TgbotAccountsSigninData = {
+  body: AppTgbotAccountsSchemasSignInRequest;
+  path?: never;
+  query?: never;
+  url: "/tgbot/accounts/signin";
+};
+
+export type TgbotAccountsSigninErrors = {
+  /**
+   * Account not found
+   */
+  404: unknown;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type TgbotAccountsSigninError =
+  TgbotAccountsSigninErrors[keyof TgbotAccountsSigninErrors];
+
+export type TgbotAccountsSigninResponses = {
+  /**
+   * Successful Response
+   */
+  200: TgAccount;
+};
+
+export type TgbotAccountsSigninResponse =
+  TgbotAccountsSigninResponses[keyof TgbotAccountsSigninResponses];
 
 export type RootData = {
   body?: never;

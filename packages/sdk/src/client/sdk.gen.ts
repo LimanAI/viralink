@@ -6,18 +6,27 @@ import type {
   Client,
 } from "@hey-api/client-fetch";
 import type {
-  SignupData,
-  SignupResponse,
-  SignupError,
-  SigninData,
-  SigninResponse,
-  SigninError,
-  RefreshTokenData,
-  RefreshTokenResponse,
-  SignoutData,
-  SignoutResponse,
-  GetCurrentUserData,
-  GetCurrentUserResponse,
+  AuthSignupData,
+  AuthSignupResponse,
+  AuthSignupError,
+  AuthSigninData,
+  AuthSigninResponse,
+  AuthSigninError,
+  AuthRefreshTokenData,
+  AuthRefreshTokenResponse,
+  AuthSignoutData,
+  AuthSignoutResponse,
+  AuthGetCurrentUserData,
+  AuthGetCurrentUserResponse,
+  TgbotAccountsCreateData,
+  TgbotAccountsCreateResponse,
+  TgbotAccountsCreateError,
+  TgbotAccountsSendCodeData,
+  TgbotAccountsSendCodeResponse,
+  TgbotAccountsSendCodeError,
+  TgbotAccountsSigninData,
+  TgbotAccountsSigninResponse,
+  TgbotAccountsSigninError,
   RootData,
   RootResponse,
 } from "./types.gen";
@@ -40,128 +49,184 @@ export type Options<
   meta?: Record<string, unknown>;
 };
 
-export class AuthService {
-  /**
-   * Signup
-   */
-  public static signup<ThrowOnError extends boolean = false>(
-    options: Options<SignupData, ThrowOnError>,
-  ) {
-    return (options.client ?? _heyApiClient).post<
-      SignupResponse,
-      SignupError,
-      ThrowOnError
-    >({
-      url: "/auth/signup",
-      ...options,
-      headers: {
-        "Content-Type": "application/json",
-        ...options?.headers,
+/**
+ * Signup
+ */
+export const authSignup = <ThrowOnError extends boolean = false>(
+  options: Options<AuthSignupData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    AuthSignupResponse,
+    AuthSignupError,
+    ThrowOnError
+  >({
+    url: "/auth/signup",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * Signin
+ */
+export const authSignin = <ThrowOnError extends boolean = false>(
+  options: Options<AuthSigninData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    AuthSigninResponse,
+    AuthSigninError,
+    ThrowOnError
+  >({
+    url: "/auth/signin",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * Refresh Token
+ */
+export const authRefreshToken = <ThrowOnError extends boolean = false>(
+  options?: Options<AuthRefreshTokenData, ThrowOnError>,
+) => {
+  return (options?.client ?? _heyApiClient).post<
+    AuthRefreshTokenResponse,
+    unknown,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
       },
-    });
-  }
+    ],
+    url: "/auth/refresh-token",
+    ...options,
+  });
+};
 
-  /**
-   * Signin
-   */
-  public static signin<ThrowOnError extends boolean = false>(
-    options: Options<SigninData, ThrowOnError>,
-  ) {
-    return (options.client ?? _heyApiClient).post<
-      SigninResponse,
-      SigninError,
-      ThrowOnError
-    >({
-      url: "/auth/signin",
-      ...options,
-      headers: {
-        "Content-Type": "application/json",
-        ...options?.headers,
+/**
+ * Signout
+ */
+export const authSignout = <ThrowOnError extends boolean = false>(
+  options?: Options<AuthSignoutData, ThrowOnError>,
+) => {
+  return (options?.client ?? _heyApiClient).post<
+    AuthSignoutResponse,
+    unknown,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
       },
-    });
-  }
+    ],
+    url: "/auth/signout",
+    ...options,
+  });
+};
 
-  /**
-   * Refresh Token
-   */
-  public static refreshToken<ThrowOnError extends boolean = false>(
-    options?: Options<RefreshTokenData, ThrowOnError>,
-  ) {
-    return (options?.client ?? _heyApiClient).post<
-      RefreshTokenResponse,
-      unknown,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: "bearer",
-          type: "http",
-        },
-      ],
-      url: "/auth/refresh-token",
-      ...options,
-    });
-  }
+/**
+ * Get Current User
+ */
+export const authGetCurrentUser = <ThrowOnError extends boolean = false>(
+  options?: Options<AuthGetCurrentUserData, ThrowOnError>,
+) => {
+  return (options?.client ?? _heyApiClient).get<
+    AuthGetCurrentUserResponse,
+    unknown,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/auth/me",
+    ...options,
+  });
+};
 
-  /**
-   * Signout
-   */
-  public static signout<ThrowOnError extends boolean = false>(
-    options?: Options<SignoutData, ThrowOnError>,
-  ) {
-    return (options?.client ?? _heyApiClient).post<
-      SignoutResponse,
-      unknown,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: "bearer",
-          type: "http",
-        },
-      ],
-      url: "/auth/signout",
-      ...options,
-    });
-  }
+/**
+ * Create
+ */
+export const tgbotAccountsCreate = <ThrowOnError extends boolean = false>(
+  options: Options<TgbotAccountsCreateData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    TgbotAccountsCreateResponse,
+    TgbotAccountsCreateError,
+    ThrowOnError
+  >({
+    url: "/tgbot/accounts/",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  });
+};
 
-  /**
-   * Get Current User
-   */
-  public static getCurrentUser<ThrowOnError extends boolean = false>(
-    options?: Options<GetCurrentUserData, ThrowOnError>,
-  ) {
-    return (options?.client ?? _heyApiClient).get<
-      GetCurrentUserResponse,
-      unknown,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: "bearer",
-          type: "http",
-        },
-      ],
-      url: "/auth/me",
-      ...options,
-    });
-  }
-}
+/**
+ * Send Code
+ */
+export const tgbotAccountsSendCode = <ThrowOnError extends boolean = false>(
+  options: Options<TgbotAccountsSendCodeData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    TgbotAccountsSendCodeResponse,
+    TgbotAccountsSendCodeError,
+    ThrowOnError
+  >({
+    url: "/tgbot/accounts/send-code",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  });
+};
 
-export class DefaultService {
-  /**
-   * Root
-   */
-  public static root<ThrowOnError extends boolean = false>(
-    options?: Options<RootData, ThrowOnError>,
-  ) {
-    return (options?.client ?? _heyApiClient).get<
-      RootResponse,
-      unknown,
-      ThrowOnError
-    >({
-      url: "/",
-      ...options,
-    });
-  }
-}
+/**
+ * Signin
+ */
+export const tgbotAccountsSignin = <ThrowOnError extends boolean = false>(
+  options: Options<TgbotAccountsSigninData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    TgbotAccountsSigninResponse,
+    TgbotAccountsSigninError,
+    ThrowOnError
+  >({
+    url: "/tgbot/accounts/signin",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * Root
+ */
+export const root = <ThrowOnError extends boolean = false>(
+  options?: Options<RootData, ThrowOnError>,
+) => {
+  return (options?.client ?? _heyApiClient).get<
+    RootResponse,
+    unknown,
+    ThrowOnError
+  >({
+    url: "/",
+    ...options,
+  });
+};

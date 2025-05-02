@@ -5,7 +5,7 @@ import { settings } from "@/conf";
 import { decodeJwt, getToken, needsToRefreshToken, setToken } from "@/utils/auth";
 import { UnauthenticatedError } from "@/utils/errors";
 
-import { AuthService, client } from "@viralink-ai/sdk";
+import { client } from "@viralink-ai/sdk";
 
 const tokenResponseSchema = z.object({
   token: z.string(),
@@ -84,9 +84,4 @@ export const requestAuthInterceptor = async (request: Request, options: Options)
 
 client.interceptors.request.use(requestAuthInterceptor);
 
-class API {
-  public readonly client = client;
-  public readonly auth = AuthService;
-}
-
-export const api = new API();
+export * from "@viralink-ai/sdk";

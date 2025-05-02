@@ -3,7 +3,7 @@ import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 
-import { api } from "@/api";
+import { authSignup } from "@/api";
 
 type SignUpFormData = {
   email: string;
@@ -24,7 +24,7 @@ export default function SignUpForm({ urls, authProviders }: { urls: { signIn: st
     async (data: SignUpFormData) => {
       try {
         setError(null);
-        const { response } = await api.auth.signup({
+        const { response } = await authSignup({
           body: data,
         });
 

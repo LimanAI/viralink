@@ -12,7 +12,7 @@
                     "auth"
                 ],
                 "summary": "Signup",
-                "operationId": "1::signup",
+                "operationId": "auth::signup",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -53,12 +53,12 @@
                     "auth"
                 ],
                 "summary": "Signin",
-                "operationId": "1::signin",
+                "operationId": "auth::signin",
                 "requestBody": {
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/SignInRequest"
+                                "$ref": "#/components/schemas/app__auth__schemas__SignInRequest"
                             }
                         }
                     },
@@ -104,7 +104,7 @@
                     "auth"
                 ],
                 "summary": "Refresh Token",
-                "operationId": "1::refresh_token",
+                "operationId": "auth::refresh_token",
                 "responses": {
                     "200": {
                         "description": "Successful Response",
@@ -130,7 +130,7 @@
                     "auth"
                 ],
                 "summary": "Signout",
-                "operationId": "1::signout",
+                "operationId": "auth::signout",
                 "responses": {
                     "204": {
                         "description": "Successful Response"
@@ -149,7 +149,7 @@
                     "auth"
                 ],
                 "summary": "Get Current User",
-                "operationId": "1::get_current_user",
+                "operationId": "auth::get_current_user",
                 "responses": {
                     "200": {
                         "description": "Successful Response",
@@ -167,6 +167,141 @@
                         "HTTPBearer": []
                     }
                 ]
+            }
+        },
+        "/tgbot/accounts/": {
+            "post": {
+                "tags": [
+                    "tgbot",
+                    "tgbot_accounts"
+                ],
+                "summary": "Create",
+                "operationId": "tgbot::accounts::create",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateAccountRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TGAccount"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/tgbot/accounts/send-code": {
+            "post": {
+                "tags": [
+                    "tgbot",
+                    "tgbot_accounts"
+                ],
+                "summary": "Send Code",
+                "operationId": "tgbot::accounts::send_code",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CodeRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TGAccount"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Account not found"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/tgbot/accounts/signin": {
+            "post": {
+                "tags": [
+                    "tgbot",
+                    "tgbot_accounts"
+                ],
+                "summary": "Signin",
+                "operationId": "tgbot::accounts::signin",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/app__tgbot__accounts__schemas__SignInRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TGAccount"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Account not found"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/": {
@@ -212,6 +347,47 @@
                 ],
                 "title": "AccessToken"
             },
+            "CodeRequest": {
+                "properties": {
+                    "phone_number": {
+                        "type": "string",
+                        "title": "Phone Number"
+                    },
+                    "api_id": {
+                        "type": "integer",
+                        "title": "Api Id"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "phone_number",
+                    "api_id"
+                ],
+                "title": "CodeRequest"
+            },
+            "CreateAccountRequest": {
+                "properties": {
+                    "phone_number": {
+                        "type": "string",
+                        "title": "Phone Number"
+                    },
+                    "api_id": {
+                        "type": "integer",
+                        "title": "Api Id"
+                    },
+                    "api_hash": {
+                        "type": "string",
+                        "title": "Api Hash"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "phone_number",
+                    "api_id",
+                    "api_hash"
+                ],
+                "title": "CreateAccountRequest"
+            },
             "HTTPUnauthorizedError": {
                 "properties": {
                     "detail": {
@@ -237,25 +413,6 @@
                 },
                 "type": "object",
                 "title": "HTTPValidationError"
-            },
-            "SignInRequest": {
-                "properties": {
-                    "email": {
-                        "type": "string",
-                        "format": "email",
-                        "title": "Email"
-                    },
-                    "password": {
-                        "type": "string",
-                        "title": "Password"
-                    }
-                },
-                "type": "object",
-                "required": [
-                    "email",
-                    "password"
-                ],
-                "title": "SignInRequest"
             },
             "SignUpRequest": {
                 "properties": {
@@ -287,6 +444,34 @@
                     "fullname"
                 ],
                 "title": "SignUpRequest"
+            },
+            "TGAccount": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/TGAccountStatus"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "status"
+                ],
+                "title": "TGAccount"
+            },
+            "TGAccountStatus": {
+                "type": "string",
+                "enum": [
+                    "initial",
+                    "sent_code",
+                    "active",
+                    "disabled"
+                ],
+                "title": "TGAccountStatus"
             },
             "User": {
                 "properties": {
@@ -350,6 +535,54 @@
                     "type"
                 ],
                 "title": "ValidationError"
+            },
+            "app__auth__schemas__SignInRequest": {
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "title": "Email"
+                    },
+                    "password": {
+                        "type": "string",
+                        "title": "Password"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "email",
+                    "password"
+                ],
+                "title": "SignInRequest"
+            },
+            "app__tgbot__accounts__schemas__SignInRequest": {
+                "properties": {
+                    "api_id": {
+                        "type": "integer",
+                        "title": "Api Id"
+                    },
+                    "code": {
+                        "type": "integer",
+                        "title": "Code"
+                    },
+                    "password": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Password"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "api_id",
+                    "code"
+                ],
+                "title": "SignInRequest"
             }
         },
         "securitySchemes": {

@@ -24,7 +24,9 @@ def configure_openapi(app: FastAPI) -> dict[str, Any]:
     return app.openapi_schema
 
 
-def generate_unique_id_function(prefix: int | None = None) -> Callable[[APIRoute], str]:
+def generate_unique_id_function(
+    prefix: str | int | None = None,
+) -> Callable[[APIRoute], str]:
     def _generate_unique_id_function(route: APIRoute) -> str:
         if not prefix:
             return route.name

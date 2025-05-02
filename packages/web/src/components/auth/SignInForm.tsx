@@ -3,7 +3,7 @@ import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 
-import { api } from "@/api";
+import { authSignin } from "@/api";
 import { setToken } from "@/utils/auth";
 
 type SignInFormData = {
@@ -15,7 +15,7 @@ export default function SignInForm({
   urls,
   authProviders,
 }: {
-  urls: { forgotPassword: string; signUp: string };
+  urls: { home: string; forgotPassword: string; signUp: string };
   authProviders: string[];
 }) {
   const router = useRouter();
@@ -29,7 +29,7 @@ export default function SignInForm({
   const onSubmit = useCallback(
     async (data: SignInFormData) => {
       setError(null);
-      const { data: accessToken, response } = await api.auth.signin({ body: data, credentials: "include" });
+      const { data: accessToken, response } = await authSignin({ body: data, credentials: "include" });
 
       if (!accessToken) {
         if (response.status === 401) {
@@ -41,7 +41,7 @@ export default function SignInForm({
       }
 
       setToken(accessToken.token);
-      router.push("/chat");
+      router.push(urls.home);
     },
     [router],
   );

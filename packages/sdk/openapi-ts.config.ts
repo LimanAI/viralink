@@ -2,7 +2,7 @@ import { defineConfig } from "@hey-api/openapi-ts";
 import { defaultPlugins } from "@hey-api/openapi-ts";
 
 export default defineConfig({
-  input: "../backend/openapi.json",
+  input: "./openapi.json",
   output: {
     path: "src/client/",
     format: "prettier",
@@ -13,7 +13,7 @@ export default defineConfig({
     ...defaultPlugins,
     {
       name: "@hey-api/sdk",
-      asClass: true,
+      asClass: false,
       operationId: true,
     },
   ],
