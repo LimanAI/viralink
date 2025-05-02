@@ -20,7 +20,7 @@ from app.openapi import generate_unique_id_function
 router = APIRouter(
     prefix="/auth",
     tags=["auth"],
-    generate_unique_id_function=generate_unique_id_function(1),
+    generate_unique_id_function=generate_unique_id_function("auth"),
 )
 
 logger = structlog.get_logger()
