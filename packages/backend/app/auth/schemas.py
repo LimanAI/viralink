@@ -7,11 +7,11 @@ from authlib.jose.errors import BadSignatureError, DecodeError
 from pydantic import BaseModel, ConfigDict, EmailStr
 
 from app.conf import settings
+from app.core.http_errors import HTTPError
 from app.models.base import utc_now
 
 
-class HTTPUnauthorizedError(BaseModel):
-    detail: str
+class HTTPUnauthorizedError(HTTPError): ...
 
 
 class SignUpRequest(BaseModel):

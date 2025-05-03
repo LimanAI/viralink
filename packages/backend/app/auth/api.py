@@ -15,6 +15,7 @@ from app.auth.schemas import (
 from app.auth.services import AuthService, UserService
 from app.auth.utils import generate_jwt
 from app.conf import settings
+from app.core.http_errors import HTTPError
 from app.openapi import generate_unique_id_function
 
 router = APIRouter(
@@ -30,6 +31,7 @@ logger = structlog.get_logger()
     "/signup",
     response_model=User,
     status_code=status.HTTP_201_CREATED,
+    responses={409: {"model": HTTPError}},
 )
 async def signup(
     data: SignUpRequest,
