@@ -40,6 +40,7 @@ class Settings(BaseSettings):
     # Required
     SECRET_KEY: SecretStr
     DATABASE_URL: SecretStr
+    REDIS_URL: SecretStr
     TGBOT_TOKEN: SecretStr
 
     # Optional

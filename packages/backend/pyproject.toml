@@ -8,6 +8,7 @@ readme = "README.md"
 
 [tool.taskipy.tasks]
 dev = "uvicorn app.server:app --reload --reload-include .env"
+worker = "watchfiles --filter python 'arq app.worker.WorkerSettings'"
 lint = "ruff format --check . && ruff check --diff"
 format = "ruff format"
 mypy = "mypy ."
@@ -30,6 +31,7 @@ sqlalchemy-utils = {extras = ["encrypted", "password"], version = "^0.41.2"}
 python-telegram-bot = "^22.0"
 dishka = "^1.5.3"
 authlib = "^1.5.2"
+arq = {extras = ["watch"], version = "^0.26.3"}
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.15.0"
