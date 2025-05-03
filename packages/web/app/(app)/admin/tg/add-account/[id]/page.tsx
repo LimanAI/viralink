@@ -6,9 +6,9 @@ import { useParams, useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { tgbotAccountsGet, tgbotAccountsSignin } from "@/api";
+import { tgAccountsGet, tgAccountsSignin } from "@/api";
 
 const formSchema = z.object({
   password: z.string().optional(),
@@ -19,6 +19,7 @@ type formData = z.infer<typeof formSchema>;
 
 export default function AddAccountPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { id } = useParams<{ id: string }>();
   const [error, setError] = useState<string | null>(null);
 
@@ -31,7 +32,7 @@ export default function AddAccountPage() {
     queryKey: ["/admin/tg/accounts", id],
     retry: false,
     queryFn: async () => {
-      const { data } = await tgbotAccountsGet({
+      const { data } = await tgAccountsGet({
         path: { account_id: id },
         throwOnError: true,
       });
@@ -49,7 +50,7 @@ export default function AddAccountPage() {
 
   const onSubmit = useCallback(
     async (formData: formData) => {
-      const { error } = await tgbotAccountsSignin({
+      const { data: tgAccountData, error } = await tgAccountsSignin({
         body: {
           account_id: id,
           code: parseInt(formData.code),
@@ -59,7 +60,9 @@ export default function AddAccountPage() {
 
       if (error) {
         setError("An error occurred");
+        return;
       }
+      queryClient.setQueryData(["/admin/tg/accounts", id], tgAccountData);
     },
     [id, accountData],
   );

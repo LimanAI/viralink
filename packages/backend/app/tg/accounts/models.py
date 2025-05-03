@@ -18,7 +18,7 @@ class TGAccountStatus(str, enum.Enum):
 
 
 class TGAccountModel(RecordModel):
-    __tablename__ = "tgbot_tg_accounts"
+    __tablename__ = "tg_accounts"
 
     phone_number: Mapped[str] = string_column(32)
     api_id: Mapped[int] = mapped_column(

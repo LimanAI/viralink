@@ -9,6 +9,7 @@ from app.auth.api import router as auth_router
 from app.conf import settings
 from app.db import AsyncSessionMaker, create_async_engine, create_session_maker
 from app.openapi import configure_openapi, generate_unique_id_function
+from app.tg.api import router as tg_router
 from app.tgbot.api import router as tgbot_router
 from app.tgbot.app import TGApp
 from app.tgbot.main import start_tg_app
@@ -45,6 +46,7 @@ app.add_middleware(
 )
 
 app.include_router(auth_router)
+app.include_router(tg_router)
 app.include_router(tgbot_router)
 
 

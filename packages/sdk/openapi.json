@@ -179,14 +179,14 @@
                 ]
             }
         },
-        "/tgbot/accounts/": {
+        "/tg/accounts/": {
             "get": {
                 "tags": [
-                    "tgbot",
-                    "tgbot_accounts"
+                    "tg",
+                    "tg_accounts"
                 ],
-                "summary": "List",
-                "operationId": "tgbot::accounts::list",
+                "summary": "List Accounts",
+                "operationId": "tg::accounts::list",
                 "responses": {
                     "200": {
                         "description": "Successful Response",
@@ -197,7 +197,7 @@
                                         "$ref": "#/components/schemas/TGAccount"
                                     },
                                     "type": "array",
-                                    "title": "Response Tgbot::Accounts::List"
+                                    "title": "Response Tg::Accounts::List"
                                 }
                             }
                         }
@@ -206,11 +206,11 @@
             },
             "post": {
                 "tags": [
-                    "tgbot",
-                    "tgbot_accounts"
+                    "tg",
+                    "tg_accounts"
                 ],
                 "summary": "Create",
-                "operationId": "tgbot::accounts::create",
+                "operationId": "tg::accounts::create",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -255,14 +255,14 @@
                 }
             }
         },
-        "/tgbot/accounts/send-code": {
+        "/tg/accounts/send-code": {
             "post": {
                 "tags": [
-                    "tgbot",
-                    "tgbot_accounts"
+                    "tg",
+                    "tg_accounts"
                 ],
                 "summary": "Send Code",
-                "operationId": "tgbot::accounts::send_code",
+                "operationId": "tg::accounts::send_code",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -307,19 +307,19 @@
                 }
             }
         },
-        "/tgbot/accounts/signin": {
+        "/tg/accounts/signin": {
             "post": {
                 "tags": [
-                    "tgbot",
-                    "tgbot_accounts"
+                    "tg",
+                    "tg_accounts"
                 ],
                 "summary": "Signin",
-                "operationId": "tgbot::accounts::signin",
+                "operationId": "tg::accounts::signin",
                 "requestBody": {
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/app__tgbot__accounts__schemas__SignInRequest"
+                                "$ref": "#/components/schemas/app__tg__accounts__schemas__SignInRequest"
                             }
                         }
                     },
@@ -369,14 +369,14 @@
                 }
             }
         },
-        "/tgbot/accounts/{account_id}": {
+        "/tg/accounts/{account_id}": {
             "get": {
                 "tags": [
-                    "tgbot",
-                    "tgbot_accounts"
+                    "tg",
+                    "tg_accounts"
                 ],
                 "summary": "Get",
-                "operationId": "tgbot::accounts::get",
+                "operationId": "tg::accounts::get",
                 "parameters": [
                     {
                         "name": "account_id",
@@ -698,7 +698,7 @@
                 ],
                 "title": "SignInRequest"
             },
-            "app__tgbot__accounts__schemas__SignInRequest": {
+            "app__tg__accounts__schemas__SignInRequest": {
                 "properties": {
                     "account_id": {
                         "type": "string",

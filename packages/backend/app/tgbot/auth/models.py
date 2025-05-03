@@ -20,7 +20,9 @@ class TGUserModel(RecordModel):
     is_bot: Mapped[bool] = mapped_column(nullable=False, default=False)
     is_blocked: Mapped[bool] = mapped_column(nullable=False, default=False)
 
-    user = mapped_column(PostgresUUID, ForeignKey("auth_users.id"), nullable=False)
+    user = mapped_column(
+        PostgresUUID, ForeignKey("auth_users.id"), nullable=True, index=True
+    )
 
     def get_diff(self, user_data: UserTGData) -> dict[str, str | bool]:
         """

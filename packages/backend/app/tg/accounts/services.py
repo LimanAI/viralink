@@ -3,8 +3,8 @@ from uuid import UUID
 from sqlalchemy import sql
 
 from app.services import BaseService
-from app.tgbot.accounts.models import TGAccountModel, TGAccountStatus
-from app.tgbot.accounts.schemas import CreateAccountRequest
+from app.tg.accounts.models import TGAccountModel, TGAccountStatus
+from app.tg.accounts.schemas import CreateAccountRequest
 
 
 class TGAccountService(BaseService):

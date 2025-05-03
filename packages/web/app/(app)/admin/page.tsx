@@ -5,14 +5,14 @@ import { PiTelegramLogo } from "react-icons/pi";
 import { useQuery } from "@tanstack/react-query";
 import TGAccount from "./tg/_components/TGAccount";
 
-import { tgbotAccountsList } from "@/api";
+import { tgAccountsList } from "@/api";
 
 export default function Admin() {
   const { isError, data, error } = useQuery({
     queryKey: ["/admin/tg/accounts"],
     retry: false,
     queryFn: async () => {
-      const { data } = await tgbotAccountsList({
+      const { data } = await tgAccountsList({
         throwOnError: true,
       });
       return data;

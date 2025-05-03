@@ -1,9 +1,7 @@
-from dishka import FromDishka
 from telegram import Update
 from telegram.constants import ParseMode
 from telegram.ext import CommandHandler
 
-from app.auth.models import UserModel
 from app.tgbot.context import Context
 from app.tgbot.decorators import db_session
 from app.tgbot.utils import extract_user_data

@@ -18,20 +18,20 @@ import type {
   AuthSignoutResponse,
   AuthGetCurrentUserData,
   AuthGetCurrentUserResponse,
-  TgbotAccountsListData,
-  TgbotAccountsListResponse,
-  TgbotAccountsCreateData,
-  TgbotAccountsCreateResponse,
-  TgbotAccountsCreateError,
-  TgbotAccountsSendCodeData,
-  TgbotAccountsSendCodeResponse,
-  TgbotAccountsSendCodeError,
-  TgbotAccountsSigninData,
-  TgbotAccountsSigninResponse,
-  TgbotAccountsSigninError,
-  TgbotAccountsGetData,
-  TgbotAccountsGetResponse,
-  TgbotAccountsGetError,
+  TgAccountsListData,
+  TgAccountsListResponse,
+  TgAccountsCreateData,
+  TgAccountsCreateResponse,
+  TgAccountsCreateError,
+  TgAccountsSendCodeData,
+  TgAccountsSendCodeResponse,
+  TgAccountsSendCodeError,
+  TgAccountsSigninData,
+  TgAccountsSigninResponse,
+  TgAccountsSigninError,
+  TgAccountsGetData,
+  TgAccountsGetResponse,
+  TgAccountsGetError,
   RootData,
   RootResponse,
 } from "./types.gen";
@@ -161,17 +161,17 @@ export const authGetCurrentUser = <ThrowOnError extends boolean = false>(
 };
 
 /**
- * List
+ * List Accounts
  */
-export const tgbotAccountsList = <ThrowOnError extends boolean = false>(
-  options?: Options<TgbotAccountsListData, ThrowOnError>,
+export const tgAccountsList = <ThrowOnError extends boolean = false>(
+  options?: Options<TgAccountsListData, ThrowOnError>,
 ) => {
   return (options?.client ?? _heyApiClient).get<
-    TgbotAccountsListResponse,
+    TgAccountsListResponse,
     unknown,
     ThrowOnError
   >({
-    url: "/tgbot/accounts/",
+    url: "/tg/accounts/",
     ...options,
   });
 };
@@ -179,15 +179,15 @@ export const tgbotAccountsList = <ThrowOnError extends boolean = false>(
 /**
  * Create
  */
-export const tgbotAccountsCreate = <ThrowOnError extends boolean = false>(
-  options: Options<TgbotAccountsCreateData, ThrowOnError>,
+export const tgAccountsCreate = <ThrowOnError extends boolean = false>(
+  options: Options<TgAccountsCreateData, ThrowOnError>,
 ) => {
   return (options.client ?? _heyApiClient).post<
-    TgbotAccountsCreateResponse,
-    TgbotAccountsCreateError,
+    TgAccountsCreateResponse,
+    TgAccountsCreateError,
     ThrowOnError
   >({
-    url: "/tgbot/accounts/",
+    url: "/tg/accounts/",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -199,15 +199,15 @@ export const tgbotAccountsCreate = <ThrowOnError extends boolean = false>(
 /**
  * Send Code
  */
-export const tgbotAccountsSendCode = <ThrowOnError extends boolean = false>(
-  options: Options<TgbotAccountsSendCodeData, ThrowOnError>,
+export const tgAccountsSendCode = <ThrowOnError extends boolean = false>(
+  options: Options<TgAccountsSendCodeData, ThrowOnError>,
 ) => {
   return (options.client ?? _heyApiClient).post<
-    TgbotAccountsSendCodeResponse,
-    TgbotAccountsSendCodeError,
+    TgAccountsSendCodeResponse,
+    TgAccountsSendCodeError,
     ThrowOnError
   >({
-    url: "/tgbot/accounts/send-code",
+    url: "/tg/accounts/send-code",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -219,15 +219,15 @@ export const tgbotAccountsSendCode = <ThrowOnError extends boolean = false>(
 /**
  * Signin
  */
-export const tgbotAccountsSignin = <ThrowOnError extends boolean = false>(
-  options: Options<TgbotAccountsSigninData, ThrowOnError>,
+export const tgAccountsSignin = <ThrowOnError extends boolean = false>(
+  options: Options<TgAccountsSigninData, ThrowOnError>,
 ) => {
   return (options.client ?? _heyApiClient).post<
-    TgbotAccountsSigninResponse,
-    TgbotAccountsSigninError,
+    TgAccountsSigninResponse,
+    TgAccountsSigninError,
     ThrowOnError
   >({
-    url: "/tgbot/accounts/signin",
+    url: "/tg/accounts/signin",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -239,15 +239,15 @@ export const tgbotAccountsSignin = <ThrowOnError extends boolean = false>(
 /**
  * Get
  */
-export const tgbotAccountsGet = <ThrowOnError extends boolean = false>(
-  options: Options<TgbotAccountsGetData, ThrowOnError>,
+export const tgAccountsGet = <ThrowOnError extends boolean = false>(
+  options: Options<TgAccountsGetData, ThrowOnError>,
 ) => {
   return (options.client ?? _heyApiClient).get<
-    TgbotAccountsGetResponse,
-    TgbotAccountsGetError,
+    TgAccountsGetResponse,
+    TgAccountsGetError,
     ThrowOnError
   >({
-    url: "/tgbot/accounts/{account_id}",
+    url: "/tg/accounts/{account_id}",
     ...options,
   });
 };

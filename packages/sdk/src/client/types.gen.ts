@@ -61,7 +61,7 @@ export type AppAuthSchemasSignInRequest = {
   password: string;
 };
 
-export type AppTgbotAccountsSchemasSignInRequest = {
+export type AppTgAccountsSchemasSignInRequest = {
   account_id: string;
   code: number;
   password?: string | null;
@@ -176,31 +176,31 @@ export type AuthGetCurrentUserResponses = {
 export type AuthGetCurrentUserResponse =
   AuthGetCurrentUserResponses[keyof AuthGetCurrentUserResponses];
 
-export type TgbotAccountsListData = {
+export type TgAccountsListData = {
   body?: never;
   path?: never;
   query?: never;
-  url: "/tgbot/accounts/";
+  url: "/tg/accounts/";
 };
 
-export type TgbotAccountsListResponses = {
+export type TgAccountsListResponses = {
   /**
    * Successful Response
    */
   200: Array<TgAccount>;
 };
 
-export type TgbotAccountsListResponse =
-  TgbotAccountsListResponses[keyof TgbotAccountsListResponses];
+export type TgAccountsListResponse =
+  TgAccountsListResponses[keyof TgAccountsListResponses];
 
-export type TgbotAccountsCreateData = {
+export type TgAccountsCreateData = {
   body: CreateAccountRequest;
   path?: never;
   query?: never;
-  url: "/tgbot/accounts/";
+  url: "/tg/accounts/";
 };
 
-export type TgbotAccountsCreateErrors = {
+export type TgAccountsCreateErrors = {
   /**
    * Bad Request
    */
@@ -211,27 +211,27 @@ export type TgbotAccountsCreateErrors = {
   422: HttpValidationError;
 };
 
-export type TgbotAccountsCreateError =
-  TgbotAccountsCreateErrors[keyof TgbotAccountsCreateErrors];
+export type TgAccountsCreateError =
+  TgAccountsCreateErrors[keyof TgAccountsCreateErrors];
 
-export type TgbotAccountsCreateResponses = {
+export type TgAccountsCreateResponses = {
   /**
    * Successful Response
    */
   201: TgAccount;
 };
 
-export type TgbotAccountsCreateResponse =
-  TgbotAccountsCreateResponses[keyof TgbotAccountsCreateResponses];
+export type TgAccountsCreateResponse =
+  TgAccountsCreateResponses[keyof TgAccountsCreateResponses];
 
-export type TgbotAccountsSendCodeData = {
+export type TgAccountsSendCodeData = {
   body: CodeRequest;
   path?: never;
   query?: never;
-  url: "/tgbot/accounts/send-code";
+  url: "/tg/accounts/send-code";
 };
 
-export type TgbotAccountsSendCodeErrors = {
+export type TgAccountsSendCodeErrors = {
   /**
    * Not Found
    */
@@ -242,27 +242,27 @@ export type TgbotAccountsSendCodeErrors = {
   422: HttpValidationError;
 };
 
-export type TgbotAccountsSendCodeError =
-  TgbotAccountsSendCodeErrors[keyof TgbotAccountsSendCodeErrors];
+export type TgAccountsSendCodeError =
+  TgAccountsSendCodeErrors[keyof TgAccountsSendCodeErrors];
 
-export type TgbotAccountsSendCodeResponses = {
+export type TgAccountsSendCodeResponses = {
   /**
    * Successful Response
    */
   200: TgAccount;
 };
 
-export type TgbotAccountsSendCodeResponse =
-  TgbotAccountsSendCodeResponses[keyof TgbotAccountsSendCodeResponses];
+export type TgAccountsSendCodeResponse =
+  TgAccountsSendCodeResponses[keyof TgAccountsSendCodeResponses];
 
-export type TgbotAccountsSigninData = {
-  body: AppTgbotAccountsSchemasSignInRequest;
+export type TgAccountsSigninData = {
+  body: AppTgAccountsSchemasSignInRequest;
   path?: never;
   query?: never;
-  url: "/tgbot/accounts/signin";
+  url: "/tg/accounts/signin";
 };
 
-export type TgbotAccountsSigninErrors = {
+export type TgAccountsSigninErrors = {
   /**
    * Bad Request
    */
@@ -277,29 +277,29 @@ export type TgbotAccountsSigninErrors = {
   422: HttpValidationError;
 };
 
-export type TgbotAccountsSigninError =
-  TgbotAccountsSigninErrors[keyof TgbotAccountsSigninErrors];
+export type TgAccountsSigninError =
+  TgAccountsSigninErrors[keyof TgAccountsSigninErrors];
 
-export type TgbotAccountsSigninResponses = {
+export type TgAccountsSigninResponses = {
   /**
    * Successful Response
    */
   200: TgAccount;
 };
 
-export type TgbotAccountsSigninResponse =
-  TgbotAccountsSigninResponses[keyof TgbotAccountsSigninResponses];
+export type TgAccountsSigninResponse =
+  TgAccountsSigninResponses[keyof TgAccountsSigninResponses];
 
-export type TgbotAccountsGetData = {
+export type TgAccountsGetData = {
   body?: never;
   path: {
     account_id: string;
   };
   query?: never;
-  url: "/tgbot/accounts/{account_id}";
+  url: "/tg/accounts/{account_id}";
 };
 
-export type TgbotAccountsGetErrors = {
+export type TgAccountsGetErrors = {
   /**
    * Not Found
    */
@@ -310,18 +310,17 @@ export type TgbotAccountsGetErrors = {
   422: HttpValidationError;
 };
 
-export type TgbotAccountsGetError =
-  TgbotAccountsGetErrors[keyof TgbotAccountsGetErrors];
+export type TgAccountsGetError = TgAccountsGetErrors[keyof TgAccountsGetErrors];
 
-export type TgbotAccountsGetResponses = {
+export type TgAccountsGetResponses = {
   /**
    * Successful Response
    */
   200: TgAccount;
 };
 
-export type TgbotAccountsGetResponse =
-  TgbotAccountsGetResponses[keyof TgbotAccountsGetResponses];
+export type TgAccountsGetResponse =
+  TgAccountsGetResponses[keyof TgAccountsGetResponses];
 
 export type RootData = {
   body?: never;

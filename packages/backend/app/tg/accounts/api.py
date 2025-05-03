@@ -10,21 +10,21 @@ from telethon.sessions import StringSession
 
 from app.core.http_errors import HTTPError
 from app.openapi import generate_unique_id_function
-from app.tgbot.accounts.models import TGAccountStatus
-from app.tgbot.accounts.schemas import (
+from app.tg.accounts.models import TGAccountStatus
+from app.tg.accounts.schemas import (
     CodeRequest,
     CreateAccountRequest,
     SignInRequest,
     TGAccount,
 )
-from app.tgbot.accounts.services import TGAccountService
+from app.tg.accounts.services import TGAccountService
 
 logger = structlog.get_logger()
 
 router = APIRouter(
     prefix="/accounts",
-    tags=["tgbot_accounts"],
-    generate_unique_id_function=generate_unique_id_function("tgbot::accounts"),
+    tags=["tg_accounts"],
+    generate_unique_id_function=generate_unique_id_function("tg::accounts"),
 )
 
 
@@ -181,7 +181,7 @@ async def get(
 @router.get(
     "/",
     status_code=status.HTTP_200_OK,
-    generate_unique_id_function=lambda *_: "tgbot::accounts::list",
+    generate_unique_id_function=lambda *_: "tg::accounts::list",
 )
 async def list_accounts(
     tg_account_svc: Annotated[TGAccountService, Depends(TGAccountService.inject)],

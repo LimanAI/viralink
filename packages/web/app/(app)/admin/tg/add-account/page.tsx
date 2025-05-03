@@ -7,12 +7,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
 
-import { tgbotAccountsCreate, tgbotAccountsSendCode } from "@/api";
+import { tgAccountsCreate, tgAccountsSendCode } from "@/api";
 import { strError } from "@/utils/errors";
 
 const formSchema = z.object({
   phoneNumber: z.string().min(5, "Phone number is required"),
-  apiId: z.number({ required_error: "Api ID is required" }).gte(-2147483648).lte(2147483647),
+  apiId: z.coerce.number({ required_error: "Api ID is required" }).gte(-2147483648).lte(2147483647),
   apiHash: z.string().min(5, "Api Hash is required"),
 });
 
@@ -33,7 +33,7 @@ export default function AddAccount() {
   const onSubmit = useCallback(
     async (data: formData) => {
       setError(null);
-      const { data: tgAccount, error } = await tgbotAccountsCreate({
+      const { data: tgAccount, error } = await tgAccountsCreate({
         body: {
           phone_number: data.phoneNumber,
           api_id: data.apiId,
@@ -45,7 +45,7 @@ export default function AddAccount() {
         return;
       }
 
-      const { error: sendCodeError } = await tgbotAccountsSendCode({
+      const { error: sendCodeError } = await tgAccountsSendCode({
         body: { account_id: tgAccount.id, phone_number: data.phoneNumber },
       });
       if (sendCodeError) {
