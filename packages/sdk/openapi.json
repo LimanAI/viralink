@@ -34,6 +34,16 @@
                             }
                         }
                     },
+                    "409": {
+                        "description": "Conflict",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPError"
+                                }
+                            }
+                        }
+                    },
                     "422": {
                         "description": "Validation Error",
                         "content": {
@@ -170,6 +180,30 @@
             }
         },
         "/tgbot/accounts/": {
+            "get": {
+                "tags": [
+                    "tgbot",
+                    "tgbot_accounts"
+                ],
+                "summary": "List",
+                "operationId": "tgbot::accounts::list",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/TGAccount"
+                                    },
+                                    "type": "array",
+                                    "title": "Response Tgbot::Accounts::List"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
             "post": {
                 "tags": [
                     "tgbot",
@@ -199,7 +233,14 @@
                         }
                     },
                     "400": {
-                        "description": "Bad Request"
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPError"
+                                }
+                            }
+                        }
                     },
                     "422": {
                         "description": "Validation Error",
@@ -244,7 +285,14 @@
                         }
                     },
                     "404": {
-                        "description": "Account not found"
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPError"
+                                }
+                            }
+                        }
                     },
                     "422": {
                         "description": "Validation Error",
@@ -289,7 +337,78 @@
                         }
                     },
                     "404": {
-                        "description": "Account not found"
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPError"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPError"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/tgbot/accounts/{account_id}": {
+            "get": {
+                "tags": [
+                    "tgbot",
+                    "tgbot_accounts"
+                ],
+                "summary": "Get",
+                "operationId": "tgbot::accounts::get",
+                "parameters": [
+                    {
+                        "name": "account_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Account Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TGAccount"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPError"
+                                }
+                            }
+                        },
+                        "description": "Not Found"
                     },
                     "422": {
                         "description": "Validation Error",
@@ -349,19 +468,20 @@
             },
             "CodeRequest": {
                 "properties": {
+                    "account_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Account Id"
+                    },
                     "phone_number": {
                         "type": "string",
                         "title": "Phone Number"
-                    },
-                    "api_id": {
-                        "type": "integer",
-                        "title": "Api Id"
                     }
                 },
                 "type": "object",
                 "required": [
-                    "phone_number",
-                    "api_id"
+                    "account_id",
+                    "phone_number"
                 ],
                 "title": "CodeRequest"
             },
@@ -388,16 +508,39 @@
                 ],
                 "title": "CreateAccountRequest"
             },
+            "HTTPError": {
+                "properties": {
+                    "detail": {
+                        "type": "string",
+                        "title": "Detail"
+                    },
+                    "status_code": {
+                        "type": "integer",
+                        "title": "Status Code"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "detail",
+                    "status_code"
+                ],
+                "title": "HTTPError"
+            },
             "HTTPUnauthorizedError": {
                 "properties": {
                     "detail": {
                         "type": "string",
                         "title": "Detail"
+                    },
+                    "status_code": {
+                        "type": "integer",
+                        "title": "Status Code"
                     }
                 },
                 "type": "object",
                 "required": [
-                    "detail"
+                    "detail",
+                    "status_code"
                 ],
                 "title": "HTTPUnauthorizedError"
             },
@@ -557,9 +700,10 @@
             },
             "app__tgbot__accounts__schemas__SignInRequest": {
                 "properties": {
-                    "api_id": {
-                        "type": "integer",
-                        "title": "Api Id"
+                    "account_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Account Id"
                     },
                     "code": {
                         "type": "integer",
@@ -579,7 +723,7 @@
                 },
                 "type": "object",
                 "required": [
-                    "api_id",
+                    "account_id",
                     "code"
                 ],
                 "title": "SignInRequest"

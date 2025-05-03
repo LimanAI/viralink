@@ -18,6 +18,8 @@ import type {
   AuthSignoutResponse,
   AuthGetCurrentUserData,
   AuthGetCurrentUserResponse,
+  TgbotAccountsListData,
+  TgbotAccountsListResponse,
   TgbotAccountsCreateData,
   TgbotAccountsCreateResponse,
   TgbotAccountsCreateError,
@@ -27,6 +29,9 @@ import type {
   TgbotAccountsSigninData,
   TgbotAccountsSigninResponse,
   TgbotAccountsSigninError,
+  TgbotAccountsGetData,
+  TgbotAccountsGetResponse,
+  TgbotAccountsGetError,
   RootData,
   RootResponse,
 } from "./types.gen";
@@ -156,6 +161,22 @@ export const authGetCurrentUser = <ThrowOnError extends boolean = false>(
 };
 
 /**
+ * List
+ */
+export const tgbotAccountsList = <ThrowOnError extends boolean = false>(
+  options?: Options<TgbotAccountsListData, ThrowOnError>,
+) => {
+  return (options?.client ?? _heyApiClient).get<
+    TgbotAccountsListResponse,
+    unknown,
+    ThrowOnError
+  >({
+    url: "/tgbot/accounts/",
+    ...options,
+  });
+};
+
+/**
  * Create
  */
 export const tgbotAccountsCreate = <ThrowOnError extends boolean = false>(
@@ -212,6 +233,22 @@ export const tgbotAccountsSignin = <ThrowOnError extends boolean = false>(
       "Content-Type": "application/json",
       ...options?.headers,
     },
+  });
+};
+
+/**
+ * Get
+ */
+export const tgbotAccountsGet = <ThrowOnError extends boolean = false>(
+  options: Options<TgbotAccountsGetData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    TgbotAccountsGetResponse,
+    TgbotAccountsGetError,
+    ThrowOnError
+  >({
+    url: "/tgbot/accounts/{account_id}",
+    ...options,
   });
 };
 

@@ -6,8 +6,8 @@ export type AccessToken = {
 };
 
 export type CodeRequest = {
+  account_id: string;
   phone_number: string;
-  api_id: number;
 };
 
 export type CreateAccountRequest = {
@@ -16,8 +16,14 @@ export type CreateAccountRequest = {
   api_hash: string;
 };
 
+export type HttpError = {
+  detail: string;
+  status_code: number;
+};
+
 export type HttpUnauthorizedError = {
   detail: string;
+  status_code: number;
 };
 
 export type HttpValidationError = {
@@ -56,7 +62,7 @@ export type AppAuthSchemasSignInRequest = {
 };
 
 export type AppTgbotAccountsSchemasSignInRequest = {
-  api_id: number;
+  account_id: string;
   code: number;
   password?: string | null;
 };
@@ -69,6 +75,10 @@ export type AuthSignupData = {
 };
 
 export type AuthSignupErrors = {
+  /**
+   * Conflict
+   */
+  409: HttpError;
   /**
    * Validation Error
    */
@@ -166,6 +176,23 @@ export type AuthGetCurrentUserResponses = {
 export type AuthGetCurrentUserResponse =
   AuthGetCurrentUserResponses[keyof AuthGetCurrentUserResponses];
 
+export type TgbotAccountsListData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/tgbot/accounts/";
+};
+
+export type TgbotAccountsListResponses = {
+  /**
+   * Successful Response
+   */
+  200: Array<TgAccount>;
+};
+
+export type TgbotAccountsListResponse =
+  TgbotAccountsListResponses[keyof TgbotAccountsListResponses];
+
 export type TgbotAccountsCreateData = {
   body: CreateAccountRequest;
   path?: never;
@@ -177,7 +204,7 @@ export type TgbotAccountsCreateErrors = {
   /**
    * Bad Request
    */
-  400: unknown;
+  400: HttpError;
   /**
    * Validation Error
    */
@@ -206,9 +233,9 @@ export type TgbotAccountsSendCodeData = {
 
 export type TgbotAccountsSendCodeErrors = {
   /**
-   * Account not found
+   * Not Found
    */
-  404: unknown;
+  404: HttpError;
   /**
    * Validation Error
    */
@@ -237,9 +264,13 @@ export type TgbotAccountsSigninData = {
 
 export type TgbotAccountsSigninErrors = {
   /**
-   * Account not found
+   * Bad Request
    */
-  404: unknown;
+  400: HttpError;
+  /**
+   * Not Found
+   */
+  404: HttpError;
   /**
    * Validation Error
    */
@@ -258,6 +289,39 @@ export type TgbotAccountsSigninResponses = {
 
 export type TgbotAccountsSigninResponse =
   TgbotAccountsSigninResponses[keyof TgbotAccountsSigninResponses];
+
+export type TgbotAccountsGetData = {
+  body?: never;
+  path: {
+    account_id: string;
+  };
+  query?: never;
+  url: "/tgbot/accounts/{account_id}";
+};
+
+export type TgbotAccountsGetErrors = {
+  /**
+   * Not Found
+   */
+  404: HttpError;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type TgbotAccountsGetError =
+  TgbotAccountsGetErrors[keyof TgbotAccountsGetErrors];
+
+export type TgbotAccountsGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: TgAccount;
+};
+
+export type TgbotAccountsGetResponse =
+  TgbotAccountsGetResponses[keyof TgbotAccountsGetResponses];
 
 export type RootData = {
   body?: never;

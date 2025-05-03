@@ -1,6 +1,6 @@
 import clsx from "clsx";
 
-export default function SystemAccount({ id, handle, status }: { id: number; handle: string; status: string }) {
+export default function TGAccount({ id, status }: { id: string; status: string }) {
   return (
     <div className="card w-96 bg-base-200 shadow-sm">
       <div className="card-body">
@@ -13,7 +13,8 @@ export default function SystemAccount({ id, handle, status }: { id: number; hand
           {status}
         </span>
 
-        <h2 className="text-2xl font-bold">{handle}</h2>
+        <h2 className="text-md font-bold">{id}</h2>
+        {/*
         <ul className="mt-6 flex flex-col gap-1 text-xs">
           <li>
             <span>Created 30 days ago</span>
@@ -22,6 +23,7 @@ export default function SystemAccount({ id, handle, status }: { id: number; hand
             <span>Added to 81 channels</span>
           </li>
         </ul>
+        */}
       </div>
     </div>
   );
