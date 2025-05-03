@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from app.tgbot.accounts.models import TGAccountStatus
 
@@ -12,16 +12,18 @@ class CreateAccountRequest(BaseModel):
 
 
 class CodeRequest(BaseModel):
+    account_id: UUID
     phone_number: str
-    api_id: int
 
 
 class SignInRequest(BaseModel):
-    api_id: int
+    account_id: UUID
     code: int
     password: str | None = None
 
 
 class TGAccount(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     status: TGAccountStatus

@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from sqlalchemy import sql
 
 from app.services import BaseService
@@ -13,37 +15,45 @@ class TGAccountService(BaseService):
         async with self.tx():
             result = await self.db_session.execute(
                 sql.insert(TGAccountModel)
-                .values(**payload.model_dump())
+                .values(**payload.model_dump(), status=TGAccountStatus.INITIAL)
                 .returning(TGAccountModel)
             )
         return result.scalar_one()
 
-    async def get_account(self, api_id: int) -> TGAccountModel | None:
+    async def get_account(self, account_id: UUID) -> TGAccountModel | None:
         async with self.tx():
             result = await self.db_session.execute(
-                sql.select(TGAccountModel).filter_by(api_id=api_id)
+                sql.select(TGAccountModel).filter_by(id=account_id)
             )
         return result.scalar_one_or_none()
 
+    async def list(self) -> list[TGAccountModel]:
+        async with self.tx():
+            result = await self.db_session.execute(sql.select(TGAccountModel))
+        return list(result.scalars().all())
+
     async def update_phone_number(
-        self, tg_account_model: TGAccountModel, phone_number: str
+        self,
+        account_id: UUID,
+        phone_number: str,
+        phone_code_hash: str,
     ) -> TGAccountModel:
         async with self.tx():
             result = await self.db_session.execute(
                 sql.update(TGAccountModel)
-                .filter_by(id=tg_account_model.id)
-                .values(phone_number=phone_number)
+                .filter_by(id=account_id)
+                .values(phone_number=phone_number, phone_code_hash=phone_code_hash)
                 .returning(TGAccountModel)
             )
         return result.scalar_one()
 
     async def update_status(
-        self, tg_account_model: TGAccountModel, status: TGAccountStatus
+        self, account_id: UUID, status: TGAccountStatus
     ) -> TGAccountModel:
         async with self.tx():
             result = await self.db_session.execute(
                 sql.update(TGAccountModel)
-                .filter_by(id=tg_account_model.id)
+                .filter_by(id=account_id)
                 .values(
                     status=status,
                     status_changed_at=sql.func.now(),
@@ -56,13 +66,13 @@ class TGAccountService(BaseService):
 
     async def save_status_error(
         self,
-        tg_account_model: TGAccountModel,
+        account_id: UUID,
         status_error: dict[str, str],
     ) -> TGAccountModel:
         async with self.tx():
             result = await self.db_session.execute(
                 sql.update(TGAccountModel)
-                .filter_by(id=tg_account_model.id)
+                .filter_by(id=account_id)
                 .values(
                     status_error=status_error,
                     status_errored_at=sql.func.now(),
@@ -72,13 +82,13 @@ class TGAccountService(BaseService):
         return result.scalar_one()
 
     async def save_session_string(
-        self, tg_account_model: TGAccountModel, session_string: str
+        self, account_id: UUID, session_string: str
     ) -> TGAccountModel:
         async with self.tx():
             result = await self.db_session.execute(
                 sql.update(TGAccountModel)
-                .filter_by(id=tg_account_model.id)
-                .values(session_string_string=session_string)
+                .filter_by(id=account_id)
+                .values(session_string=session_string)
                 .returning(TGAccountModel)
             )
         return result.scalar_one()

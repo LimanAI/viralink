@@ -21,12 +21,15 @@ class TGAccountModel(RecordModel):
     __tablename__ = "tgbot_tg_accounts"
 
     phone_number: Mapped[str] = string_column(32)
-    api_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    api_id: Mapped[int] = mapped_column(
+        BigInteger, nullable=False, index=True, unique=True
+    )
     api_hash: Mapped[str] = mapped_column(
         StringEncryptedType(key=settings.SECRET_KEY.get_secret_value()),
         nullable=True,
     )
 
+    phone_code_hash: Mapped[str] = string_column(32)
     session_string = mapped_column(
         StringEncryptedType(key=settings.SECRET_KEY.get_secret_value()),
         nullable=True,
@@ -37,7 +40,6 @@ class TGAccountModel(RecordModel):
             TGAccountStatus,
             name="tgbot_tg_account_status",
             values_callable=lambda e: [i.value for i in e],
-            default=TGAccountStatus.INITIAL,
         ),
         nullable=False,
     )
