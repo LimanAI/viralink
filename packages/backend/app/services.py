@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db import get_db_session
 
 
-class BaseService:
+class BaseRepository:
     def __init__(self, db_session: AsyncSession) -> None:
         self.db_session = db_session
 
@@ -31,3 +31,6 @@ class BaseService:
             return
         async with self.db_session.begin():
             yield
+
+
+class BaseService(BaseRepository): ...

@@ -13,4 +13,4 @@ class Context(
     db_session: AsyncSession | None = None
     db_session_maker: AsyncSessionMaker
 
-    tguser: TGUserModel | None = None
+    tg_user: TGUserModel | None = None

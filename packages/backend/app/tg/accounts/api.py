@@ -9,6 +9,7 @@ from telethon.errors import SessionPasswordNeededError
 from telethon.sessions import StringSession
 
 from app.core.http_errors import HTTPError
+from app.models.base import ErrorSchema
 from app.openapi import generate_unique_id_function
 from app.tg.accounts.models import TGAccountStatus
 from app.tg.accounts.schemas import (
@@ -86,7 +87,9 @@ async def send_code(
             )
     except Exception as e:
         logger.exception(f"Error sent_code in: {e}")
-        await tg_account_svc.save_status_error(tg_account_model.id, {"error": str(e)})
+        await tg_account_svc.save_status_error(
+            tg_account_model.id, ErrorSchema(message=str(e))
+        )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to send code"
         ) from None
@@ -139,7 +142,9 @@ async def signin(
             raise Exception("User not authorized") from None
     except Exception as e:
         logger.exception(f"Error signing in: {e}")
-        await tg_account_svc.save_status_error(tg_account_model.id, {"error": str(e)})
+        await tg_account_svc.save_status_error(
+            tg_account_model.id, ErrorSchema(message=str(e))
+        )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid credentials"
         ) from None

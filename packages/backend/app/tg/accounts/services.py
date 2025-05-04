@@ -2,6 +2,7 @@ from uuid import UUID
 
 from sqlalchemy import sql
 
+from app.models.base import ErrorSchema
 from app.services import BaseService
 from app.tg.accounts.models import TGAccountModel, TGAccountStatus
 from app.tg.accounts.schemas import CreateAccountRequest
@@ -67,7 +68,7 @@ class TGAccountService(BaseService):
     async def save_status_error(
         self,
         account_id: UUID,
-        status_error: dict[str, str],
+        status_error: ErrorSchema,
     ) -> TGAccountModel:
         async with self.tx():
             result = await self.db_session.execute(
@@ -90,5 +91,14 @@ class TGAccountService(BaseService):
                 .filter_by(id=account_id)
                 .values(session_string=session_string)
                 .returning(TGAccountModel)
+            )
+        return result.scalar_one()
+
+    async def get_account_with_least_watched_channels(self) -> TGAccountModel:
+        async with self.tx():
+            result = await self.db_session.execute(
+                sql.select(TGAccountModel)
+                .order_by(TGAccountModel.watched_channels_count)
+                .limit(1)
             )
         return result.scalar_one()

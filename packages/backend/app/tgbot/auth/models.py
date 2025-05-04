@@ -1,16 +1,14 @@
 from sqlalchemy import BigInteger, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.models.base import PostgresUUID, RecordModel, string_column
+from app.models.base import PostgresUUID, TimestampModel, string_column
 from app.tgbot.schemas import UserTGData
 
 
-class TGUserModel(RecordModel):
+class TGUserModel(TimestampModel):
     __tablename__ = "tgbot_tg_users"
 
-    tg_id: Mapped[int] = mapped_column(
-        BigInteger, nullable=False, unique=True, index=True
-    )
+    tg_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     username: Mapped[str] = string_column(64)
     first_name: Mapped[str] = string_column(64)
     last_name: Mapped[str] = string_column(64)

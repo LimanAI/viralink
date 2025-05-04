@@ -5,6 +5,7 @@ from uuid import UUID, uuid4
 
 import sqlalchemy
 from fastapi.encoders import jsonable_encoder
+from pydantic import BaseModel as PydanticBaseModel
 from pydantic import EmailStr, HttpUrl, TypeAdapter
 from sqlalchemy import LargeBinary, MetaData, String, TypeDecorator
 from sqlalchemy.dialects import postgresql
@@ -102,7 +103,7 @@ class RecordModel(TimestampModel):
         )
 
 
-T = TypeVar("T", bound=BaseModel)
+T = TypeVar("T")
 
 
 class PydanticJSON(TypeDecorator[T]):
@@ -112,14 +113,27 @@ class PydanticJSON(TypeDecorator[T]):
     """
 
     impl = postgresql.JSONB
+    cache_ok = True
 
-    def __init__(self, pydantic_model: T, *args: Any, **kwargs: Any) -> None:
+    def __init__(
+        self, pydantic_model: T, none_as_null: bool = False, *args: Any, **kwargs: Any
+    ) -> None:
         super().__init__(*args, **kwargs)
         self.pydantic_model = pydantic_model
         self.type_adapter: TypeAdapter[T] = TypeAdapter(pydantic_model)
+        self.none_as_null = none_as_null
 
     def process_bind_param(self, value: T | None, dialect: Dialect) -> Any:
+        if value is None and self.none_as_null:
+            return None
         return jsonable_encoder(value)
 
-    def process_result_value(self, value: str | None, dialect: Dialect) -> T:
+    def process_result_value(self, value: str | None, dialect: Dialect) -> T | None:
+        if value is None:
+            return None
         return self.type_adapter.validate_python(value)
+
+
+class ErrorSchema(PydanticBaseModel):
+    message: str
+    code: str | None = None

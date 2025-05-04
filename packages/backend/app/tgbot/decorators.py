@@ -1,6 +1,6 @@
 from collections.abc import Coroutine
 from functools import wraps
-from typing import Any, Callable, cast, overload
+from typing import Any, Callable, TypeVar, cast, overload
 
 from telegram import Update
 from telegram.ext._utils.types import HandlerCallback
@@ -9,7 +9,7 @@ from app.tgbot.auth.services import TGUserService
 from app.tgbot.context import Context
 from app.tgbot.utils import extract_user_data
 
-TCallback = HandlerCallback[Update, Context, None]
+TCallback = HandlerCallback[Update, Context, Any]
 
 
 @overload
@@ -30,7 +30,7 @@ def requires_auth(
             @wraps(call)
             async def wrapper(
                 update: Update, context: Context, *args: Any, **kwargs: Any
-            ) -> None:
+            ) -> Any:
                 if not context.db_session:
                     raise ValueError(
                         "DB session is None, please wrap handler with @db_session"
@@ -40,11 +40,11 @@ def requires_auth(
                 if not user_data:
                     raise ValueError("User data is None")
 
-                tguser_svc = TGUserService(context.db_session)
-                tguser = await tguser_svc.get_user_and_update(user_data)
+                tg_user_svc = TGUserService(context.db_session)
+                tg_user = await tg_user_svc.get_user_and_update(user_data)
                 # TODO: swtich on dependency injection
                 # https://github.com/reagento/dishka/issues/450
-                context.tguser = tguser
+                context.tg_user = tg_user
                 return await call(update, context, *args, **kwargs)
 
             return wrapper
@@ -57,10 +57,10 @@ def requires_auth(
 
 
 def db_session(
-    func: Callable[..., Coroutine[Any, Any, None]],
-) -> Callable[..., Coroutine[Any, Any, None]]:
+    func: Callable[..., Coroutine[Any, Any, Any]],
+) -> Callable[..., Coroutine[Any, Any, Any]]:
     @wraps(func)
-    async def wrapper(update: Update, context: Context, **kwargs: Any) -> None:
+    async def wrapper(update: Update, context: Context, **kwargs: Any) -> Any:
         async with context.db_session_maker() as db_session:
             # TODO: swtich on dependency injection
             # https://github.com/reagento/dishka/issues/450

@@ -1,13 +1,12 @@
 import enum
 from datetime import datetime
 
-from sqlalchemy import BigInteger, Boolean, Column, Enum, String
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import BigInteger, Boolean, Column, Enum, Integer
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy_utils.types import StringEncryptedType
 
 from app.conf import settings
-from app.models.base import RecordModel, string_column
+from app.models.base import ErrorSchema, PydanticJSON, RecordModel, string_column
 
 
 class TGAccountStatus(str, enum.Enum):
@@ -38,14 +37,17 @@ class TGAccountModel(RecordModel):
     status: Mapped[TGAccountStatus] = mapped_column(
         Enum(
             TGAccountStatus,
-            name="tgbot_tg_account_status",
+            name="tg_account_status",
             values_callable=lambda e: [i.value for i in e],
         ),
         nullable=False,
     )
     status_changed_at: Mapped[datetime | None] = mapped_column(default=None)
-    status_error: Mapped[dict[str, str] | None] = mapped_column(
-        JSONB(none_as_null=True),  # type: ignore[no-untyped-call]
+    status_error: Mapped[ErrorSchema | None] = mapped_column(
+        PydanticJSON(ErrorSchema, none_as_null=True),
         nullable=True,
     )
     status_errored_at: Mapped[datetime | None] = mapped_column(default=None)
+    watched_channels_count: Mapped[int] = mapped_column(
+        Integer, default=0, server_default="0", nullable=False
+    )
