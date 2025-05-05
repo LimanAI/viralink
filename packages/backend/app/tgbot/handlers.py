@@ -6,6 +6,8 @@ from app.tgbot.context import Context
 from app.tgbot.decorators import db_session
 from app.tgbot.utils import extract_user_data
 
+from .channels.handlers import handlers as channel_handlers
+
 
 @db_session
 async def start(update: Update, context: Context) -> None:
@@ -23,6 +25,4 @@ async def start(update: Update, context: Context) -> None:
     )
 
 
-handlers = [
-    CommandHandler("start", start),
-]
+handlers = [CommandHandler("start", start), *channel_handlers]

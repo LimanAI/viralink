@@ -1,104 +1,47 @@
-from uuid import UUID
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
 
-from sqlalchemy import sql
+import structlog
+from sqlalchemy.ext.asyncio import AsyncSession
+from telethon import TelegramClient
+from telethon.sessions import StringSession
 
-from app.models.base import ErrorSchema
-from app.services import BaseService
 from app.tg.accounts.models import TGAccountModel, TGAccountStatus
-from app.tg.accounts.schemas import CreateAccountRequest
+
+from .repositories import TGAccountRepository
+
+logger = structlog.get_logger()
 
 
-class TGAccountService(BaseService):
-    async def create_account(
+class TGAccountService(TGAccountRepository):
+    def __init__(
         self,
-        payload: CreateAccountRequest,
-    ) -> TGAccountModel:
-        async with self.tx():
-            result = await self.db_session.execute(
-                sql.insert(TGAccountModel)
-                .values(**payload.model_dump(), status=TGAccountStatus.INITIAL)
-                .returning(TGAccountModel)
-            )
-        return result.scalar_one()
+        db_session: AsyncSession,
+    ) -> None:
+        super().__init__(db_session=db_session)
+        self.tg_agent_repo = TGAccountRepository(db_session=db_session)
 
-    async def get_account(self, account_id: UUID) -> TGAccountModel | None:
-        async with self.tx():
-            result = await self.db_session.execute(
-                sql.select(TGAccountModel).filter_by(id=account_id)
+    @asynccontextmanager
+    async def get_tgclient(
+        self, tg_account: TGAccountModel
+    ) -> AsyncGenerator[TelegramClient, None]:
+        session_string = StringSession(tg_account.session_string)
+        try:
+            async with TelegramClient(
+                session_string, tg_account.api_id, tg_account.api_hash
+            ) as tgclient:
+                yield tgclient
+        except Exception as e:
+            logger.exception(
+                f"Error in TelegramClient context manager for account {tg_account.id}: {e}"
             )
-        return result.scalar_one_or_none()
+            raise e
+            # TODO: Handle session expiration and re-login
 
-    async def list(self) -> list[TGAccountModel]:
-        async with self.tx():
-            result = await self.db_session.execute(sql.select(TGAccountModel))
-        return list(result.scalars().all())
-
-    async def update_phone_number(
-        self,
-        account_id: UUID,
-        phone_number: str,
-        phone_code_hash: str,
-    ) -> TGAccountModel:
-        async with self.tx():
-            result = await self.db_session.execute(
-                sql.update(TGAccountModel)
-                .filter_by(id=account_id)
-                .values(phone_number=phone_number, phone_code_hash=phone_code_hash)
-                .returning(TGAccountModel)
-            )
-        return result.scalar_one()
-
-    async def update_status(
-        self, account_id: UUID, status: TGAccountStatus
-    ) -> TGAccountModel:
-        async with self.tx():
-            result = await self.db_session.execute(
-                sql.update(TGAccountModel)
-                .filter_by(id=account_id)
-                .values(
-                    status=status,
-                    status_changed_at=sql.func.now(),
-                    status_error=None,
-                    status_errored_at=None,
-                )
-                .returning(TGAccountModel)
-            )
-        return result.scalar_one()
-
-    async def save_status_error(
-        self,
-        account_id: UUID,
-        status_error: ErrorSchema,
-    ) -> TGAccountModel:
-        async with self.tx():
-            result = await self.db_session.execute(
-                sql.update(TGAccountModel)
-                .filter_by(id=account_id)
-                .values(
-                    status_error=status_error,
-                    status_errored_at=sql.func.now(),
-                )
-                .returning(TGAccountModel)
-            )
-        return result.scalar_one()
-
-    async def save_session_string(
-        self, account_id: UUID, session_string: str
-    ) -> TGAccountModel:
-        async with self.tx():
-            result = await self.db_session.execute(
-                sql.update(TGAccountModel)
-                .filter_by(id=account_id)
-                .values(session_string=session_string)
-                .returning(TGAccountModel)
-            )
-        return result.scalar_one()
-
-    async def get_account_with_least_watched_channels(self) -> TGAccountModel:
-        async with self.tx():
-            result = await self.db_session.execute(
-                sql.select(TGAccountModel)
-                .order_by(TGAccountModel.watched_channels_count)
-                .limit(1)
-            )
-        return result.scalar_one()
+    async def get_available(self) -> TGAccountModel:
+        tg_accounts = await self.tg_agent_repo.list(status=TGAccountStatus.ACTIVE)
+        for tg_account in tg_accounts:
+            async with self.get_tgclient(tg_account) as tgclient:
+                if await tgclient.is_user_authorized():
+                    return tg_account
+        raise Exception("All tg_accounts are not available")

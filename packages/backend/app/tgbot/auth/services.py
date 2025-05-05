@@ -12,7 +12,7 @@ class TGUserService(BaseService):
     ) -> TGUserModel:
         async with self.tx():
             result = await self.db_session.execute(
-                sql.select(TGUserModel).filter_by(id=user_data.tg_id)
+                sql.select(TGUserModel).filter_by(tg_id=user_data.tg_id)
             )
             tg_user = result.scalar_one_or_none()
 
@@ -24,7 +24,7 @@ class TGUserService(BaseService):
             elif diff := tg_user.get_diff(user_data):
                 result = await self.db_session.execute(
                     sql.update(TGUserModel)
-                    .filter_by(id=user_data.tg_id)
+                    .filter_by(tg_id=user_data.tg_id)
                     .values(**diff)
                     .returning(TGUserModel)
                 )

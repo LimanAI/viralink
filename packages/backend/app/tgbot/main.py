@@ -42,6 +42,7 @@ async def start_tg_app(session_maker: AsyncSessionMaker) -> AsyncGenerator[TGApp
 async def setup_commands(tg_app: TGApp) -> None:
     commands = {
         "start": "start",
+        "add_channel": "Add channel",
     }
     # localize
     for lang in ["en", "ru"]:
