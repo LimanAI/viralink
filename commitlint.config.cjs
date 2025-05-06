@@ -49,6 +49,7 @@ const Configuration = {
         "scripts",
         // custom
         "web",
+        "webapp",
         "backend",
         "tgbot",
         "sdk",

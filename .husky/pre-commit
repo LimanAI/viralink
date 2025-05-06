@@ -3,3 +3,6 @@ pnpm backend:mypy
 pnpm web:lint
 pnpm web:format:check
 pnpm web:ts
+pnpm webapp:lint
+pnpm webapp:format:check
+pnpm webapp:ts
