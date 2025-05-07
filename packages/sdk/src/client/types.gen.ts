@@ -16,6 +16,10 @@ export type CreateAccountRequest = {
   api_hash: string;
 };
 
+export type CreateTgAgentRequest = {
+  channel_link: string;
+};
+
 export type HttpError = {
   detail: string;
   status_code: number;
@@ -42,6 +46,22 @@ export type TgAccount = {
 };
 
 export type TgAccountStatus = "initial" | "sent_code" | "active" | "disabled";
+
+export type TgAgentSchema = {
+  created_at: string;
+  status: TgAgentStatus;
+  status_changed_at?: string | null;
+  channel_id?: number | null;
+};
+
+export type TgAgentStatus =
+  | "initial"
+  | "waiting_bot_attach"
+  | "waiting_bot_access"
+  | "requires_channel_profile"
+  | "active"
+  | "disabled"
+  | "disabled_no_credit";
 
 export type User = {
   id: string;
@@ -321,6 +341,63 @@ export type TgAccountsGetResponses = {
 
 export type TgAccountsGetResponse =
   TgAccountsGetResponses[keyof TgAccountsGetResponses];
+
+export type TgAgentsListData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/tg/agents/";
+};
+
+export type TgAgentsListErrors = {
+  /**
+   * Unauthorized
+   */
+  401: HttpUnauthorizedError;
+};
+
+export type TgAgentsListError = TgAgentsListErrors[keyof TgAgentsListErrors];
+
+export type TgAgentsListResponses = {
+  /**
+   * Successful Response
+   */
+  200: Array<TgAgentSchema>;
+};
+
+export type TgAgentsListResponse =
+  TgAgentsListResponses[keyof TgAgentsListResponses];
+
+export type TgAgentsCreateData = {
+  body: CreateTgAgentRequest;
+  path?: never;
+  query?: never;
+  url: "/tg/agents/";
+};
+
+export type TgAgentsCreateErrors = {
+  /**
+   * Unauthorized
+   */
+  401: HttpUnauthorizedError;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type TgAgentsCreateError =
+  TgAgentsCreateErrors[keyof TgAgentsCreateErrors];
+
+export type TgAgentsCreateResponses = {
+  /**
+   * Successful Response
+   */
+  201: TgAgentSchema;
+};
+
+export type TgAgentsCreateResponse =
+  TgAgentsCreateResponses[keyof TgAgentsCreateResponses];
 
 export type RootData = {
   body?: never;

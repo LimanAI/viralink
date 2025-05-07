@@ -32,6 +32,12 @@ import type {
   TgAccountsGetData,
   TgAccountsGetResponse,
   TgAccountsGetError,
+  TgAgentsListData,
+  TgAgentsListResponse,
+  TgAgentsListError,
+  TgAgentsCreateData,
+  TgAgentsCreateResponse,
+  TgAgentsCreateError,
   RootData,
   RootResponse,
 } from "./types.gen";
@@ -249,6 +255,54 @@ export const tgAccountsGet = <ThrowOnError extends boolean = false>(
   >({
     url: "/tg/accounts/{account_id}",
     ...options,
+  });
+};
+
+/**
+ * List Agents
+ */
+export const tgAgentsList = <ThrowOnError extends boolean = false>(
+  options?: Options<TgAgentsListData, ThrowOnError>,
+) => {
+  return (options?.client ?? _heyApiClient).get<
+    TgAgentsListResponse,
+    TgAgentsListError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        name: "x-telegram-auth",
+        type: "apiKey",
+      },
+    ],
+    url: "/tg/agents/",
+    ...options,
+  });
+};
+
+/**
+ * Create
+ */
+export const tgAgentsCreate = <ThrowOnError extends boolean = false>(
+  options: Options<TgAgentsCreateData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    TgAgentsCreateResponse,
+    TgAgentsCreateError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        name: "x-telegram-auth",
+        type: "apiKey",
+      },
+    ],
+    url: "/tg/agents/",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
   });
 };
 

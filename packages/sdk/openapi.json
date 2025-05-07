@@ -423,6 +423,102 @@
                 }
             }
         },
+        "/tg/agents/": {
+            "get": {
+                "tags": [
+                    "tg",
+                    "tg_agents"
+                ],
+                "summary": "List Agents",
+                "operationId": "tg::agents::list",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/TGAgentSchema"
+                                    },
+                                    "type": "array",
+                                    "title": "Response Tg::Agents::List"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPUnauthorizedError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "tg",
+                    "tg_agents"
+                ],
+                "summary": "Create",
+                "operationId": "tg::agents::create",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateTGAgentRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TGAgentSchema"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPUnauthorizedError"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ]
+            }
+        },
         "/": {
             "get": {
                 "summary": "Root",
@@ -507,6 +603,19 @@
                     "api_hash"
                 ],
                 "title": "CreateAccountRequest"
+            },
+            "CreateTGAgentRequest": {
+                "properties": {
+                    "channel_link": {
+                        "type": "string",
+                        "title": "Channel Link"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "channel_link"
+                ],
+                "title": "CreateTGAgentRequest"
             },
             "HTTPError": {
                 "properties": {
@@ -615,6 +724,60 @@
                     "disabled"
                 ],
                 "title": "TGAccountStatus"
+            },
+            "TGAgentSchema": {
+                "properties": {
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/TGAgentStatus"
+                    },
+                    "status_changed_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Status Changed At"
+                    },
+                    "channel_id": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Channel Id"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "created_at",
+                    "status"
+                ],
+                "title": "TGAgentSchema"
+            },
+            "TGAgentStatus": {
+                "type": "string",
+                "enum": [
+                    "initial",
+                    "waiting_bot_attach",
+                    "waiting_bot_access",
+                    "requires_channel_profile",
+                    "active",
+                    "disabled",
+                    "disabled_no_credit"
+                ],
+                "title": "TGAgentStatus"
             },
             "User": {
                 "properties": {
@@ -733,6 +896,11 @@
             "HTTPBearer": {
                 "type": "http",
                 "scheme": "bearer"
+            },
+            "APIKeyHeader": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "x-telegram-auth"
             }
         }
     }
