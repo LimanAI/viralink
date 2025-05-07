@@ -71,13 +71,13 @@ class TGAgent(RecordModel):
         index=True,
     )
     user_bot_id: Mapped[int | None] = mapped_column(
-        ForeignKey("tg_user_bots.tg_id", ondelete="SET NULL"),
+        ForeignKey("tg_user_bots.id", ondelete="SET NULL"),
         nullable=True,
         index=True,
     )
 
 
-class TGUserBot(TimestampModel):
+class TGUserBot(RecordModel):
     __tablename__ = "tg_user_bots"
 
     tg_id: Mapped[int] = mapped_column(BigInteger, index=True, nullable=False)

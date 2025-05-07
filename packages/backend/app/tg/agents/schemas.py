@@ -6,7 +6,7 @@ from app.tg.agents.models import TGAgentStatus
 
 
 class TGAgentSchema(BaseModel):
-    config_dict = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True)
 
     created_at: datetime
 
