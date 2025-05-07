@@ -43,7 +43,8 @@ async def add_channel(update: Update, context: Context) -> int:
         await message.reply_text(text="Invalid channel name. Please try again.")
         return ConversationHandler.END
 
-    await tg_agent_svc.create_agent(channel_handle, tg_user_id=tg_user.tg_id)
+    # await tg_agent_svc.create_agent(channel_handle, tg_user_id=tg_user.tg_id)
+    print(tg_agent_svc)
     return ConversationHandler.END
 
 

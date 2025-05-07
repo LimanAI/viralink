@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from telegram.ext import CallbackContext, ExtBot
 
 from app.db import AsyncSessionMaker
-from app.tgbot.auth.models import TGUserModel
+from app.tgbot.auth.models import TGUser
 
 
 class Context(
@@ -13,4 +13,4 @@ class Context(
     db_session: AsyncSession | None = None
     db_session_maker: AsyncSessionMaker
 
-    tg_user: TGUserModel | None = None
+    tg_user: TGUser | None = None

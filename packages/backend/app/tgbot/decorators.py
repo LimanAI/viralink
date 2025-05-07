@@ -42,6 +42,9 @@ def requires_auth(
 
                 tg_user_svc = TGUserService(context.db_session)
                 tg_user = await tg_user_svc.get_user_and_update(user_data)
+                if not tg_user:
+                    # sign up new user
+                    tg_user = await tg_user_svc.create(user_data)
                 # TODO: swtich on dependency injection
                 # https://github.com/reagento/dishka/issues/450
                 context.tg_user = tg_user

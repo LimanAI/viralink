@@ -1,32 +1,38 @@
 from sqlalchemy import sql
 
 from app.services import BaseService
-from app.tgbot.auth.models import TGUserModel
+from app.tgbot.auth.models import TGUser
 from app.tgbot.schemas import UserTGData
 
 
 class TGUserService(BaseService):
+    async def create(self, user_data: UserTGData) -> TGUser:
+        async with self.tx():
+            result = await self.db_session.execute(
+                sql.insert(TGUser).values(**user_data.model_dump()).returning(TGUser)
+            )
+        return result.scalar_one()
+
     async def get_user_and_update(
         self,
         user_data: UserTGData,
-    ) -> TGUserModel:
+    ) -> TGUser | None:
         async with self.tx():
             result = await self.db_session.execute(
-                sql.select(TGUserModel).filter_by(tg_id=user_data.tg_id)
+                sql.select(TGUser).filter_by(tg_id=user_data.tg_id)
             )
             tg_user = result.scalar_one_or_none()
 
-            # signup
             if not tg_user:
-                tg_user = TGUserModel(**user_data.model_dump())
-                self.db_session.add(tg_user)
+                return None
+
             # update
-            elif diff := tg_user.get_diff(user_data):
+            if diff := tg_user.get_diff(user_data):
                 result = await self.db_session.execute(
-                    sql.update(TGUserModel)
+                    sql.update(TGUser)
                     .filter_by(tg_id=user_data.tg_id)
                     .values(**diff)
-                    .returning(TGUserModel)
+                    .returning(TGUser)
                 )
                 tg_user = result.scalar_one()
 

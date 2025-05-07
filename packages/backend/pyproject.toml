@@ -64,10 +64,10 @@ warn_no_return = true
 warn_return_any = true
 warn_unused_configs = true
 strict_equality = true
-exclude = ["^examples/"]
+exclude = ["^examples/", "legacy/"]
 
 [[tool.mypy.overrides]]
-module = ["sqlalchemy_utils.*", "telethon.*", "authlib.*"]
+module = ["sqlalchemy_utils.*", "telethon.*", "authlib.*", ]
 ignore_missing_imports = true
 
 [tool.ruff]
