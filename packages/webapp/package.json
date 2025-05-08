@@ -13,12 +13,19 @@
     "tsw": "tsc --noEmit --watch"
   },
   "dependencies": {
+    "@hey-api/client-fetch": "^0.10.0",
     "@hookform/resolvers": "^5.0.1",
+    "@tanstack/react-query": "^5.75.1",
+    "@viralink-ai/sdk": "workspace:*",
+    "canvas-confetti": "^1.9.3",
+    "clsx": "^2.1.1",
     "framer-motion": "^12.9.2",
     "next": "15.3.1",
+    "next-themes": "^0.4.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.56.1",
+    "react-icons": "^5.5.0",
     "tailwind-merge": "^3.2.0",
     "zod": "^3.24.3"
   },
@@ -26,6 +33,7 @@
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@tanstack/react-query-devtools": "^5.75.1",
+    "@types/canvas-confetti": "^1.9.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
