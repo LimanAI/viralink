@@ -7,3 +7,9 @@ class HTTPError(BaseModel):
 
 
 class HTTPUnauthorizedError(HTTPError): ...
+
+
+class HTTPNotFoundError(HTTPError): ...
+
+
+class HTTPForbiddenError(HTTPError): ...

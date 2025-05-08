@@ -1,9 +1,10 @@
 import enum
 from datetime import datetime
+from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import BigInteger, Enum, ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy_utils.types import StringEncryptedType
 
 from app.conf import settings
@@ -11,7 +12,6 @@ from app.models.base import (
     ErrorSchema,
     PydanticJSON,
     RecordModel,
-    TimestampModel,
     string_column,
 )
 
@@ -27,8 +27,8 @@ class TGAgentStatus(str, enum.Enum):
 
 
 class ChannelMetadata(BaseModel):
+    username: str | None = None
     title: str | None = None
-    handle: str | None = None
     description: str | None = None
 
 
@@ -37,11 +37,20 @@ class ChannelProfile(BaseModel):
     content_description: str | None = None
 
 
+class BotMetadata(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    username: str | None = None
+    first_name: str | None = None
+    description: str | None = None
+
+
 class TGAgent(RecordModel):
     __tablename__ = "tg_agents"
 
     channel_id: Mapped[int] = mapped_column(BigInteger, nullable=True)
-    channel_link: Mapped[str] = string_column(128)
+    channel_username: Mapped[str] = string_column(128)
     channel_metadata: Mapped[ChannelMetadata] = mapped_column(
         PydanticJSON(ChannelMetadata), default=dict
     )
@@ -60,11 +69,11 @@ class TGAgent(RecordModel):
     )
     status_changed_at: Mapped[datetime | None] = mapped_column(default=None)
     status_error: Mapped[ErrorSchema | None] = mapped_column(
-        PydanticJSON(ErrorSchema, none_as_null=True), nullable=True
+        PydanticJSON(ErrorSchema), none_as_null=True, nullable=True
     )
     status_errored_at: Mapped[datetime | None] = mapped_column(default=None)
 
-    # Relationships
+    # Foreign keys
     tg_user_id: Mapped[int | None] = mapped_column(
         ForeignKey("tgbot_tg_users.tg_id", ondelete="RESTRICT"),
         nullable=True,
@@ -76,14 +85,29 @@ class TGAgent(RecordModel):
         index=True,
     )
 
+    # Relationships
+    user_bot: Mapped["TGUserBot"] = relationship(
+        "TGUserBot",
+        lazy="noload",
+    )
+
+    def bot_is_connected(self) -> bool:
+        return self.user_bot is not None and (
+            self.status == TGAgentStatus.REQUIRES_CHANNEL_PROFILE
+            or self.status == TGAgentStatus.ACTIVE
+        )
+
 
 class TGUserBot(RecordModel):
     __tablename__ = "tg_user_bots"
 
     tg_id: Mapped[int] = mapped_column(BigInteger, index=True, nullable=False)
-    api_key: Mapped[str] = mapped_column(
+    api_token: Mapped[str] = mapped_column(
         StringEncryptedType(key=settings.SECRET_KEY.get_secret_value()),
         nullable=False,
+    )
+    metadata_: Mapped[BotMetadata] = mapped_column(
+        "metadata", PydanticJSON(BotMetadata), none_as_null=True, nullable=True
     )
 
     # Relationships

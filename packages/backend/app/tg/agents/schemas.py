@@ -1,20 +1,43 @@
 from datetime import datetime
+from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
-from app.tg.agents.models import TGAgentStatus
+from app.tg.agents.models import BotMetadata, ChannelMetadata, TGAgentStatus
 
 
-class TGAgentSchema(BaseModel):
+class TGUserBot(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
+    id: UUID
+    created_at: datetime
+
+    metadata: BotMetadata | None = Field(default=None, alias="metadata_")
+
+
+class TGAgent(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
     created_at: datetime
 
     status: TGAgentStatus
     status_changed_at: datetime | None = None
 
     channel_id: int | None = None
+    channel_username: str | None = None
+    channel_metadata: ChannelMetadata | None = None
+
+    user_bot: TGUserBot | None = None
 
 
 class CreateTGAgentRequest(BaseModel):
-    channel_link: str
+    channel_username: str
+
+
+class AddTGBotRequest(BaseModel):
+    bot_token: str
+
+
+class LinkTGBotRequest(BaseModel):
+    bot_id: UUID
