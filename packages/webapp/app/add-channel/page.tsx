@@ -15,6 +15,7 @@ import { TgAgent, tgAgentsCreate } from "@viralink-ai/sdk";
 import PageTransition from "@/components/PageTransition";
 import { useApi } from "@/hooks/useApi";
 import { BackButton } from "@/components/BackButton";
+import ProgressBar from "@/components/ProgressBar";
 
 const isValidInviteLink = (url: string) => {
   return /^(https?:\/\/)?(t\.me\/joinchat\/|t\.me\/\+)[a-zA-Z0-9_-]+$/.test(
@@ -70,56 +71,59 @@ export default function AddChannel() {
   );
 
   return (
-    <PageTransition>
-      <BackButton href="/" />
-      <div className="container mx-auto max-w-md p-4">
-        <h1 className="text-2xl font-bold mb-2">Add a Channel</h1>
-        <p className="text-sm opacity-70 mb-6">
-          Connect your Telegram channel with BoostIQ
-        </p>
+    <>
+      <ProgressBar currentStep={1} totalSteps={5} />
+      <PageTransition>
+        <BackButton href="/" />
+        <div className="container mx-auto max-w-md p-4">
+          <h1 className="text-2xl font-bold mb-2">Add a Channel</h1>
+          <p className="text-sm opacity-70 mb-6">
+            Connect your Telegram channel with BoostIQ
+          </p>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <motion.div
-            initial={{ y: 10, opacity: 0 }}
-            animate={{ y: 1, opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            className="form-control"
-          >
-            <div className="relative">
-              <span className="absolute left-3 top-3.5 text-base-content/50">
-                <FiLink />
-              </span>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <motion.div
+              initial={{ y: 10, opacity: 0 }}
+              animate={{ y: 1, opacity: 1 }}
+              transition={{ duration: 0.3 }}
+              className="form-control"
+            >
+              <div className="relative">
+                <span className="absolute left-3 top-3.5 text-base-content/50">
+                  <FiLink />
+                </span>
 
-              <input
-                type="text"
-                placeholder="Channel name"
-                className={cn("input input-lg w-full", {
-                  "input-error": errors.channelUsername,
-                })}
-                {...register("channelUsername")}
-              />
-              {errors.channelUsername && (
-                <label className="label pt-2">
-                  <span className="label-text-alt text-error">
-                    {errors.channelUsername.message}
-                  </span>
-                </label>
-              )}
-            </div>
-          </motion.div>
+                <input
+                  type="text"
+                  placeholder="Channel name"
+                  className={cn("input input-lg w-full", {
+                    "input-error": errors.channelUsername,
+                  })}
+                  {...register("channelUsername")}
+                />
+                {errors.channelUsername && (
+                  <label className="label pt-2">
+                    <span className="label-text-alt text-error">
+                      {errors.channelUsername.message}
+                    </span>
+                  </label>
+                )}
+              </div>
+            </motion.div>
 
-          <InfoBlock />
+            <InfoBlock />
 
-          <button
-            type="submit"
-            className="btn btn-primary mt-6 w-full"
-            disabled={isSubmitting}
-          >
-            Continue
-          </button>
-        </form>
-      </div>
-    </PageTransition>
+            <button
+              type="submit"
+              className="btn btn-primary mt-6 w-full"
+              disabled={isSubmitting}
+            >
+              Continue
+            </button>
+          </form>
+        </div>
+      </PageTransition>
+    </>
   );
 }
 

@@ -12,7 +12,6 @@ import PageTransition from "@/components/PageTransition";
 import {
   TgAgent,
   tgAgentsLinkBot,
-  TgAgentsLinkBotData,
   TgAgentsLinkBotError,
   tgAgentsListBots,
   TgAgentsListBotsError,
@@ -22,6 +21,7 @@ import BotSelection from "@/components/agents/BotSelection";
 import { useApi } from "@/hooks/useApi";
 import { FiAlertCircle } from "react-icons/fi";
 import { strError } from "@/utils/errors";
+import ProgressBar from "@/components/ProgressBar";
 
 export default function SelectBot() {
   const { id } = useParams<{ id: string }>();
@@ -33,7 +33,7 @@ export default function SelectBot() {
   const api = useApi();
 
   const { data: bots } = useQuery<TgUserBot[], TgAgentsListBotsError>({
-    queryKey: ["bots"],
+    queryKey: ["/bots"],
     queryFn: async () => {
       const { data } = await tgAgentsListBots();
       return data ?? [];
@@ -79,69 +79,72 @@ export default function SelectBot() {
   }, [router, selectedBot, id]);
 
   return (
-    <PageTransition>
-      <BackButton />
-      <div className="container mx-auto max-w-md p-4">
-        {bots?.length !== 0 ? (
-          <>
-            <h1 className="text-2xl font-bold mb-2">Select a Bot</h1>
-            <p className="text-sm opacity-70 mb-6">
-              Choose a bot that will manage content for your channel
-            </p>
-            {error && (
-              <motion.div
-                initial={{ y: 10, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.3 }}
-              >
-                <div className="alert alert-error mb-4 flex items-center">
-                  <FiAlertCircle />
-                  <span className="ml-2">{strError(error)}</span>
-                </div>
-              </motion.div>
-            )}
+    <>
+      <ProgressBar currentStep={2} totalSteps={5} />
+      <PageTransition>
+        <BackButton />
+        <div className="container mx-auto max-w-md p-4">
+          {bots?.length !== 0 ? (
+            <>
+              <h1 className="text-2xl font-bold mb-2">Select a Bot</h1>
+              <p className="text-sm opacity-70 mb-6">
+                Choose a bot that will manage content for your channel
+              </p>
+              {error && (
+                <motion.div
+                  initial={{ y: 10, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <div className="alert alert-error mb-4 flex items-center">
+                    <FiAlertCircle />
+                    <span className="ml-2">{strError(error)}</span>
+                  </div>
+                </motion.div>
+              )}
 
-            <BotSelection
-              onSelect={handleSelectBot}
-              selectedBotId={
-                selectedBot instanceof Object ? selectedBot.id : undefined
-              }
-            />
-          </>
-        ) : null}
-        <motion.div
-          initial={{ y: 10, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className={twMerge(
-            cn(
-              "card bg-base-300 cursor-pointer hover:shadow-md transition-all border border-transparent",
-              selectedBot === "create_new_bot"
-                ? "bg-primary/10 border-primary"
-                : "bg-base-200"
-            )
-          )}
-          onClick={() =>
-            setSelectedBot((prev) =>
-              prev === "create_new_bot" ? null : "create_new_bot"
-            )
-          }
-        >
-          <div className="card-body p-4 text-center">
-            <h3 className="font-semibold">Add a new bot</h3>
-            <p className="text-sm opacity-80">
-              Add a new bot to manage content for your channel
-            </p>
-          </div>
-        </motion.div>
-        <button
-          className="btn btn-primary mt-6 w-full"
-          disabled={!selectedBot || isAttaching}
-          onClick={onClick}
-        >
-          Continue
-        </button>
-      </div>
-    </PageTransition>
+              <BotSelection
+                onSelect={handleSelectBot}
+                selectedBotId={
+                  selectedBot instanceof Object ? selectedBot.id : undefined
+                }
+              />
+            </>
+          ) : null}
+          <motion.div
+            initial={{ y: 10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className={twMerge(
+              cn(
+                "card bg-base-300 cursor-pointer hover:shadow-md transition-all border border-transparent",
+                selectedBot === "create_new_bot"
+                  ? "bg-primary/10 border-primary"
+                  : "bg-base-200"
+              )
+            )}
+            onClick={() =>
+              setSelectedBot((prev) =>
+                prev === "create_new_bot" ? null : "create_new_bot"
+              )
+            }
+          >
+            <div className="card-body p-4 text-center">
+              <h3 className="font-semibold">Add a new bot</h3>
+              <p className="text-sm opacity-80">
+                Add a new bot to manage content for your channel
+              </p>
+            </div>
+          </motion.div>
+          <button
+            className="btn btn-primary mt-6 w-full"
+            disabled={!selectedBot || isAttaching}
+            onClick={onClick}
+          >
+            Continue
+          </button>
+        </div>
+      </PageTransition>
+    </>
   );
 }

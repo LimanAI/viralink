@@ -3,44 +3,35 @@
 import { useCallback, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { FiUser, FiAlertCircle } from "react-icons/fi";
-import { useMutation, useQuery } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { FiCalendar, FiAlertCircle } from "react-icons/fi";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import {
   TgAgent,
+  TgAgentsUpdateChannelProfileError,
   tgAgentsGet,
   tgAgentsUpdateChannelProfile,
-  TgAgentsUpdateChannelProfileError,
 } from "@viralink-ai/sdk";
 
 import PageTransition from "@/components/PageTransition";
 import { BackButton } from "@/components/BackButton";
 import { useApi } from "@/hooks/useApi";
-import { getBotUsername, getChannelUsername } from "@/components/agents/utils";
 import { strError } from "@/utils/errors";
+import { getBotUsername, getChannelUsername } from "@/components/agents/utils";
 import ProgressBar from "@/components/ProgressBar";
 
-// Tone options
-const toneOptions = [
-  { id: "professional", label: "Professional" },
-  { id: "friendly", label: "Friendly & Casual" },
-  { id: "humorous", label: "Humorous" },
-  { id: "inspirational", label: "Inspirational" },
-  { id: "educational", label: "Educational" },
-];
-
 const formSchema = z.object({
-  personaDescription: z
+  contentDescription: z
     .string()
-    .min(5, "Description too short (min 5 characters)"),
+    .min(10, "Description too short (min 10 characters)"),
 });
 
 type FormData = z.infer<typeof formSchema>;
 
-export default function DescribePersona() {
+export default function DescribeContent() {
   const { id: agentId } = useParams<{ id: string }>();
   const router = useRouter();
 
@@ -70,14 +61,17 @@ export default function DescribePersona() {
           agent_id: agentId,
         },
         body: {
-          persona_description: data.personaDescription,
+          content_description: data.contentDescription,
         },
         throwOnError: true,
       });
       return agent;
     },
     onSuccess: (agent) => {
-      router.push(`/add-channel/${agent.id}/success`);
+      const nextUrl = agent?.channel_profile?.persona_description
+        ? `/agents/${agent.id}`
+        : `/add-channel/${agent.id}/describe-persona`;
+      router.push(nextUrl);
     },
   });
 
@@ -89,14 +83,14 @@ export default function DescribePersona() {
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      personaDescription: agent?.channel_profile?.persona_description ?? "",
+      contentDescription: agent?.channel_profile?.content_description ?? "",
     },
   });
 
   useEffect(() => {
     if (agent?.channel_profile?.content_description) {
       reset({
-        personaDescription: agent.channel_profile.persona_description,
+        contentDescription: agent.channel_profile.content_description,
       });
     }
   }, [agent]);
@@ -110,36 +104,36 @@ export default function DescribePersona() {
 
   return (
     <>
-      <ProgressBar currentStep={5} totalSteps={5} />
+      <ProgressBar currentStep={4} totalSteps={5} />
       <PageTransition>
         <BackButton />
         <div className="container mx-auto max-w-md p-4">
-          <div className="flex items-center mb-6">
-            <h1 className="text-2xl font-bold">Define Your Channel Persona</h1>
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold mb-2">Content Preferences</h1>
+            <p className="text-sm opacity-70">
+              Tell {getBotUsername(agent) || "your bot"} what kind of content to
+              create for {getChannelUsername(agent) || "your channel"}
+            </p>
           </div>
-          <p className="text-sm opacity-70 mb-6">
-            Help {getBotUsername(agent) || "your bot"} understand the voice and
-            style for {getChannelUsername(agent) || "your channel"}
-          </p>
 
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="form-control mb-6">
               <label className="label">
                 <span className="label-text font-medium flex items-center">
-                  <FiUser className="mr-2" /> Publisher Persona
+                  <FiCalendar className="mr-2" /> Content Topics & Themes
                 </span>
               </label>
               <textarea
-                placeholder="Describe the persona who will be publishing content on this channel..."
+                placeholder="Describe topics your content should cover..."
                 className="textarea textarea-bordered w-full h-32"
-                {...register("personaDescription")}
+                {...register("contentDescription")}
               ></textarea>
 
               <label className="label">
-                {errors.personaDescription && (
+                {errors.contentDescription && (
                   <label className="label pt-2">
                     <span className="label-text-alt text-error">
-                      {errors.personaDescription.message}
+                      {errors.contentDescription.message}
                     </span>
                   </label>
                 )}
@@ -164,18 +158,18 @@ export default function DescribePersona() {
               transition={{ delay: 0.2 }}
               className="card bg-base-200 p-4 mb-6"
             >
-              <h3 className="font-semibold mb-2">Why this matters:</h3>
+              <h3 className="font-semibold mb-2">What happens next:</h3>
               <p className="text-sm opacity-80">
-                Defining a clear persona ensures all content from your bot
-                maintains a consistent voice that resonates with your audience
-                and represents your brand effectively.
+                After connecting, your bot will prepare content based on your
+                preferences. You'll be able to review and approve all posts
+                before they're published.
               </p>
             </motion.div>
 
             <button
-              type="submit"
-              disabled={isPending}
               className="btn btn-primary w-full"
+              disabled={isPending}
+              type="submit"
             >
               Continue
             </button>

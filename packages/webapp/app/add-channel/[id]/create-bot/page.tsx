@@ -20,6 +20,7 @@ import {
   TgAgentsCreateBotError,
 } from "@viralink-ai/sdk";
 import { strError } from "@/utils/errors";
+import ProgressBar from "@/components/ProgressBar";
 
 const formSchema = z.object({
   apiToken: z.string().min(1, "Bot API Token is required"),
@@ -72,86 +73,89 @@ export default function CreateBot() {
   );
 
   return (
-    <PageTransition>
-      <BackButton />
-      <div className="container mx-auto max-w-md p-4">
-        <h1 className="text-2xl font-bold mb-2">
-          Connect a personal Telegram Bot
-        </h1>
+    <>
+      <ProgressBar currentStep={3} totalSteps={5} />
+      <PageTransition>
+        <BackButton />
+        <div className="container mx-auto max-w-md p-4">
+          <h1 className="text-2xl font-bold mb-2">
+            Connect a personal Telegram Bot
+          </h1>
 
-        <motion.div
-          initial={{ y: 10, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="card bg-base-300 my-4"
-        >
-          <div className="card-body p-4 text-center">
-            <p className="text-sm opacity-80 text-left">
-              To manage your channel, you’ll need to create a personal Telegram
-              bot. This bot will allow our system to securely access and manage
-              your channel on your behalf.
-            </p>
-          </div>
-        </motion.div>
-
-        <form onSubmit={handleSubmit(onSubmit)}>
           <motion.div
             initial={{ y: 10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.3 }}
+            className="card bg-base-300 my-4"
           >
-            <div className="form-control w-full mb-4">
-              {isPending && (
-                <div className="flex justify-center items-center pt-4">
-                  <FiLoader className="animate-spin text-2xl text-primary mr-2" />
-                  <span>Checking the bot credentials</span>
-                </div>
-              )}
-
-              <input
-                type="text"
-                placeholder="Bot API Token"
-                className={cn("input input-lg w-full", {
-                  "input-error": errors.apiToken,
-                  hidden: isPending,
-                })}
-                {...register("apiToken")}
-              />
-              <label className="label">
-                {errors.apiToken && (
-                  <label className="label pt-2">
-                    <span className="label-text-alt text-error">
-                      {errors.apiToken.message}
-                    </span>
-                  </label>
-                )}
-              </label>
+            <div className="card-body p-4 text-center">
+              <p className="text-sm opacity-80 text-left">
+                To manage your channel, you’ll need to create a personal
+                Telegram bot. This bot will allow our system to securely access
+                and manage your channel on your behalf.
+              </p>
             </div>
           </motion.div>
-          {error && (
+
+          <form onSubmit={handleSubmit(onSubmit)}>
             <motion.div
               initial={{ y: 10, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.3 }}
             >
-              <div className="alert alert-error mb-4 flex items-center">
-                <FiAlertCircle />
-                <span className="ml-2">{strError(error)}</span>
+              <div className="form-control w-full mb-4">
+                {isPending && (
+                  <div className="flex justify-center items-center pt-4">
+                    <FiLoader className="animate-spin text-2xl text-primary mr-2" />
+                    <span>Checking the bot credentials</span>
+                  </div>
+                )}
+
+                <input
+                  type="text"
+                  placeholder="Bot API Token"
+                  className={cn("input input-lg w-full", {
+                    "input-error": errors.apiToken,
+                    hidden: isPending,
+                  })}
+                  {...register("apiToken")}
+                />
+                <label className="label">
+                  {errors.apiToken && (
+                    <label className="label pt-2">
+                      <span className="label-text-alt text-error">
+                        {errors.apiToken.message}
+                      </span>
+                    </label>
+                  )}
+                </label>
               </div>
             </motion.div>
-          )}
-          <InfoBlock />
+            {error && (
+              <motion.div
+                initial={{ y: 10, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.3 }}
+              >
+                <div className="alert alert-error mb-4 flex items-center">
+                  <FiAlertCircle />
+                  <span className="ml-2">{strError(error)}</span>
+                </div>
+              </motion.div>
+            )}
+            <InfoBlock />
 
-          <button
-            type="submit"
-            className="btn btn-primary w-full mt-4"
-            disabled={isPending}
-          >
-            Continue
-          </button>
-        </form>
-      </div>
-    </PageTransition>
+            <button
+              type="submit"
+              className="btn btn-primary w-full mt-4"
+              disabled={isPending}
+            >
+              Continue
+            </button>
+          </form>
+        </div>
+      </PageTransition>
+    </>
   );
 }
 
