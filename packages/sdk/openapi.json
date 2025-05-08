@@ -463,7 +463,7 @@
                     }
                 ]
             },
-            "post": {
+            "put": {
                 "tags": [
                     "tg",
                     "tg_agents"
@@ -710,7 +710,7 @@
             }
         },
         "/tg/agents/{agent_id}/bots": {
-            "post": {
+            "put": {
                 "tags": [
                     "tg",
                     "tg_agents"
@@ -829,6 +829,85 @@
                         "application/json": {
                             "schema": {
                                 "$ref": "#/components/schemas/LinkTGBotRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TGAgent"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPUnauthorizedError"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPNotFoundError"
+                                }
+                            }
+                        },
+                        "description": "Not Found"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/tg/agents/{agent_id}/channel-profile": {
+            "post": {
+                "tags": [
+                    "tg",
+                    "tg_agents"
+                ],
+                "summary": "Update Channel Profile",
+                "operationId": "tg::agents::update_channel_profile",
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "agent_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Agent Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateChannelProfileRequest"
                             }
                         }
                     }
@@ -1017,6 +1096,34 @@
                 },
                 "type": "object",
                 "title": "ChannelMetadata"
+            },
+            "ChannelProfile": {
+                "properties": {
+                    "content_description": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Content Description"
+                    },
+                    "persona_description": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Persona Description"
+                    }
+                },
+                "type": "object",
+                "title": "ChannelProfile"
             },
             "CodeRequest": {
                 "properties": {
@@ -1290,6 +1397,16 @@
                             }
                         ]
                     },
+                    "channel_profile": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ChannelProfile"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
                     "user_bot": {
                         "anyOf": [
                             {
@@ -1315,7 +1432,7 @@
                     "initial",
                     "waiting_bot_attach",
                     "waiting_bot_access",
-                    "requires_channel_profile",
+                    "waiting_channel_profile",
                     "active",
                     "disabled",
                     "disabled_no_credit"
@@ -1351,6 +1468,34 @@
                     "created_at"
                 ],
                 "title": "TGUserBot"
+            },
+            "UpdateChannelProfileRequest": {
+                "properties": {
+                    "content_description": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Content Description"
+                    },
+                    "persona_description": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Persona Description"
+                    }
+                },
+                "type": "object",
+                "title": "UpdateChannelProfileRequest"
             },
             "User": {
                 "properties": {

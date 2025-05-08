@@ -22,6 +22,11 @@ export type ChannelMetadata = {
   description?: string | null;
 };
 
+export type ChannelProfile = {
+  content_description?: string | null;
+  persona_description?: string | null;
+};
+
 export type CodeRequest = {
   account_id: string;
   phone_number: string;
@@ -86,6 +91,7 @@ export type TgAgent = {
   channel_id?: number | null;
   channel_username?: string | null;
   channel_metadata?: ChannelMetadata | null;
+  channel_profile?: ChannelProfile | null;
   user_bot?: TgUserBot | null;
 };
 
@@ -93,7 +99,7 @@ export type TgAgentStatus =
   | "initial"
   | "waiting_bot_attach"
   | "waiting_bot_access"
-  | "requires_channel_profile"
+  | "waiting_channel_profile"
   | "active"
   | "disabled"
   | "disabled_no_credit";
@@ -102,6 +108,11 @@ export type TgUserBot = {
   id: string;
   created_at: string;
   metadata_?: BotMetadata | null;
+};
+
+export type UpdateChannelProfileRequest = {
+  content_description?: string | null;
+  persona_description?: string | null;
 };
 
 export type User = {
@@ -621,6 +632,43 @@ export type TgAgentsLinkBotResponses = {
 
 export type TgAgentsLinkBotResponse =
   TgAgentsLinkBotResponses[keyof TgAgentsLinkBotResponses];
+
+export type TgAgentsUpdateChannelProfileData = {
+  body: UpdateChannelProfileRequest;
+  path: {
+    agent_id: string;
+  };
+  query?: never;
+  url: "/tg/agents/{agent_id}/channel-profile";
+};
+
+export type TgAgentsUpdateChannelProfileErrors = {
+  /**
+   * Unauthorized
+   */
+  401: HttpUnauthorizedError;
+  /**
+   * Not Found
+   */
+  404: HttpNotFoundError;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type TgAgentsUpdateChannelProfileError =
+  TgAgentsUpdateChannelProfileErrors[keyof TgAgentsUpdateChannelProfileErrors];
+
+export type TgAgentsUpdateChannelProfileResponses = {
+  /**
+   * Successful Response
+   */
+  200: TgAgent;
+};
+
+export type TgAgentsUpdateChannelProfileResponse =
+  TgAgentsUpdateChannelProfileResponses[keyof TgAgentsUpdateChannelProfileResponses];
 
 export type RootData = {
   body?: never;

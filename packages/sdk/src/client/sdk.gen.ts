@@ -53,6 +53,9 @@ import type {
   TgAgentsLinkBotData,
   TgAgentsLinkBotResponse,
   TgAgentsLinkBotError,
+  TgAgentsUpdateChannelProfileData,
+  TgAgentsUpdateChannelProfileResponse,
+  TgAgentsUpdateChannelProfileError,
   RootData,
   RootResponse,
 } from "./types.gen";
@@ -301,7 +304,7 @@ export const tgAgentsList = <ThrowOnError extends boolean = false>(
 export const tgAgentsCreate = <ThrowOnError extends boolean = false>(
   options: Options<TgAgentsCreateData, ThrowOnError>,
 ) => {
-  return (options.client ?? _heyApiClient).post<
+  return (options.client ?? _heyApiClient).put<
     TgAgentsCreateResponse,
     TgAgentsCreateError,
     ThrowOnError
@@ -396,7 +399,7 @@ export const tgAgentsCheckBotPermissions = <
 export const tgAgentsCreateBot = <ThrowOnError extends boolean = false>(
   options: Options<TgAgentsCreateBotData, ThrowOnError>,
 ) => {
-  return (options.client ?? _heyApiClient).post<
+  return (options.client ?? _heyApiClient).put<
     TgAgentsCreateBotResponse,
     TgAgentsCreateBotError,
     ThrowOnError
@@ -434,6 +437,34 @@ export const tgAgentsLinkBot = <ThrowOnError extends boolean = false>(
       },
     ],
     url: "/tg/agents/{agent_id}/bots/link",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * Update Channel Profile
+ */
+export const tgAgentsUpdateChannelProfile = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<TgAgentsUpdateChannelProfileData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    TgAgentsUpdateChannelProfileResponse,
+    TgAgentsUpdateChannelProfileError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        name: "x-telegram-auth",
+        type: "apiKey",
+      },
+    ],
+    url: "/tg/agents/{agent_id}/channel-profile",
     ...options,
     headers: {
       "Content-Type": "application/json",
