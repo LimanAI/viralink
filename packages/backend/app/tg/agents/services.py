@@ -4,10 +4,17 @@ from uuid import UUID
 from sqlalchemy import sql
 from sqlalchemy.orm import selectinload
 
-from app.core.errors import ForbiddenError, NotFoundError
+from app.core.errors import AppError, ForbiddenError, NotFoundError
 from app.models.base import ErrorSchema, utc_now
 from app.services import BaseService
-from app.tg.agents.models import BotMetadata, TGAgent, TGAgentStatus, TGUserBot
+from app.tg.agents.models import (
+    BotMetadata,
+    BotPermissions,
+    ChannelProfile,
+    TGAgent,
+    TGAgentStatus,
+    TGUserBot,
+)
 
 
 class TGAgentService(BaseService):
@@ -145,6 +152,86 @@ class TGAgentService(BaseService):
                 .returning(TGAgent)
             )
         return result.scalar_one()
+
+    async def waiting_channel_profile(self, agent_id: UUID) -> TGAgent:
+        async with self.tx():
+            result = await self.db_session.execute(
+                sql.update(TGAgent)
+                .filter_by(id=agent_id)
+                .values(
+                    status=TGAgentStatus.WAITING_CHANNEL_PROFILE,
+                    status_changed_at=utc_now(),
+                    status_error=None,
+                    status_errored_at=None,
+                )
+                .returning(TGAgent)
+            )
+        return result.scalar_one()
+
+    async def activate(self, agent_id: UUID) -> TGAgent:
+        async with self.tx():
+            agent = await self.get(agent_id)
+
+            if not agent:
+                raise NotFoundError("Agent not found", agent_id=agent_id)
+
+            if agent.status not in [
+                TGAgentStatus.WAITING_BOT_ACCESS,
+                TGAgentStatus.WAITING_CHANNEL_PROFILE,
+                TGAgentStatus.DISABLED,
+                TGAgentStatus.DISABLED_NO_CREDIT,
+            ]:
+                raise AppError(
+                    "Agent is not in a state to be activated",
+                    agent_id=agent_id,
+                    status=agent.status,
+                )
+
+            agent.status = TGAgentStatus.ACTIVE
+            agent.status_changed_at = utc_now()
+            agent.status_error = None
+            agent.status_errored_at = None
+        return agent
+
+    async def update_bot_permissions(
+        self, agent_id: UUID, bot_id: UUID, bot_permissions: BotPermissions
+    ) -> TGAgent:
+        async with self.tx():
+            agent = await self.get(agent_id, with_bot=True)
+            if not agent:
+                raise NotFoundError("Agent not found", agent_id=agent_id)
+
+            if agent.user_bot.id != bot_id:
+                raise ForbiddenError(
+                    "Bot ID does not match the agent's bot ID",
+                    agent_id=agent_id,
+                    bot_id=bot_id,
+                )
+
+            agent.bot_permissions = bot_permissions
+        return agent
+
+    async def update_channel_profile(
+        self,
+        agent_id: UUID,
+        content_description: str | None = None,
+        persona_description: str | None = None,
+    ) -> TGAgent:
+        if content_description is None and persona_description is None:
+            raise ValueError(
+                "At least one of content_description or persona_description must be provided"
+            )
+        async with self.tx():
+            agent = await self.get(agent_id)
+            if not agent:
+                raise NotFoundError("Agent not found", agent_id=agent_id)
+
+            # TODO: supports incremental json updates
+            agent.channel_profile = ChannelProfile(
+                content_description=content_description or agent.channel_profile.content_description,
+                persona_description=persona_description or agent.channel_profile.persona_description,
+            )
+        return agent
 
     async def save_status_error(self, agent_id: UUID, status_error: str) -> TGAgent:
         async with self.tx():

@@ -5,7 +5,7 @@ from telegram.error import BadRequest as TelegramBadRequest
 from telegram.error import Forbidden as TelegramForbiddenError
 
 from app.core.errors import AppError, ForbiddenError, NotFoundError
-from app.tg.agents.models import TGAgent, TGAgentStatus
+from app.tg.agents.models import BotPermissions, TGAgent, TGAgentStatus
 from app.tg.agents.services import TGAgentService
 
 
@@ -36,8 +36,22 @@ async def check_agent_bot_permissions(
         member = await bot.get_chat_member(
             chat_id=f"@{agent.channel_username}", user_id=user_bot.tg_id
         )
-        # ChatMemberAdministrator(api_kwargs={'can_manage_voice_chats': False}, can_be_edited=False, can_change_info=False, can_delete_messages=False, can_delete_stories=True, can_edit_stories=True, can_invite_users=False, can_manage_chat=True, can_manage_topics=False, can_manage_video_chats=False, can_pin_messages=False, can_post_stories=True, can_promote_members=False, can_restrict_members=False, is_anonymous=False, status=<ChatMemberStatus.ADMINISTRATOR>, user=User(first_name='Бот устарел', id=5365706309, is_bot=True, username='get2gether_antalya_bot'))
-        print(member)
+
+        agent = await agent_svc.update_bot_permissions(
+            agent.id,
+            user_bot.id,
+            bot_permissions=BotPermissions(**member.to_dict()),
+        )
+
+        if (
+            not agent.channel_profile.persona_description
+            or not agent.channel_profile.content_description
+        ):
+            # if the agent doesn't have fully tuned channel_profile
+            agent = await agent_svc.waiting_channel_profile(agent.id)
+            return agent
+
+        agent = await agent_svc.activate(agent.id)
     except TelegramForbiddenError:
         # still not a member
         if agent.status == TGAgentStatus.WAITING_BOT_ACCESS:
@@ -47,7 +61,7 @@ async def check_agent_bot_permissions(
             return agent
         return agent
     except TelegramBadRequest as e:
-        if "Chat not found" in str(e):
+        if "Chat not found" in str(e) or "Member list is inaccessible" in str(e):
             # still not a member
             if agent.status == TGAgentStatus.WAITING_BOT_ACCESS:
                 return agent

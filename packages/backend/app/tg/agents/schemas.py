@@ -3,7 +3,12 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.tg.agents.models import BotMetadata, ChannelMetadata, TGAgentStatus
+from app.tg.agents.models import (
+    BotMetadata,
+    ChannelMetadata,
+    ChannelProfile,
+    TGAgentStatus,
+)
 
 
 class TGUserBot(BaseModel):
@@ -27,12 +32,18 @@ class TGAgent(BaseModel):
     channel_id: int | None = None
     channel_username: str | None = None
     channel_metadata: ChannelMetadata | None = None
+    channel_profile: ChannelProfile | None = None
 
     user_bot: TGUserBot | None = None
 
 
 class CreateTGAgentRequest(BaseModel):
     channel_username: str
+
+
+class UpdateChannelProfileRequest(BaseModel):
+    content_description: str | None = None
+    persona_description: str | None = None
 
 
 class AddTGBotRequest(BaseModel):

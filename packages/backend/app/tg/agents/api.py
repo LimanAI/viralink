@@ -14,11 +14,12 @@ from app.core.http_errors import (
 )
 from app.openapi import generate_unique_id_function
 from app.tg.agents.bot import check_agent_bot_permissions
-from app.tg.agents.models import BotMetadata
+from app.tg.agents.models import BotMetadata, TGAgentStatus
 from app.tg.agents.schemas import (
     AddTGBotRequest,
     CreateTGAgentRequest,
     LinkTGBotRequest,
+    UpdateChannelProfileRequest,
 )
 from app.tg.agents.schemas import TGAgent as TGAgentSchema
 from app.tg.agents.schemas import TGUserBot as TGUserBotSchema
@@ -48,7 +49,7 @@ async def list_agents(
     return [TGAgentSchema.model_validate(agent) for agent in agents]
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.put("/", status_code=status.HTTP_201_CREATED)
 async def create(
     user: AuthUser,
     data: CreateTGAgentRequest,
@@ -83,7 +84,7 @@ async def get(
     agent_id: UUID,
     agent_svc: Annotated[TGAgentService, Depends(TGAgentService.inject)],
 ) -> TGAgentSchema:
-    agent = await agent_svc.get(agent_id)
+    agent = await agent_svc.get(agent_id, with_bot=True)
     if not agent:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -127,7 +128,7 @@ async def check_bot_permissions(
     return TGAgentSchema.model_validate(agent)
 
 
-@router.post(
+@router.put(
     "/{agent_id}/bots",
     status_code=status.HTTP_201_CREATED,
     responses={404: {"model": HTTPNotFoundError}, 403: {"model": HTTPForbiddenError}},
@@ -208,4 +209,46 @@ async def link_bot(
             status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
         ) from e
 
+    return TGAgentSchema.model_validate(agent)
+
+
+@router.post(
+    "/{agent_id}/channel-profile",
+    status_code=status.HTTP_200_OK,
+    responses={404: {"model": HTTPNotFoundError}},
+)
+async def update_channel_profile(
+    agent_id: UUID,
+    user: AuthUser,
+    data: UpdateChannelProfileRequest,
+    agent_svc: Annotated[TGAgentService, Depends(TGAgentService.inject)],
+) -> TGAgentSchema:
+    agent = await agent_svc.get(agent_id)
+    if not agent:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Agent not found",
+        )
+
+    if agent.tg_user_id != user.tg_id:
+        logger.exception(
+            f"User {user.tg_id} tried to update channel profile of agent {agent_id} that belongs to user {agent.tg_user_id}",
+            tg_user_id=user.tg_id,
+            agent_id=agent_id,
+        )
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Agent not found",
+        )
+
+    agent = await agent_svc.update_channel_profile(
+        agent_id, data.content_description, data.persona_description
+    )
+
+    if (
+        agent.status == TGAgentStatus.WAITING_CHANNEL_PROFILE
+        and agent.channel_profile.content_description
+        and agent.channel_profile.persona_description
+    ):
+        agent = await agent_svc.activate(agent.id)
     return TGAgentSchema.model_validate(agent)

@@ -20,7 +20,7 @@ class TGAgentStatus(str, enum.Enum):
     INITIAL = "initial"
     WAITING_BOT_ATTACH = "waiting_bot_attach"
     WAITING_BOT_ACCESS = "waiting_bot_access"
-    REQUIRES_CHANNEL_PROFILE = "requires_channel_profile"
+    WAITING_CHANNEL_PROFILE = "waiting_channel_profile"
     ACTIVE = "active"
     DISABLED = "disabled"
     DISABLED_NO_CREDIT = "disabled_no_credit"
@@ -33,8 +33,8 @@ class ChannelMetadata(BaseModel):
 
 
 class ChannelProfile(BaseModel):
-    persona_description: str | None = None
     content_description: str | None = None
+    persona_description: str | None = None
 
 
 class BotMetadata(BaseModel):
@@ -44,6 +44,28 @@ class BotMetadata(BaseModel):
     username: str | None = None
     first_name: str | None = None
     description: str | None = None
+
+
+class BotPermissions(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    is_admin: bool = False
+
+    can_manage_voice_chats: bool = False
+    can_be_edited: bool = False
+    can_change_info: bool = False
+    can_delete_messages: bool = False
+    can_delete_stories: bool = False
+    can_edit_stories: bool = False
+    can_invite_users: bool = False
+    can_manage_chat: bool = False
+    can_manage_topics: bool = False
+    can_manage_video_chats: bool = False
+    can_pin_messages: bool = False
+    can_post_stories: bool = False
+    can_promote_members: bool = False
+    can_restrict_members: bool = False
+    is_anonymous: bool = False
 
 
 class TGAgent(RecordModel):
@@ -56,6 +78,10 @@ class TGAgent(RecordModel):
     )
     channel_profile: Mapped[ChannelProfile] = mapped_column(
         PydanticJSON(ChannelProfile), default=dict
+    )
+
+    bot_permissions: Mapped[BotPermissions] = mapped_column(
+        PydanticJSON(BotPermissions), none_as_null=True, nullable=True
     )
 
     status: Mapped[TGAgentStatus] = mapped_column(
