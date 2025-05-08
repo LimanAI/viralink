@@ -438,7 +438,7 @@
                             "application/json": {
                                 "schema": {
                                     "items": {
-                                        "$ref": "#/components/schemas/TGAgentSchema"
+                                        "$ref": "#/components/schemas/TGAgent"
                                     },
                                     "type": "array",
                                     "title": "Response Tg::Agents::List"
@@ -486,7 +486,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/TGAgentSchema"
+                                    "$ref": "#/components/schemas/TGAgent"
                                 }
                             }
                         }
@@ -517,6 +517,364 @@
                         "APIKeyHeader": []
                     }
                 ]
+            }
+        },
+        "/tg/agents/bots": {
+            "get": {
+                "tags": [
+                    "tg",
+                    "tg_agents"
+                ],
+                "summary": "List Bots",
+                "operationId": "tg::agents::list_bots",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/TGUserBot"
+                                    },
+                                    "type": "array",
+                                    "title": "Response Tg::Agents::List Bots"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPUnauthorizedError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ]
+            }
+        },
+        "/tg/agents/{agent_id}": {
+            "get": {
+                "tags": [
+                    "tg",
+                    "tg_agents"
+                ],
+                "summary": "Get",
+                "operationId": "tg::agents::get",
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "agent_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Agent Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TGAgent"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPUnauthorizedError"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPNotFoundError"
+                                }
+                            }
+                        },
+                        "description": "Not Found"
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPForbiddenError"
+                                }
+                            }
+                        },
+                        "description": "Forbidden"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/tg/agents/{agent_id}/check-bot-permissions": {
+            "post": {
+                "tags": [
+                    "tg",
+                    "tg_agents"
+                ],
+                "summary": "Check Bot Permissions",
+                "description": "Long running endpoints that connects to the telegram and checks if the bot has sufficient permissions",
+                "operationId": "tg::agents::check_bot_permissions",
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "agent_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Agent Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TGAgent"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPUnauthorizedError"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPNotFoundError"
+                                }
+                            }
+                        },
+                        "description": "Not Found"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/tg/agents/{agent_id}/bots": {
+            "post": {
+                "tags": [
+                    "tg",
+                    "tg_agents"
+                ],
+                "summary": "Createbot",
+                "operationId": "tg::agents::createBot",
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "agent_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Agent Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AddTGBotRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TGAgent"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPUnauthorizedError"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPNotFoundError"
+                                }
+                            }
+                        },
+                        "description": "Not Found"
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPForbiddenError"
+                                }
+                            }
+                        },
+                        "description": "Forbidden"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/tg/agents/{agent_id}/bots/link": {
+            "post": {
+                "tags": [
+                    "tg",
+                    "tg_agents"
+                ],
+                "summary": "Link Bot",
+                "operationId": "tg::agents::link_bot",
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "agent_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Agent Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LinkTGBotRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TGAgent"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPUnauthorizedError"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPNotFoundError"
+                                }
+                            }
+                        },
+                        "description": "Not Found"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/": {
@@ -562,6 +920,104 @@
                 ],
                 "title": "AccessToken"
             },
+            "AddTGBotRequest": {
+                "properties": {
+                    "bot_token": {
+                        "type": "string",
+                        "title": "Bot Token"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "bot_token"
+                ],
+                "title": "AddTGBotRequest"
+            },
+            "BotMetadata": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
+                    "username": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Username"
+                    },
+                    "first_name": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "First Name"
+                    },
+                    "description": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Description"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id"
+                ],
+                "title": "BotMetadata"
+            },
+            "ChannelMetadata": {
+                "properties": {
+                    "username": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Username"
+                    },
+                    "title": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Title"
+                    },
+                    "description": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Description"
+                    }
+                },
+                "type": "object",
+                "title": "ChannelMetadata"
+            },
             "CodeRequest": {
                 "properties": {
                     "account_id": {
@@ -606,14 +1062,14 @@
             },
             "CreateTGAgentRequest": {
                 "properties": {
-                    "channel_link": {
+                    "channel_username": {
                         "type": "string",
-                        "title": "Channel Link"
+                        "title": "Channel Username"
                     }
                 },
                 "type": "object",
                 "required": [
-                    "channel_link"
+                    "channel_username"
                 ],
                 "title": "CreateTGAgentRequest"
             },
@@ -634,6 +1090,42 @@
                     "status_code"
                 ],
                 "title": "HTTPError"
+            },
+            "HTTPForbiddenError": {
+                "properties": {
+                    "detail": {
+                        "type": "string",
+                        "title": "Detail"
+                    },
+                    "status_code": {
+                        "type": "integer",
+                        "title": "Status Code"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "detail",
+                    "status_code"
+                ],
+                "title": "HTTPForbiddenError"
+            },
+            "HTTPNotFoundError": {
+                "properties": {
+                    "detail": {
+                        "type": "string",
+                        "title": "Detail"
+                    },
+                    "status_code": {
+                        "type": "integer",
+                        "title": "Status Code"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "detail",
+                    "status_code"
+                ],
+                "title": "HTTPNotFoundError"
             },
             "HTTPUnauthorizedError": {
                 "properties": {
@@ -665,6 +1157,20 @@
                 },
                 "type": "object",
                 "title": "HTTPValidationError"
+            },
+            "LinkTGBotRequest": {
+                "properties": {
+                    "bot_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Bot Id"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "bot_id"
+                ],
+                "title": "LinkTGBotRequest"
             },
             "SignUpRequest": {
                 "properties": {
@@ -725,8 +1231,13 @@
                 ],
                 "title": "TGAccountStatus"
             },
-            "TGAgentSchema": {
+            "TGAgent": {
                 "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id"
+                    },
                     "created_at": {
                         "type": "string",
                         "format": "date-time",
@@ -757,14 +1268,46 @@
                             }
                         ],
                         "title": "Channel Id"
+                    },
+                    "channel_username": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Channel Username"
+                    },
+                    "channel_metadata": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ChannelMetadata"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    },
+                    "user_bot": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/TGUserBot"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 },
                 "type": "object",
                 "required": [
+                    "id",
                     "created_at",
                     "status"
                 ],
-                "title": "TGAgentSchema"
+                "title": "TGAgent"
             },
             "TGAgentStatus": {
                 "type": "string",
@@ -778,6 +1321,36 @@
                     "disabled_no_credit"
                 ],
                 "title": "TGAgentStatus"
+            },
+            "TGUserBot": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "metadata_": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/BotMetadata"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "created_at"
+                ],
+                "title": "TGUserBot"
             },
             "User": {
                 "properties": {

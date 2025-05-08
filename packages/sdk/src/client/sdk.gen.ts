@@ -38,6 +38,21 @@ import type {
   TgAgentsCreateData,
   TgAgentsCreateResponse,
   TgAgentsCreateError,
+  TgAgentsListBotsData,
+  TgAgentsListBotsResponse,
+  TgAgentsListBotsError,
+  TgAgentsGetData,
+  TgAgentsGetResponse,
+  TgAgentsGetError,
+  TgAgentsCheckBotPermissionsData,
+  TgAgentsCheckBotPermissionsResponse,
+  TgAgentsCheckBotPermissionsError,
+  TgAgentsCreateBotData,
+  TgAgentsCreateBotResponse,
+  TgAgentsCreateBotError,
+  TgAgentsLinkBotData,
+  TgAgentsLinkBotResponse,
+  TgAgentsLinkBotError,
   RootData,
   RootResponse,
 } from "./types.gen";
@@ -298,6 +313,127 @@ export const tgAgentsCreate = <ThrowOnError extends boolean = false>(
       },
     ],
     url: "/tg/agents/",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * List Bots
+ */
+export const tgAgentsListBots = <ThrowOnError extends boolean = false>(
+  options?: Options<TgAgentsListBotsData, ThrowOnError>,
+) => {
+  return (options?.client ?? _heyApiClient).get<
+    TgAgentsListBotsResponse,
+    TgAgentsListBotsError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        name: "x-telegram-auth",
+        type: "apiKey",
+      },
+    ],
+    url: "/tg/agents/bots",
+    ...options,
+  });
+};
+
+/**
+ * Get
+ */
+export const tgAgentsGet = <ThrowOnError extends boolean = false>(
+  options: Options<TgAgentsGetData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    TgAgentsGetResponse,
+    TgAgentsGetError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        name: "x-telegram-auth",
+        type: "apiKey",
+      },
+    ],
+    url: "/tg/agents/{agent_id}",
+    ...options,
+  });
+};
+
+/**
+ * Check Bot Permissions
+ * Long running endpoints that connects to the telegram and checks if the bot has sufficient permissions
+ */
+export const tgAgentsCheckBotPermissions = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<TgAgentsCheckBotPermissionsData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    TgAgentsCheckBotPermissionsResponse,
+    TgAgentsCheckBotPermissionsError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        name: "x-telegram-auth",
+        type: "apiKey",
+      },
+    ],
+    url: "/tg/agents/{agent_id}/check-bot-permissions",
+    ...options,
+  });
+};
+
+/**
+ * Createbot
+ */
+export const tgAgentsCreateBot = <ThrowOnError extends boolean = false>(
+  options: Options<TgAgentsCreateBotData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    TgAgentsCreateBotResponse,
+    TgAgentsCreateBotError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        name: "x-telegram-auth",
+        type: "apiKey",
+      },
+    ],
+    url: "/tg/agents/{agent_id}/bots",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * Link Bot
+ */
+export const tgAgentsLinkBot = <ThrowOnError extends boolean = false>(
+  options: Options<TgAgentsLinkBotData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    TgAgentsLinkBotResponse,
+    TgAgentsLinkBotError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        name: "x-telegram-auth",
+        type: "apiKey",
+      },
+    ],
+    url: "/tg/agents/{agent_id}/bots/link",
     ...options,
     headers: {
       "Content-Type": "application/json",

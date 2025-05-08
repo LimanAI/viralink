@@ -5,6 +5,23 @@ export type AccessToken = {
   token_type?: string;
 };
 
+export type AddTgBotRequest = {
+  bot_token: string;
+};
+
+export type BotMetadata = {
+  id: number;
+  username?: string | null;
+  first_name?: string | null;
+  description?: string | null;
+};
+
+export type ChannelMetadata = {
+  username?: string | null;
+  title?: string | null;
+  description?: string | null;
+};
+
 export type CodeRequest = {
   account_id: string;
   phone_number: string;
@@ -17,10 +34,20 @@ export type CreateAccountRequest = {
 };
 
 export type CreateTgAgentRequest = {
-  channel_link: string;
+  channel_username: string;
 };
 
 export type HttpError = {
+  detail: string;
+  status_code: number;
+};
+
+export type HttpForbiddenError = {
+  detail: string;
+  status_code: number;
+};
+
+export type HttpNotFoundError = {
   detail: string;
   status_code: number;
 };
@@ -32,6 +59,10 @@ export type HttpUnauthorizedError = {
 
 export type HttpValidationError = {
   detail?: Array<ValidationError>;
+};
+
+export type LinkTgBotRequest = {
+  bot_id: string;
 };
 
 export type SignUpRequest = {
@@ -47,11 +78,15 @@ export type TgAccount = {
 
 export type TgAccountStatus = "initial" | "sent_code" | "active" | "disabled";
 
-export type TgAgentSchema = {
+export type TgAgent = {
+  id: string;
   created_at: string;
   status: TgAgentStatus;
   status_changed_at?: string | null;
   channel_id?: number | null;
+  channel_username?: string | null;
+  channel_metadata?: ChannelMetadata | null;
+  user_bot?: TgUserBot | null;
 };
 
 export type TgAgentStatus =
@@ -62,6 +97,12 @@ export type TgAgentStatus =
   | "active"
   | "disabled"
   | "disabled_no_credit";
+
+export type TgUserBot = {
+  id: string;
+  created_at: string;
+  metadata_?: BotMetadata | null;
+};
 
 export type User = {
   id: string;
@@ -362,7 +403,7 @@ export type TgAgentsListResponses = {
   /**
    * Successful Response
    */
-  200: Array<TgAgentSchema>;
+  200: Array<TgAgent>;
 };
 
 export type TgAgentsListResponse =
@@ -393,11 +434,193 @@ export type TgAgentsCreateResponses = {
   /**
    * Successful Response
    */
-  201: TgAgentSchema;
+  201: TgAgent;
 };
 
 export type TgAgentsCreateResponse =
   TgAgentsCreateResponses[keyof TgAgentsCreateResponses];
+
+export type TgAgentsListBotsData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/tg/agents/bots";
+};
+
+export type TgAgentsListBotsErrors = {
+  /**
+   * Unauthorized
+   */
+  401: HttpUnauthorizedError;
+};
+
+export type TgAgentsListBotsError =
+  TgAgentsListBotsErrors[keyof TgAgentsListBotsErrors];
+
+export type TgAgentsListBotsResponses = {
+  /**
+   * Successful Response
+   */
+  200: Array<TgUserBot>;
+};
+
+export type TgAgentsListBotsResponse =
+  TgAgentsListBotsResponses[keyof TgAgentsListBotsResponses];
+
+export type TgAgentsGetData = {
+  body?: never;
+  path: {
+    agent_id: string;
+  };
+  query?: never;
+  url: "/tg/agents/{agent_id}";
+};
+
+export type TgAgentsGetErrors = {
+  /**
+   * Unauthorized
+   */
+  401: HttpUnauthorizedError;
+  /**
+   * Forbidden
+   */
+  403: HttpForbiddenError;
+  /**
+   * Not Found
+   */
+  404: HttpNotFoundError;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type TgAgentsGetError = TgAgentsGetErrors[keyof TgAgentsGetErrors];
+
+export type TgAgentsGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: TgAgent;
+};
+
+export type TgAgentsGetResponse =
+  TgAgentsGetResponses[keyof TgAgentsGetResponses];
+
+export type TgAgentsCheckBotPermissionsData = {
+  body?: never;
+  path: {
+    agent_id: string;
+  };
+  query?: never;
+  url: "/tg/agents/{agent_id}/check-bot-permissions";
+};
+
+export type TgAgentsCheckBotPermissionsErrors = {
+  /**
+   * Unauthorized
+   */
+  401: HttpUnauthorizedError;
+  /**
+   * Not Found
+   */
+  404: HttpNotFoundError;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type TgAgentsCheckBotPermissionsError =
+  TgAgentsCheckBotPermissionsErrors[keyof TgAgentsCheckBotPermissionsErrors];
+
+export type TgAgentsCheckBotPermissionsResponses = {
+  /**
+   * Successful Response
+   */
+  200: TgAgent;
+};
+
+export type TgAgentsCheckBotPermissionsResponse =
+  TgAgentsCheckBotPermissionsResponses[keyof TgAgentsCheckBotPermissionsResponses];
+
+export type TgAgentsCreateBotData = {
+  body: AddTgBotRequest;
+  path: {
+    agent_id: string;
+  };
+  query?: never;
+  url: "/tg/agents/{agent_id}/bots";
+};
+
+export type TgAgentsCreateBotErrors = {
+  /**
+   * Unauthorized
+   */
+  401: HttpUnauthorizedError;
+  /**
+   * Forbidden
+   */
+  403: HttpForbiddenError;
+  /**
+   * Not Found
+   */
+  404: HttpNotFoundError;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type TgAgentsCreateBotError =
+  TgAgentsCreateBotErrors[keyof TgAgentsCreateBotErrors];
+
+export type TgAgentsCreateBotResponses = {
+  /**
+   * Successful Response
+   */
+  201: TgAgent;
+};
+
+export type TgAgentsCreateBotResponse =
+  TgAgentsCreateBotResponses[keyof TgAgentsCreateBotResponses];
+
+export type TgAgentsLinkBotData = {
+  body: LinkTgBotRequest;
+  path: {
+    agent_id: string;
+  };
+  query?: never;
+  url: "/tg/agents/{agent_id}/bots/link";
+};
+
+export type TgAgentsLinkBotErrors = {
+  /**
+   * Unauthorized
+   */
+  401: HttpUnauthorizedError;
+  /**
+   * Not Found
+   */
+  404: HttpNotFoundError;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type TgAgentsLinkBotError =
+  TgAgentsLinkBotErrors[keyof TgAgentsLinkBotErrors];
+
+export type TgAgentsLinkBotResponses = {
+  /**
+   * Successful Response
+   */
+  200: TgAgent;
+};
+
+export type TgAgentsLinkBotResponse =
+  TgAgentsLinkBotResponses[keyof TgAgentsLinkBotResponses];
 
 export type RootData = {
   body?: never;
