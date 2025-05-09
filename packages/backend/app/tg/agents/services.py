@@ -3,6 +3,7 @@ from uuid import UUID
 
 from sqlalchemy import sql
 from sqlalchemy.orm import selectinload
+from telegram import ChatFullInfo
 
 from app.core.errors import AppError, ForbiddenError, NotFoundError
 from app.models.base import ErrorSchema, utc_now
@@ -10,6 +11,7 @@ from app.services import BaseService
 from app.tg.agents.models import (
     BotMetadata,
     BotPermissions,
+    ChannelMetadata,
     ChannelProfile,
     TGAgent,
     TGAgentStatus,
@@ -19,7 +21,7 @@ from app.tg.agents.models import (
 
 class TGAgentService(BaseService):
     async def get(self, agent_id: UUID, *, with_bot: bool = False) -> TGAgent | None:
-        query = sql.select(TGAgent).filter_by(id=agent_id)
+        query = sql.select(TGAgent).filter_by(id=agent_id, deleted_at=None)
         if with_bot:
             query = query.options(selectinload(TGAgent.user_bot))
         async with self.tx():
@@ -29,7 +31,9 @@ class TGAgentService(BaseService):
     async def get_for_channel(self, channel_id: int, tg_user_id: int) -> TGAgent | None:
         async with self.tx():
             result = await self.db_session.execute(
-                sql.select(TGAgent).filter_by(channel_id=channel_id, user_id=tg_user_id)
+                sql.select(TGAgent).filter_by(
+                    channel_id=channel_id, user_id=tg_user_id, deleted_at=None
+                )
             )
         return result.scalar_one_or_none()
 
@@ -64,6 +68,16 @@ class TGAgentService(BaseService):
                     tg_user_id=tg_user_id,
                     status=TGAgentStatus.WAITING_BOT_ATTACH,
                 )
+                .returning(TGAgent)
+            )
+        return result.scalar_one()
+
+    async def delete(self, agent_id: UUID, tg_user_id: int) -> TGAgent:
+        async with self.tx():
+            result = await self.db_session.execute(
+                sql.update(TGAgent)
+                .filter_by(id=agent_id, tg_user_id=tg_user_id)
+                .values(deleted_at=utc_now())
                 .returning(TGAgent)
             )
         return result.scalar_one()
@@ -211,6 +225,25 @@ class TGAgentService(BaseService):
             agent.bot_permissions = bot_permissions
         return agent
 
+    async def update_channel_metadata(
+        self,
+        agent_id: UUID,
+        channel_metadata: ChatFullInfo,
+    ) -> TGAgent:
+        async with self.tx():
+            agent = await self.get(agent_id)
+            if not agent:
+                raise NotFoundError("Agent not found", agent_id=agent_id)
+
+            if agent.channel_username != channel_metadata.username:
+                raise ValueError(
+                    "Channel username does not match the agent's channel username"
+                )
+
+            agent.channel_id = channel_metadata.id
+            agent.channel_metadata = ChannelMetadata(**channel_metadata.to_dict())
+        return agent
+
     async def update_channel_profile(
         self,
         agent_id: UUID,
@@ -228,8 +261,10 @@ class TGAgentService(BaseService):
 
             # TODO: supports incremental json updates
             agent.channel_profile = ChannelProfile(
-                content_description=content_description or agent.channel_profile.content_description,
-                persona_description=persona_description or agent.channel_profile.persona_description,
+                content_description=content_description
+                or agent.channel_profile.content_description,
+                persona_description=persona_description
+                or agent.channel_profile.persona_description,
             )
         return agent
 

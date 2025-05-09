@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from telegram import Bot
+from telegram.constants import ChatType
 from telegram.error import BadRequest as TelegramBadRequest
 from telegram.error import Forbidden as TelegramForbiddenError
 
@@ -36,12 +37,22 @@ async def check_agent_bot_permissions(
         member = await bot.get_chat_member(
             chat_id=f"@{agent.channel_username}", user_id=user_bot.tg_id
         )
+        chat = await bot.get_chat(f"@{agent.channel_username}")
 
-        agent = await agent_svc.update_bot_permissions(
-            agent.id,
-            user_bot.id,
-            bot_permissions=BotPermissions(**member.to_dict()),
-        )
+        if chat.type != ChatType.CHANNEL:
+            raise AppError("Chat is not a channel")
+
+        async with agent_svc.tx():
+            await agent_svc.update_channel_metadata(
+                agent.id,
+                channel_metadata=chat,
+            )
+
+            agent = await agent_svc.update_bot_permissions(
+                agent.id,
+                user_bot.id,
+                bot_permissions=BotPermissions(**member.to_dict()),
+            )
 
         if (
             not agent.channel_profile.persona_description
@@ -71,7 +82,7 @@ async def check_agent_bot_permissions(
             return agent
         raise
     except Exception as e:
-        await agent_svc.save_status_error(agent.id, str(e))
+        await agent_svc.save_status_error(agent_id, str(e))
         raise
 
     return agent

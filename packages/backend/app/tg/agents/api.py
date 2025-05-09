@@ -99,6 +99,39 @@ async def get(
     return TGAgentSchema.model_validate(agent)
 
 
+@router.delete(
+    "/{agent_id}",
+    status_code=status.HTTP_200_OK,
+    responses={404: {"model": HTTPNotFoundError}},
+)
+async def delete(
+    agent_id: UUID,
+    user: AuthUser,
+    agent_svc: Annotated[TGAgentService, Depends(TGAgentService.inject)],
+) -> None:
+    agent = await agent_svc.get(agent_id)
+    if not agent:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Agent not found",
+        )
+    if agent.tg_user_id != user.tg_id:
+        logger.exception(
+            f"User {user.tg_id} tried to delete agent {agent_id} that belongs to user {agent.tg_user_id}",
+            tg_user_id=user.tg_id,
+            agent_id=agent_id,
+        )
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not allowed to delete this agent",
+        )
+
+    await agent_svc.delete(
+        agent_id=agent_id,
+        tg_user_id=user.tg_id,
+    )
+
+
 @router.post(
     "/{agent_id}/check-bot-permissions",
     status_code=status.HTTP_200_OK,

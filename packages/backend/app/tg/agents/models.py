@@ -27,7 +27,8 @@ class TGAgentStatus(str, enum.Enum):
 
 
 class ChannelMetadata(BaseModel):
-    username: str | None = None
+    id: int
+    username: str = None
     title: str | None = None
     description: str | None = None
 
@@ -74,7 +75,7 @@ class TGAgent(RecordModel):
     channel_id: Mapped[int] = mapped_column(BigInteger, nullable=True)
     channel_username: Mapped[str] = string_column(128)
     channel_metadata: Mapped[ChannelMetadata] = mapped_column(
-        PydanticJSON(ChannelMetadata), default=dict
+        PydanticJSON(ChannelMetadata), nullable=True
     )
     channel_profile: Mapped[ChannelProfile] = mapped_column(
         PydanticJSON(ChannelProfile), default=dict
