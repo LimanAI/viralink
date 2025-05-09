@@ -637,6 +637,73 @@
                         }
                     }
                 }
+            },
+            "delete": {
+                "tags": [
+                    "tg",
+                    "tg_agents"
+                ],
+                "summary": "Delete",
+                "operationId": "tg::agents::delete",
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "agent_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Agent Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TGAgent"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPUnauthorizedError"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPNotFoundError"
+                                }
+                            }
+                        },
+                        "description": "Not Found"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/tg/agents/{agent_id}/check-bot-permissions": {
@@ -1060,15 +1127,12 @@
             },
             "ChannelMetadata": {
                 "properties": {
+                    "id": {
+                        "type": "integer",
+                        "title": "Id"
+                    },
                     "username": {
-                        "anyOf": [
-                            {
-                                "type": "string"
-                            },
-                            {
-                                "type": "null"
-                            }
-                        ],
+                        "type": "string",
                         "title": "Username"
                     },
                     "title": {
@@ -1095,6 +1159,9 @@
                     }
                 },
                 "type": "object",
+                "required": [
+                    "id"
+                ],
                 "title": "ChannelMetadata"
             },
             "ChannelProfile": {

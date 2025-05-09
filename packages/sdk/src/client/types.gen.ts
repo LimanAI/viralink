@@ -17,7 +17,8 @@ export type BotMetadata = {
 };
 
 export type ChannelMetadata = {
-  username?: string | null;
+  id: number;
+  username?: string;
   title?: string | null;
   description?: string | null;
 };
@@ -477,6 +478,43 @@ export type TgAgentsListBotsResponses = {
 
 export type TgAgentsListBotsResponse =
   TgAgentsListBotsResponses[keyof TgAgentsListBotsResponses];
+
+export type TgAgentsDeleteData = {
+  body?: never;
+  path: {
+    agent_id: string;
+  };
+  query?: never;
+  url: "/tg/agents/{agent_id}";
+};
+
+export type TgAgentsDeleteErrors = {
+  /**
+   * Unauthorized
+   */
+  401: HttpUnauthorizedError;
+  /**
+   * Not Found
+   */
+  404: HttpNotFoundError;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type TgAgentsDeleteError =
+  TgAgentsDeleteErrors[keyof TgAgentsDeleteErrors];
+
+export type TgAgentsDeleteResponses = {
+  /**
+   * Successful Response
+   */
+  200: TgAgent;
+};
+
+export type TgAgentsDeleteResponse =
+  TgAgentsDeleteResponses[keyof TgAgentsDeleteResponses];
 
 export type TgAgentsGetData = {
   body?: never;

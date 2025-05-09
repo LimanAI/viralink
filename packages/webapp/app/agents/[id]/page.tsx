@@ -2,6 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import {
   FiSettings,
   FiUsers,
@@ -12,9 +13,15 @@ import {
   FiAlertCircle,
   FiSave,
 } from "react-icons/fi";
-import { useQuery } from "@tanstack/react-query";
+import { RiDeleteBin6Line } from "react-icons/ri";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
-import { TgAgent, tgAgentsGet, TgAgentsGetError } from "@viralink-ai/sdk";
+import {
+  TgAgent,
+  tgAgentsDelete,
+  tgAgentsGet,
+  TgAgentsGetError,
+} from "@viralink-ai/sdk";
 
 import PageTransition from "@/components/PageTransition";
 import { BackButton } from "@/components/BackButton";
@@ -26,9 +33,11 @@ import BotBlock from "./_components/BotBlock";
 import PersonaBlock from "./_components/PersonaBlock";
 import ContentBlock from "./_components/ContentBlock";
 import RecommendationsBlock from "./_components/RecommendationsBlock";
+import { useCallback } from "react";
 
 export default function AgentPage() {
   const { id: agentId } = useParams<{ id: string }>();
+  const router = useRouter();
 
   const api = useApi();
 
@@ -50,6 +59,27 @@ export default function AgentPage() {
     },
     enabled: !!api,
   });
+
+  const { mutate: deleteAgent } = useMutation({
+    mutationFn: async () => {
+      await tgAgentsDelete({
+        path: {
+          agent_id: agentId,
+        },
+        throwOnError: true,
+      });
+    },
+    onSuccess: useCallback(() => {
+      router.push("/");
+    }, [router]),
+  });
+
+  const onShowDeleteModal = useCallback(() => {
+    const modal = document.getElementById("delete-channel-modal");
+    if (!modal) return;
+    // @ts-ignore
+    modal.showModal();
+  }, []);
 
   if (isPending) {
     return (
@@ -182,11 +212,44 @@ export default function AgentPage() {
 
         <button onClick={() => {}} className="btn btn-primary w-full">
           <>
-            <FiSave className="mr-2" />
+            <FiSave />
             Save Changes
           </>
         </button>
+        <button
+          onClick={onShowDeleteModal}
+          className="btn btn-error btn-outline w-full my-2"
+        >
+          <>
+            <RiDeleteBin6Line />
+            Delete Channel
+          </>
+        </button>
       </div>
+      <dialog
+        id="delete-channel-modal"
+        className="modal modal-bottom sm:modal-middle"
+      >
+        <div className="modal-box">
+          <h3 className="font-bold text-lg">
+            Delete {getChannelUsername(agent)} channel?
+          </h3>
+          <p className="py-4">
+            Would you like to delete this channel? This action cannot be undone.
+          </p>
+          <div className="modal-action">
+            <form method="dialog">
+              <button className="btn mx-2">No</button>
+              <button
+                className="btn btn-error btn-outline"
+                onClick={() => deleteAgent()}
+              >
+                Yes
+              </button>
+            </form>
+          </div>
+        </div>
+      </dialog>
     </PageTransition>
   );
 }

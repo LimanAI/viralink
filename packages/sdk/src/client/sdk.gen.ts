@@ -41,6 +41,9 @@ import type {
   TgAgentsListBotsData,
   TgAgentsListBotsResponse,
   TgAgentsListBotsError,
+  TgAgentsDeleteData,
+  TgAgentsDeleteResponse,
+  TgAgentsDeleteError,
   TgAgentsGetData,
   TgAgentsGetResponse,
   TgAgentsGetError,
@@ -342,6 +345,28 @@ export const tgAgentsListBots = <ThrowOnError extends boolean = false>(
       },
     ],
     url: "/tg/agents/bots",
+    ...options,
+  });
+};
+
+/**
+ * Delete
+ */
+export const tgAgentsDelete = <ThrowOnError extends boolean = false>(
+  options: Options<TgAgentsDeleteData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).delete<
+    TgAgentsDeleteResponse,
+    TgAgentsDeleteError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        name: "x-telegram-auth",
+        type: "apiKey",
+      },
+    ],
+    url: "/tg/agents/{agent_id}",
     ...options,
   });
 };
