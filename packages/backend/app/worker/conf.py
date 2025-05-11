@@ -30,6 +30,7 @@ class JobContext(BaseModel):
 
     engine: AsyncEngine
     db_session_maker: AsyncSessionMaker
+    db_session: AsyncSession
 
     @contextlib.asynccontextmanager
     async def get_db_session(self) -> AsyncGenerator[AsyncSession, None]:
@@ -73,8 +74,15 @@ def task[**P](
     ) -> Task[P]:
         @functools.wraps(f)
         async def _func(ctx: dict[Any, Any], *args: P.args, **kwargs: P.kwargs) -> Any:
-            job_context = JobContext.model_validate(ctx)
-            return await f(job_context, *args, **kwargs)
+            db_session_maker = ctx["db_session_maker"]
+            if not db_session_maker:
+                raise ValueError("Database session maker is None")
+
+            async with db_session_maker() as db_session:
+                job_context = JobContext.model_validate(
+                    {**ctx, "db_session": db_session}
+                )
+                return await f(job_context, *args, **kwargs)
 
         job = func(_func, name=name)
         WorkerSettings.functions.append(job)

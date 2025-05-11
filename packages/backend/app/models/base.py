@@ -59,7 +59,10 @@ class HashType(TypeDecorator[str]):
 
 
 def string_column(
-    length: int, nullable: bool = False, default: str | None = "", **kwargs: Any
+    length: int | None = None,
+    nullable: bool = False,
+    default: str | None = "",
+    **kwargs: Any,
 ) -> Any:
     """
     Factory for creating string columns with sane defaults.

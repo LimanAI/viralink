@@ -2,8 +2,10 @@ from typing import Annotated
 from uuid import UUID
 
 import structlog
+from arq.connections import ArqRedis
 from fastapi import APIRouter, Depends, HTTPException, status
 from telegram import Bot
+from telegram.constants import ParseMode
 from telegram.error import TelegramError
 
 from app.core.errors import AppError, ForbiddenError, NotFoundError
@@ -12,9 +14,10 @@ from app.core.http_errors import (
     HTTPNotFoundError,
     HTTPUnauthorizedError,
 )
+from app.db import get_arq
 from app.openapi import generate_unique_id_function
 from app.tg.agents.bot import check_agent_bot_permissions
-from app.tg.agents.models import BotMetadata, TGAgentStatus
+from app.tg.agents.models import BotMetadata, TGAgentJobType, TGAgentStatus
 from app.tg.agents.schemas import (
     AddTGBotRequest,
     CreateTGAgentRequest,
@@ -23,7 +26,7 @@ from app.tg.agents.schemas import (
 )
 from app.tg.agents.schemas import TGAgent as TGAgentSchema
 from app.tg.agents.schemas import TGUserBot as TGUserBotSchema
-from app.tg.agents.services import TGAgentService
+from app.tg.agents.services import TGAgentJobService, TGAgentService
 from app.tgbot.dependencies import AuthUser
 
 logger = structlog.get_logger()
@@ -284,4 +287,44 @@ async def update_channel_profile(
         and agent.channel_profile.persona_description
     ):
         agent = await agent_svc.activate(agent.id)
+    return TGAgentSchema.model_validate(agent)
+
+
+@router.post(
+    "/{agent_id}/generate-post",
+    status_code=status.HTTP_200_OK,
+    responses={404: {"model": HTTPNotFoundError}},
+)
+async def generate_post(
+    agent_id: UUID,
+    user: AuthUser,
+    arq: Annotated[ArqRedis, Depends(get_arq)],
+    agent_svc: Annotated[TGAgentService, Depends(TGAgentService.inject)],
+    agent_job_svc: Annotated[TGAgentJobService, Depends(TGAgentJobService.inject)],
+) -> TGAgentSchema:
+    agent = await agent_svc.get(agent_id)
+    if not agent:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Agent not found",
+        )
+
+    if agent.tg_user_id != user.tg_id:
+        logger.exception(
+            f"User {user.tg_id} tried to update channel profile of agent {agent_id} that belongs to user {agent.tg_user_id}",
+            tg_user_id=user.tg_id,
+            agent_id=agent_id,
+        )
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Agent not found",
+        )
+
+    job = await agent_job_svc.create(
+        agent_id=agent.id,
+        type_=TGAgentJobType.POST_GENERATION,
+        metadata={"user_prompt": "Create random post"},
+    )
+    await arq.enqueue_job("generate_post", job.id)
+
     return TGAgentSchema.model_validate(agent)

@@ -15,7 +15,7 @@ def extract_user_data(update: Update) -> UserTGData | None:
                 "poll",
                 "poll_answer",
             ]
-            if hasattr(update, attr)
+            if hasattr(update, attr) and getattr(update, attr) is not None
         ).from_user
     except StopIteration:
         return None

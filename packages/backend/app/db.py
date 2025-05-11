@@ -1,5 +1,6 @@
 from collections.abc import AsyncGenerator
 
+from arq.connections import ArqRedis
 from fastapi import Request
 from pydantic import SecretStr
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
@@ -31,3 +32,7 @@ async def get_db_session(request: Request) -> AsyncGenerator[AsyncSession, None]
     session_maker = request.state.session_maker
     async with session_maker() as db_session:
         yield db_session
+
+
+async def get_arq(request: Request) -> AsyncGenerator[None, ArqRedis]:
+    yield request.state.arq

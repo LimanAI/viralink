@@ -2,6 +2,7 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import TypedDict
 
+from arq.connections import ArqRedis, create_pool
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -13,21 +14,26 @@ from app.tg.api import router as tg_router
 from app.tgbot.api import router as tgbot_router
 from app.tgbot.app import TGApp
 from app.tgbot.main import start_tg_app
+from app.worker.conf import WorkerSettings
 
 
 class AppState(TypedDict):
     tg_app: TGApp
     session_maker: AsyncSessionMaker
+    arq: ArqRedis
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[AppState, None]:
     engine = create_async_engine(settings.DATABASE_URL, "app")
     session_maker = create_session_maker(engine)
+    arq = await create_pool(
+        WorkerSettings.redis_settings, default_queue_name=WorkerSettings.queue_name
+    )
 
     try:
         async with start_tg_app(session_maker) as tg_app:
-            yield AppState(tg_app=tg_app, session_maker=session_maker)
+            yield AppState(tg_app=tg_app, session_maker=session_maker, arq=arq)
     finally:
         ...
 

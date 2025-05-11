@@ -37,15 +37,20 @@ class Settings(BaseSettings):
     DEBUG: bool = False
     DEBUG_SQL: bool = False
 
+    WEBAPP_URL: str
+
     # Required
     SECRET_KEY: SecretStr
     DATABASE_URL: SecretStr
     REDIS_URL: SecretStr
     TGBOT_TOKEN: SecretStr
+    OPENAI_API_KEY: SecretStr
+    REPLICATE_API_KEY: SecretStr
 
     # Optional
     TGBOT_POOLING: bool = True
     CORS_ALLOW_ORIGINS: list[str] = []
+    LOGFIRE_TOKEN: SecretStr | None = None
 
     # JWT
     JWT: JWTSettings = JWTSettings()

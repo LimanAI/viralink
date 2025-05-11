@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Literal
 from uuid import UUID
 
 from sqlalchemy import sql
@@ -13,7 +13,11 @@ from app.tg.agents.models import (
     BotPermissions,
     ChannelMetadata,
     ChannelProfile,
+    PostGenerationMetadata,
     TGAgent,
+    TGAgentJob,
+    TGAgentJobStatus,
+    TGAgentJobType,
     TGAgentStatus,
     TGUserBot,
 )
@@ -26,7 +30,7 @@ class TGAgentService(BaseService):
             query = query.options(selectinload(TGAgent.user_bot))
         async with self.tx():
             result = await self.db_session.execute(query)
-        return result.scalar_one_or_none()
+            return result.scalar_one_or_none()
 
     async def get_for_channel(self, channel_id: int, tg_user_id: int) -> TGAgent | None:
         async with self.tx():
@@ -278,5 +282,66 @@ class TGAgentService(BaseService):
                     status_errored_at=utc_now(),
                 )
                 .returning(TGAgent)
+            )
+        return result.scalar_one()
+
+
+class TGAgentJobService(BaseService):
+    async def create(
+        self,
+        agent_id: UUID,
+        metadata: dict[Any, Any],
+        type_: Literal[TGAgentJobType.POST_GENERATION, TGAgentJobType.POST_UPDATE],
+    ) -> TGAgentJob:
+        async with self.tx():
+            result = await self.db_session.execute(
+                sql.insert(TGAgentJob)
+                .values(
+                    agent_id=agent_id,
+                    metadata_=metadata,
+                    status=TGAgentJobStatus.INITIAL,
+                    type_=type_,
+                )
+                .returning(TGAgentJob)
+            )
+        return result.scalar_one()
+
+    async def get(self, job_id: UUID) -> TGAgentJob | None:
+        async with self.tx():
+            result = await self.db_session.execute(
+                sql.select(TGAgentJob).filter_by(id=job_id, deleted_at=None)
+            )
+        return result.scalar_one_or_none()
+
+    async def in_progress(self, job_id: UUID) -> TGAgentJob:
+        async with self.tx():
+            result = await self.db_session.execute(
+                sql.update(TGAgentJob)
+                .filter_by(id=job_id, status=TGAgentJobStatus.INITIAL, deleted_at=None)
+                .values(
+                    status=TGAgentJobStatus.IN_PROGRESS,
+                    status_changed_at=utc_now(),
+                    status_error=None,
+                    status_errored_at=None,
+                )
+                .returning(TGAgentJob)
+            )
+        return result.scalar_one()
+
+    async def complete(self, job_id: UUID, data: str) -> TGAgentJob:
+        async with self.tx():
+            result = await self.db_session.execute(
+                sql.update(TGAgentJob)
+                .filter_by(
+                    id=job_id, status=TGAgentJobStatus.IN_PROGRESS, deleted_at=None
+                )
+                .values(
+                    status=TGAgentJobStatus.COMPLETED,
+                    status_changed_at=utc_now(),
+                    status_error=None,
+                    status_errored_at=None,
+                    data=data,
+                )
+                .returning(TGAgentJob)
             )
         return result.scalar_one()

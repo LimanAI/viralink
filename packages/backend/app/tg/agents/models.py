@@ -1,13 +1,16 @@
 import enum
 from datetime import datetime
+from typing import TypedDict
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 from sqlalchemy import BigInteger, Enum, ForeignKey
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy_utils.types import StringEncryptedType
 
 from app.conf import settings
+from app.core.errors import AppError
 from app.models.base import (
     ErrorSchema,
     PydanticJSON,
@@ -28,7 +31,7 @@ class TGAgentStatus(str, enum.Enum):
 
 class ChannelMetadata(BaseModel):
     id: int
-    username: str = None
+    username: str
     title: str | None = None
     description: str | None = None
 
@@ -69,6 +72,15 @@ class BotPermissions(BaseModel):
     is_anonymous: bool = False
 
 
+class AgentSummary(TypedDict):
+    channel_id: int
+    channel_username: str
+    channel_title: str
+    channel_description: str | None
+    content_description: str
+    persona_description: str
+
+
 class TGAgent(RecordModel):
     __tablename__ = "tg_agents"
 
@@ -82,7 +94,7 @@ class TGAgent(RecordModel):
     )
 
     bot_permissions: Mapped[BotPermissions] = mapped_column(
-        PydanticJSON(BotPermissions), none_as_null=True, nullable=True
+        PydanticJSON(BotPermissions, none_as_null=True), nullable=True
     )
 
     status: Mapped[TGAgentStatus] = mapped_column(
@@ -96,7 +108,7 @@ class TGAgent(RecordModel):
     )
     status_changed_at: Mapped[datetime | None] = mapped_column(default=None)
     status_error: Mapped[ErrorSchema | None] = mapped_column(
-        PydanticJSON(ErrorSchema), none_as_null=True, nullable=True
+        PydanticJSON(ErrorSchema, none_as_null=True), nullable=True
     )
     status_errored_at: Mapped[datetime | None] = mapped_column(default=None)
 
@@ -115,14 +127,37 @@ class TGAgent(RecordModel):
     # Relationships
     user_bot: Mapped["TGUserBot"] = relationship(
         "TGUserBot",
-        lazy="noload",
+        # TODO
+        lazy="selectin",
     )
 
     def bot_is_connected(self) -> bool:
         return self.user_bot is not None and (
-            self.status == TGAgentStatus.REQUIRES_CHANNEL_PROFILE
+            self.status == TGAgentStatus.WAITING_CHANNEL_PROFILE
             or self.status == TGAgentStatus.ACTIVE
         )
+
+    def get_summary(self) -> AgentSummary:
+        if not self.channel_metadata.title:
+            raise AppError("channel_metadata.title is missing", agent_id=self.id)
+
+        if not self.channel_profile.content_description:
+            raise AppError(
+                "channel_profile.content_description is missing", agent_id=self.id
+            )
+
+        if not self.channel_profile.persona_description:
+            raise AppError(
+                "channel_profile.persona_description is missing", agent_id=self.id
+            )
+        return {
+            "channel_id": self.channel_id,
+            "channel_username": self.channel_username,
+            "channel_title": self.channel_metadata.title,
+            "channel_description": self.channel_metadata.description,
+            "content_description": self.channel_profile.content_description,
+            "persona_description": self.channel_profile.persona_description,
+        }
 
 
 class TGUserBot(RecordModel):
@@ -134,10 +169,91 @@ class TGUserBot(RecordModel):
         nullable=False,
     )
     metadata_: Mapped[BotMetadata] = mapped_column(
-        "metadata", PydanticJSON(BotMetadata), none_as_null=True, nullable=True
+        "metadata", PydanticJSON(BotMetadata, none_as_null=True), nullable=True
     )
 
     # Relationships
     tg_user_id: Mapped[int] = mapped_column(
         ForeignKey("tgbot_tg_users.tg_id", ondelete="RESTRICT"),
+    )
+
+
+class TGAgentJobStatus(str, enum.Enum):
+    INITIAL = "initial"
+    IN_PROGRESS = "in_progress"
+    COMPLETED = "completed"
+    FAILED = "failed"
+
+
+class TGAgentJobType(str, enum.Enum):
+    POST_GENERATION = "post_generation"
+    POST_UPDATE = "post_update"
+    CONTENT_DISCOVERY = "content_discovery"
+    CONTENT_GENERATION = "content_generation"
+    CONTENT_PUBLISHING = "content_publishing"
+    CONTENT_ANALYSIS = "content_analysis"
+
+
+class PostGenerationMetadata(BaseModel):
+    user_prompt: str
+    notify_message_id: int
+    chat_id: int
+
+
+class PostUpdateMetadata(BaseModel):
+    original_message: str
+    user_prompt: str
+    notify_message_id: int
+    chat_id: int
+    photo_id: str | None = None
+
+
+class TGAgentJob(RecordModel):
+    __tablename__ = "tg_agent_jobs"
+
+    parent: Mapped[UUID] = mapped_column(
+        ForeignKey("tg_agent_jobs.id", ondelete="CASCADE"),
+        nullable=True,
+    )
+
+    type_: Mapped[TGAgentJobType] = mapped_column(
+        "type",
+        Enum(
+            TGAgentJobType,
+            name="tg_agent_job_type",
+            values_callable=lambda e: [i.value for i in e],
+        ),
+        nullable=False,
+    )
+
+    status: Mapped[TGAgentJobStatus] = mapped_column(
+        Enum(
+            TGAgentJobStatus,
+            name="tg_agent_job_status",
+            values_callable=lambda e: [i.value for i in e],
+        ),
+        default=TGAgentJobStatus.INITIAL,
+        nullable=False,
+    )
+    status_changed_at: Mapped[datetime | None] = mapped_column(default=None)
+    status_error: Mapped[ErrorSchema | None] = mapped_column(
+        PydanticJSON(ErrorSchema, none_as_null=True), nullable=True
+    )
+    status_errored_at: Mapped[datetime | None] = mapped_column(default=None)
+
+    metadata_: Mapped[dict[str, str | int]] = mapped_column(
+        JSONB(none_as_null=True), nullable=True
+    )
+    data: Mapped[str] = string_column()
+
+    # Foreign keys
+    tg_user_id: Mapped[int | None] = mapped_column(
+        ForeignKey("tgbot_tg_users.tg_id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    agent_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("tg_agents.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
     )

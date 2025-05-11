@@ -32,6 +32,13 @@ python-telegram-bot = "^22.0"
 dishka = "^1.5.3"
 authlib = "^1.5.2"
 arq = {extras = ["watch"], version = "^0.26.3"}
+ruamel-yaml = "^0.18.10"
+langchain = "^0.3.25"
+langchain-openai = "^0.3.16"
+duckduckgo-search = "^8.0.1"
+trafilatura = "^2.0.0"
+langchain-community = "^0.3.23"
+replicate = "^1.0.6"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.15.0"
