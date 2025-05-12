@@ -96,7 +96,7 @@ export default function DescribePersona() {
   useEffect(() => {
     if (agent?.channel_profile?.content_description) {
       reset({
-        personaDescription: agent.channel_profile.persona_description,
+        personaDescription: agent.channel_profile.persona_description || "",
       });
     }
   }, [agent]);

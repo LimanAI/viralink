@@ -6,8 +6,8 @@ export default function Home() {
   return (
     <PageTransition>
       <div className="container mx-auto max-w-md p-4">
-        <h1 className="text-2xl font-bold mb-6">Your Channels</h1>
         <UserInfo />
+        <h1 className="text-2xl font-bold mb-6">Your Channels</h1>
         <AgentsList />
       </div>
     </PageTransition>

@@ -1,70 +1,74 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-
-type TUser = {
-  first_name: string;
-  last_name?: string;
-  username?: string;
-  premium?: boolean;
-};
-
-function getCurrentUser(): TUser {
-  return {
-    first_name: "John",
-    last_name: "Doe",
-    username: "johndoe",
-    premium: true,
-  };
-}
+import { FiUser } from "react-icons/fi";
+import { useQuery } from "@tanstack/react-query";
+import { tgbotAuthMe } from "@viralink-ai/sdk";
+import CreditBlock from "./blocks/CreditBlock";
 
 const UserInfo = () => {
-  const [user, setUser] = useState<TUser | null>(null);
+  const { data: user, isPending } = useQuery({
+    queryKey: ["me"],
+    queryFn: async () => {
+      const { data } = await tgbotAuthMe({
+        throwOnError: true,
+      });
+      return data;
+    },
+  });
 
-  useEffect(() => {
-    const userInfo = getCurrentUser();
-    setUser(userInfo);
-  }, []);
-
-  if (!user) {
-    return (
-      <div className="flex items-center p-4 bg-base-200 rounded-lg animate-pulse">
-        <div className="w-12 h-12 bg-base-300 rounded-full"></div>
-        <div className="ml-3 space-y-2">
-          <div className="h-4 w-24 bg-base-300 rounded"></div>
-          <div className="h-3 w-16 bg-base-300 rounded"></div>
-        </div>
-      </div>
-    );
+  if (isPending || !user) {
+    return <Skeleton />;
   }
 
+  const handleProfileClick = () => {};
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 5 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="flex items-center p-4 bg-base-200 rounded-lg"
-    >
-      <div className="w-12 h-12 bg-primary text-primary-content rounded-full flex items-center justify-center text-lg font-semibold">
-        {user.first_name ? user.first_name.charAt(0) : "U"}
-      </div>
+    <div className="flex items-center justify-between mb-5">
+      <CreditBlock />
 
-      <div className="ml-3">
-        <h3 className="font-semibold">
-          {user.first_name} {user.last_name || ""}
-        </h3>
-        {user.username && (
-          <p className="text-sm opacity-80">@{user.username}</p>
-        )}
-      </div>
+      <motion.div
+        initial={{ opacity: 0, x: 10 }}
+        animate={{ opacity: 1, x: 0 }}
+        className="flex items-center"
+      >
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={handleProfileClick}
+          className="w-10 h-10 bg-primary text-primary-content rounded-full flex items-center justify-center text-sm font-semibold cursor-pointer shadow-sm"
+        >
+          {user.first_name ? user.first_name.charAt(0) : <FiUser />}
+        </motion.div>
 
-      {user.premium && (
-        <div className="ml-auto">
-          <span className="badge badge-primary badge-sm">Premium</span>
+        <div className="ml-2 text-right">
+          <h3 className="font-semibold text-sm leading-tight">
+            {user.first_name} {user.last_name || ""}
+          </h3>
+          {user.username && (
+            <p className="text-xs opacity-70 leading-tight">@{user.username}</p>
+          )}
         </div>
-      )}
-    </motion.div>
+      </motion.div>
+    </div>
   );
 };
+
+function Skeleton() {
+  return (
+    <div className="flex items-center justify-between mb-5">
+      {/* Credit skeleton */}
+      <div className="skeleton h-10 w-24 rounded-full"></div>
+
+      {/* User info skeleton */}
+      <div className="flex items-center">
+        <div className="skeleton w-10 h-10 rounded-full"></div>
+        <div className="ml-2">
+          <div className="skeleton h-4 w-24"></div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default UserInfo;

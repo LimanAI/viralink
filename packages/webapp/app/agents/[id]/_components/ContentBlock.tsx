@@ -1,4 +1,5 @@
 import { TgAgent } from "@viralink-ai/sdk";
+import { useRouter } from "next/navigation";
 
 export default function ContentBlock({
   agent,
@@ -7,6 +8,8 @@ export default function ContentBlock({
   agent: TgAgent;
   className?: string;
 }) {
+  const router = useRouter();
+
   if (!agent.channel_profile?.content_description) {
     return (
       <div className={className}>
@@ -22,7 +25,10 @@ export default function ContentBlock({
     <div className={className}>
       <h3 className="font-medium mb-2">Content Description:</h3>
       <div>{agent.channel_profile?.content_description}</div>
-      <button onClick={() => {}} className="btn btn-sm btn-outline">
+      <button
+        onClick={() => router.push(`/add-channel/${agent.id}/describe-content`)}
+        className="btn btn-sm btn-outline"
+      >
         Edit Content Preferences
       </button>
     </div>

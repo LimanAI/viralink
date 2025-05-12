@@ -12,6 +12,7 @@ import {
   FiCheckCircle,
   FiAlertCircle,
   FiSave,
+  FiClock,
 } from "react-icons/fi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -19,6 +20,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   TgAgent,
   tgAgentsDelete,
+  tgAgentsGeneratePost,
   tgAgentsGet,
   TgAgentsGetError,
 } from "@viralink-ai/sdk";
@@ -72,6 +74,18 @@ export default function AgentPage() {
     onSuccess: useCallback(() => {
       router.push("/");
     }, [router]),
+  });
+
+  const { mutate: generatePost } = useMutation({
+    mutationFn: async () => {
+      await tgAgentsGeneratePost({
+        path: {
+          agent_id: agentId,
+        },
+        throwOnError: true,
+      });
+    },
+    retry: 0,
   });
 
   const onShowDeleteModal = useCallback(() => {
@@ -209,6 +223,16 @@ export default function AgentPage() {
         >
           <RecommendationsBlock />
         </motion.div>
+
+        <button
+          onClick={() => generatePost()}
+          className="btn btn-secondary w-full my-2"
+        >
+          <>
+            <FiClock />
+            Generate post
+          </>
+        </button>
 
         <button onClick={() => {}} className="btn btn-primary w-full">
           <>

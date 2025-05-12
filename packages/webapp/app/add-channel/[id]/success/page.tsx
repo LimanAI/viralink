@@ -1,114 +1,54 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { showMainButton } from "@/lib/telegram";
-import PageTransition from "@/components/PageTransition";
+import { useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { FiCheckCircle, FiAlertCircle } from "react-icons/fi";
 import confetti from "canvas-confetti";
+import { useQuery } from "@tanstack/react-query";
 
-const connectBotToChannel = (channelId, botId, contentDescription, persona) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const updatedChannel = channels.find(
-        (channel) => channel.id === channelId
-      );
-      if (updatedChannel) {
-        updatedChannel.isConnected = true;
-        updatedChannel.botId = botId;
+import { tgAgentsGet } from "@viralink-ai/sdk";
 
-        resolve({
-          success: true,
-          channel: updatedChannel,
-          message: `Bot ${botId} successfully connected to channel ${channelId} with persona: ${persona}`,
-        });
-      } else {
-        resolve({
-          success: false,
-          message: "Channel not found",
-        });
-      }
-    }, 1200);
-  });
-};
+import { BackButton } from "@/components/BackButton";
+import PageTransition from "@/components/PageTransition";
+import { useApi } from "@/hooks/useApi";
+import { getBotUsername, getChannelUsername } from "@/components/agents/utils";
+
 export default function Success() {
+  const { id: agentId } = useParams<{ id: string }>();
   const router = useRouter();
-  const [channel, setChannel] = useState(null);
-  const [bot, setBot] = useState(null);
-  const [isConnecting, setIsConnecting] = useState(true);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [error, setError] = useState("");
 
+  const api = useApi();
+
+  const { data: agent, isPending } = useQuery({
+    queryKey: ["/agents", agentId],
+    queryFn: async () => {
+      const { data } = await tgAgentsGet({
+        path: {
+          agent_id: agentId,
+        },
+        throwOnError: true,
+      });
+      return data;
+    },
+    enabled: !!api,
+  });
   useEffect(() => {
-    // Get data from localStorage
-    if (typeof window !== "undefined") {
-      const channelData = localStorage.getItem("selectedChannel");
-      const botData = localStorage.getItem("selectedBot");
-      const personaData = localStorage.getItem("channelPersona");
-      const contentData = localStorage.getItem("channelContent");
-
-      if (channelData) {
-        setChannel(JSON.parse(channelData));
-      }
-
-      if (botData) {
-        setBot(JSON.parse(botData));
-      }
-
-      // Connect the bot to the channel using the mock API
-      const connectBot = async () => {
-        try {
-          setIsConnecting(true);
-          const channelObj = JSON.parse(channelData);
-          const botObj = JSON.parse(botData);
-          const personaObj = JSON.parse(personaData);
-          const contentObj = JSON.parse(contentData);
-
-          const result = await connectBotToChannel(
-            channelObj.id,
-            botObj.id,
-            contentObj,
-            personaObj
-          );
-
-          if (result.success) {
-            setIsSuccess(true);
-            // Trigger confetti animation
-            if (typeof window !== "undefined") {
-              setTimeout(() => {
-                confetti({
-                  particleCount: 100,
-                  spread: 70,
-                  origin: { y: 0.6 },
-                });
-              }, 500);
-            }
-          } else {
-            setError(
-              result.message || "Something went wrong. Please try again."
-            );
-          }
-        } catch (err) {
-          console.error("Failed to connect bot:", err);
-          setError("Connection failed. Please try again.");
-        } finally {
-          setIsConnecting(false);
-        }
-      };
-
-      connectBot();
-    }
-
-    return () => {
-      // Cleanup
-    };
-  }, [router]);
+    if (agent?.status != "active") return;
+    setTimeout(() => {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+      });
+    }, 500);
+  }, [agent]);
 
   return (
     <PageTransition>
+      <BackButton />
       <div className="container mx-auto max-w-md p-4 text-center">
-        {isConnecting ? (
+        {isPending ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -120,7 +60,7 @@ export default function Success() {
               Please wait while we set everything up...
             </p>
           </motion.div>
-        ) : isSuccess ? (
+        ) : agent?.status == "active" ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -142,7 +82,8 @@ export default function Success() {
 
             <h1 className="text-2xl font-bold mb-2">Connection Successful!</h1>
             <p className="opacity-70 mb-8">
-              {channel?.name} is now connected with {bot?.name}
+              {getChannelUsername(agent)} is now connected with{" "}
+              {getBotUsername(agent)}
             </p>
 
             <div className="card bg-base-200 p-4 text-left mb-8">
@@ -168,7 +109,7 @@ export default function Success() {
                   transition={{ delay: 0.6 }}
                   className="flex items-start"
                 >
-                  <div className="w-5 h-5 bg-primary rounded-full flex items-center justify-center text-primary-content text-xs mt-0.5 mr-2">
+                  <div className="w-5 h-5 bg-primary rounded-full flex items-center justify-center text-primary-content text-xs">
                     2
                   </div>
                   <div>
@@ -179,14 +120,14 @@ export default function Success() {
                   initial={{ opacity: 0, x: -5 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.8 }}
-                  className="flex items-start"
+                  className="flex items-center bg-red-200"
                 >
-                  <div className="w-5 h-5 bg-primary rounded-full flex items-center justify-center text-primary-content text-xs mt-0.5 mr-2">
-                    3
-                  </div>
-                  <div>
-                    You'll receive notifications when content is ready for
-                    review
+                  <div className="flex flex-row items-start">
+                    <div className="bg-primary w-7 h-7 text-center"></div>
+                    <div className="bg-blue-200">
+                      You'll receive notifications when content is ready for
+                      review
+                    </div>
                   </div>
                 </motion.li>
               </ul>
@@ -212,7 +153,7 @@ export default function Success() {
             </div>
             <h2 className="text-xl font-bold mb-2">Connection Failed</h2>
             <p className="opacity-70 mb-6">
-              {error || "Something went wrong. Please try again."}
+              {"Something went wrong. Please try again."}
             </p>
 
             <button
@@ -223,9 +164,6 @@ export default function Success() {
             </button>
           </motion.div>
         )}
-        <button className="btn btn-ghost" onClick={() => router.push("/")}>
-          Return
-        </button>
       </div>
     </PageTransition>
   );

@@ -1,4 +1,5 @@
 import { TgAgent } from "@viralink-ai/sdk";
+import { useRouter } from "next/navigation";
 
 export default function PersonaBlock({
   agent,
@@ -7,6 +8,8 @@ export default function PersonaBlock({
   agent: TgAgent;
   className?: string;
 }) {
+  const router = useRouter();
+
   if (!agent.channel_profile?.persona_description) {
     return (
       <div className={className}>
@@ -22,7 +25,10 @@ export default function PersonaBlock({
     <div className={className}>
       <h3 className="font-medium mb-2">Content Persona:</h3>
       <div>{agent.channel_profile?.persona_description}</div>
-      <button onClick={() => {}} className="btn btn-sm btn-outline">
+      <button
+        onClick={() => router.push(`/add-channel/${agent.id}/describe-persona`)}
+        className="btn btn-sm btn-outline"
+      >
         Edit Persona Settings
       </button>
     </div>

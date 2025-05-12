@@ -19,7 +19,6 @@ export function useApi() {
         "X-Telegram-Auth": webApp.initData,
       },
     });
-    console.log("API_URL", settings.API_URL);
     return client;
   }, [webApp]);
 }
