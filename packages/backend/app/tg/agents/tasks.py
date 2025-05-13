@@ -89,7 +89,6 @@ async def update_post(ctx: JobContext, job_id: UUID, from_chat_id: int) -> None:
     data = None
     try:
         data = await post_generator.update(job)
-        print(data)
     except AppError as e:
         if e.code == 2200:
             await Bot(settings.TGBOT_TOKEN.get_secret_value()).send_message(
@@ -97,26 +96,18 @@ async def update_post(ctx: JobContext, job_id: UUID, from_chat_id: int) -> None:
                 text="Сообщение слишком длинное для герерации изображения, сначала сделайте его короче.",
             )
             return
-        print(e)
         logger.exception(f"AppError: {e}")
         raise
     except Exception as e:
-        print(e)
+        logger.exception(e)
     finally:
         post_text = data.get("message", "") if data else ""
         await agent_job_svc.complete(job.id, "")
 
-    """
-    await Bot(agent.user_bot.api_token).send_message(
-        agent.channel_id, post_text, parse_mode=ParseMode.HTML
-    )
-    """
-
-    image = data.get("image")
+    image = data and data.get("image")
     image_path: str | None = None
     if image:
         image_path = await download_image(image)
-        print(image_path)
     try:
         if from_chat_id and post_text:
             if image_path:

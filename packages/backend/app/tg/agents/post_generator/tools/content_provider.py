@@ -21,6 +21,9 @@ class ContentProvider(BaseTool):
     content_description: str
     persona_description: str
 
+    def __init__(self, *arg: Any, **kwargs: Any) -> None:
+        super().__init__(*arg, **kwargs)
+
     def _run(self) -> None:
         raise AppError("This tool is not designed to be run synchronously.")
 

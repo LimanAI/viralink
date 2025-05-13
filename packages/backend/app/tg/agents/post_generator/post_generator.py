@@ -113,7 +113,7 @@ class PostGenerator:
         # add tag cleaner for output
         return output
 
-    async def update(self, job: TGAgentJob) -> dict[str, str]:
+    async def update(self, job: TGAgentJob) -> dict[str, str | None]:
         job = self._validate_job(job)
 
         agent_svc = TGAgentService(self.db_session)
@@ -222,7 +222,7 @@ class PostGenerator:
                         )
                     tool_call["args"]["post"] = metadata.original_message
                     result = await tool.ainvoke(tool_call)
-                    image = result.content
+                    image = result.content if isinstance(result.content, str) else None
                     message = metadata.original_message
 
         if not isinstance(message, str):
