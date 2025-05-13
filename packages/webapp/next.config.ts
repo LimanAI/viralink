@@ -9,6 +9,10 @@ const nextConfig: NextConfig = {
         hostname: "localhost",
         port: "9000",
       },
+      {
+        protocol: "https",
+        hostname: "s3.boostiqbot.site",
+      },
     ],
   },
 };
