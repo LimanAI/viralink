@@ -5,7 +5,9 @@ on:
     branches:
       - main
     paths-ignore:
-      - packages/webapp/**
+      - packages/backend/**
+      - packages/sdk/**
+      - packages/web/**
   pull_request:
     types: [opened, synchronize]
     branches:
