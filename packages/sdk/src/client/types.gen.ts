@@ -18,9 +18,18 @@ export type BotMetadata = {
 
 export type ChannelMetadata = {
   id: number;
-  username?: string;
+  username: string;
   title?: string | null;
   description?: string | null;
+  member_count?: number | null;
+  photo?: ChannelPhoto | null;
+};
+
+export type ChannelPhoto = {
+  small_file_id?: string | null;
+  small_file_path?: string | null;
+  big_file_id?: string | null;
+  big_file_path?: string | null;
 };
 
 export type ChannelProfile = {
@@ -104,6 +113,16 @@ export type TgAgentStatus =
   | "active"
   | "disabled"
   | "disabled_no_credit";
+
+export type TgUser = {
+  tg_id: number;
+  username?: string;
+  first_name?: string;
+  last_name?: string;
+  language_code?: string;
+  is_bot?: boolean;
+  is_admin?: boolean;
+};
 
 export type TgUserBot = {
   id: string;
@@ -510,11 +529,8 @@ export type TgAgentsDeleteResponses = {
   /**
    * Successful Response
    */
-  200: TgAgent;
+  200: unknown;
 };
-
-export type TgAgentsDeleteResponse =
-  TgAgentsDeleteResponses[keyof TgAgentsDeleteResponses];
 
 export type TgAgentsGetData = {
   body?: never;
@@ -707,6 +723,60 @@ export type TgAgentsUpdateChannelProfileResponses = {
 
 export type TgAgentsUpdateChannelProfileResponse =
   TgAgentsUpdateChannelProfileResponses[keyof TgAgentsUpdateChannelProfileResponses];
+
+export type TgAgentsGeneratePostData = {
+  body?: never;
+  path: {
+    agent_id: string;
+  };
+  query?: never;
+  url: "/tg/agents/{agent_id}/generate-post";
+};
+
+export type TgAgentsGeneratePostErrors = {
+  /**
+   * Unauthorized
+   */
+  401: HttpUnauthorizedError;
+  /**
+   * Not Found
+   */
+  404: HttpNotFoundError;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type TgAgentsGeneratePostError =
+  TgAgentsGeneratePostErrors[keyof TgAgentsGeneratePostErrors];
+
+export type TgAgentsGeneratePostResponses = {
+  /**
+   * Successful Response
+   */
+  200: TgAgent;
+};
+
+export type TgAgentsGeneratePostResponse =
+  TgAgentsGeneratePostResponses[keyof TgAgentsGeneratePostResponses];
+
+export type TgbotAuthMeData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/tgbot/auth/";
+};
+
+export type TgbotAuthMeResponses = {
+  /**
+   * Successful Response
+   */
+  200: TgUser;
+};
+
+export type TgbotAuthMeResponse =
+  TgbotAuthMeResponses[keyof TgbotAuthMeResponses];
 
 export type RootData = {
   body?: never;

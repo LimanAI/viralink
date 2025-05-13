@@ -42,7 +42,6 @@ import type {
   TgAgentsListBotsResponse,
   TgAgentsListBotsError,
   TgAgentsDeleteData,
-  TgAgentsDeleteResponse,
   TgAgentsDeleteError,
   TgAgentsGetData,
   TgAgentsGetResponse,
@@ -59,6 +58,11 @@ import type {
   TgAgentsUpdateChannelProfileData,
   TgAgentsUpdateChannelProfileResponse,
   TgAgentsUpdateChannelProfileError,
+  TgAgentsGeneratePostData,
+  TgAgentsGeneratePostResponse,
+  TgAgentsGeneratePostError,
+  TgbotAuthMeData,
+  TgbotAuthMeResponse,
   RootData,
   RootResponse,
 } from "./types.gen";
@@ -356,7 +360,7 @@ export const tgAgentsDelete = <ThrowOnError extends boolean = false>(
   options: Options<TgAgentsDeleteData, ThrowOnError>,
 ) => {
   return (options.client ?? _heyApiClient).delete<
-    TgAgentsDeleteResponse,
+    unknown,
     TgAgentsDeleteError,
     ThrowOnError
   >({
@@ -495,6 +499,50 @@ export const tgAgentsUpdateChannelProfile = <
       "Content-Type": "application/json",
       ...options?.headers,
     },
+  });
+};
+
+/**
+ * Generate Post
+ */
+export const tgAgentsGeneratePost = <ThrowOnError extends boolean = false>(
+  options: Options<TgAgentsGeneratePostData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    TgAgentsGeneratePostResponse,
+    TgAgentsGeneratePostError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        name: "x-telegram-auth",
+        type: "apiKey",
+      },
+    ],
+    url: "/tg/agents/{agent_id}/generate-post",
+    ...options,
+  });
+};
+
+/**
+ * Me
+ */
+export const tgbotAuthMe = <ThrowOnError extends boolean = false>(
+  options?: Options<TgbotAuthMeData, ThrowOnError>,
+) => {
+  return (options?.client ?? _heyApiClient).get<
+    TgbotAuthMeResponse,
+    unknown,
+    ThrowOnError
+  >({
+    security: [
+      {
+        name: "x-telegram-auth",
+        type: "apiKey",
+      },
+    ],
+    url: "/tgbot/auth/",
+    ...options,
   });
 };
 

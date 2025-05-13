@@ -3,5 +3,6 @@
 
 node_modules/
 examples/
+_docs/
 
 .vscode/
