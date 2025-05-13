@@ -13,6 +13,7 @@ import {
   FiCheck,
   FiAlertCircle,
 } from "react-icons/fi";
+import { PiShieldStarBold } from "react-icons/pi";
 import { BackButton } from "@/components/BackButton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useApi } from "@/hooks/useApi";
@@ -99,9 +100,12 @@ export default function GrantAccess() {
                 <FiAlertCircle className="mr-2 text-primary" />
                 Tips
               </h4>
-              <ul className="space-y-2 text-sm opacity-80">
-                <li>• Bot only needs basic access to generate content</li>
-                <li>• To auto-publish, add the bot as an admin</li>
+              <ul className="space-y-2 text-sm opacity-80 list-disc ml-4">
+                <li>Bot doesn't need any permissions to generate content</li>
+                <li>
+                  To auto-publish, enable "Manage Messages &raquo; Post
+                  Messages" permissions
+                </li>
               </ul>
             </motion.div>
           )}
@@ -405,9 +409,9 @@ function Instructions({
           <div className="ml-3">
             <p className="font-medium">
               Tap on
-              <span className="ml-2">
-                <FiUserPlus className="h-5 w-5 mx-1 inline-block" />
-                <span className="font-bold">Add Members</span>
+              <span className="ml-1">
+                <PiShieldStarBold className="h-5 w-5 mx-1 -mt-1 inline-block" />
+                <span className="font-bold">Administrators</span>
               </span>
             </p>
             <p className="text-xs opacity-70">Find the bot in the list</p>
@@ -432,8 +436,7 @@ function Instructions({
                 <span className="font-bold">@{botUsername}</span>
               ) : (
                 "the bot"
-              )}{" "}
-              to the members
+              )}
             </p>
             <p className="text-xs opacity-70">
               It allows to get info about the channel
@@ -454,16 +457,16 @@ function Instructions({
           </div>
           <div className="ml-3">
             <p className="font-medium">
-              (Optional) Grant{" "}
+              (Optional) Limit{" "}
               {botUsername ? (
                 <span className="font-bold">@{botUsername}</span>
               ) : (
                 "the bot"
               )}{" "}
-              admin permissions
+              permissions
             </p>
             <p className="text-xs opacity-70">
-              It allows to publish posts automatically.
+              Keep only "Manage Messages &raquo; Post Messages" permissions
             </p>
           </div>
         </div>

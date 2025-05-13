@@ -131,24 +131,30 @@ export default function AgentPage() {
 
       <div className="container mx-auto max-w-md p-4">
         <div className="card bg-base-200 p-5 mb-6">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div className="flex flex-col justify-between items-end gap-4">
             {/* Left side - Channel info */}
-            <div className="flex items-center">
-              <div className="w-16 h-16 bg-primary text-primary-content rounded-md flex items-center justify-center text-2xl font-semibold">
-                {agent.channel_username?.charAt(0)}
+            <div className="flex items-center w-full">
+              <div>
+                <div className="w-16 h-16 bg-primary text-primary-content rounded-md flex items-center justify-center text-2xl font-semibold">
+                  {agent.channel_username?.charAt(0)}
+                </div>
               </div>
 
-              <div className="ml-4">
-                <h1 className="text-2xl font-bold">
+              <div className="ml-4 truncate">
+                <h1 className="text-2xl font-bold inline">
                   {agent.channel_metadata?.title}
                 </h1>
                 <p className="text-sm opacity-70">
                   {getChannelUsername(agent)}
                 </p>
                 <div className="flex flex-wrap gap-x-4 mt-1">
-                  <span className="text-xs opacity-70 flex items-center">
-                    <FiUsers className="mr-1" /> 10 members
-                  </span>
+                  {agent.channel_metadata?.member_count && (
+                    <span className="text-xs opacity-70 flex items-center">
+                      <FiUsers className="mr-1" />{" "}
+                      {agent.channel_metadata?.member_count} members
+                    </span>
+                  )}
+                  {/*
                   <span className="text-xs opacity-70 flex items-center">
                     <FiFileText className="mr-1" /> 11 posts
                   </span>
@@ -158,6 +164,7 @@ export default function AgentPage() {
                   <span className="text-xs opacity-70 flex items-center">
                     <FiTrendingUp className="mr-1" /> 72% growth
                   </span>
+                  */}
                 </div>
               </div>
             </div>
@@ -188,7 +195,9 @@ export default function AgentPage() {
             <h2 className="text-lg font-semibold mb-2 flex items-center">
               <FiFileText className="mr-2 text-primary" /> About This Channel
             </h2>
-            <p className="opacity-80">{agent.channel_metadata?.description}</p>
+            <p className="whitespace-pre-wrap opacity-80 text-sm">
+              {agent.channel_metadata?.description}
+            </p>
           </motion.div>
         )}
 
@@ -214,6 +223,7 @@ export default function AgentPage() {
           <ContentBlock agent={agent} className="my-3" />
           <PersonaBlock agent={agent} className="my-3" />
         </motion.div>
+        {/*
 
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -223,6 +233,7 @@ export default function AgentPage() {
         >
           <RecommendationsBlock />
         </motion.div>
+        */}
 
         <button
           onClick={() => generatePost()}

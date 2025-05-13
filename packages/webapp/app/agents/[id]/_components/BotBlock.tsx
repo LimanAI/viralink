@@ -30,6 +30,8 @@ export default function BotBlock({ agent }: { agent: TgAgent }) {
 }
 
 function BotInfo({ agent }: { agent: TgAgent }) {
+  const router = useRouter();
+
   if (["initial", "waiting_bot_attach"].includes(agent.status)) {
     return null;
   }
@@ -46,7 +48,10 @@ function BotInfo({ agent }: { agent: TgAgent }) {
           </h3>
           <p className="text-sm opacity-70">{getBotUsername(agent)}</p>
         </div>
-        <button onClick={() => {}} className="btn btn-sm btn-outline ml-auto">
+        <button
+          onClick={() => router.push(`/add-channel/${agent.id}/select-bot`)}
+          className="btn btn-sm btn-outline ml-auto"
+        >
           Change Bot
         </button>
       </div>

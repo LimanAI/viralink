@@ -61,7 +61,7 @@ export default function CreateBot() {
     },
     onSuccess: (agent?: TgAgent) => {
       if (!agent) throw new Error("Failed to create bot");
-      router.push(`/add-channel/${agent.id}/describe-persona`);
+      router.push(`/add-channel/${agent.id}/link-bot`);
     },
   });
 

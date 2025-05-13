@@ -95,8 +95,10 @@ export default function Success() {
                   transition={{ delay: 0.4 }}
                   className="flex items-start"
                 >
-                  <div className="w-5 h-5 bg-primary rounded-full flex items-center justify-center text-primary-content text-xs mt-0.5 mr-2">
-                    1
+                  <div className="mr-2 mt-1">
+                    <div className="w-5 h-5 bg-primary rounded-full flex items-center justify-center  text-primary-content text-xs">
+                      1
+                    </div>
                   </div>
                   <div>
                     Your bot is now analyzing your channel to understand your
@@ -109,8 +111,10 @@ export default function Success() {
                   transition={{ delay: 0.6 }}
                   className="flex items-start"
                 >
-                  <div className="w-5 h-5 bg-primary rounded-full flex items-center justify-center text-primary-content text-xs">
-                    2
+                  <div className="mr-2 mt-1">
+                    <div className="w-5 h-5 bg-primary rounded-full flex items-center justify-center text-primary-content text-xs">
+                      2
+                    </div>
                   </div>
                   <div>
                     The bot will prepare draft content based on your preferences
@@ -120,13 +124,17 @@ export default function Success() {
                   initial={{ opacity: 0, x: -5 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.8 }}
-                  className="flex items-center bg-red-200"
+                  className="flex items-center"
                 >
                   <div className="flex flex-row items-start">
-                    <div className="bg-primary w-7 h-7 text-center"></div>
-                    <div className="bg-blue-200">
-                      You'll receive notifications when content is ready for
-                      review
+                    <div className="mr-2 mt-1">
+                      <div className="w-5 h-5 bg-primary rounded-full flex items-center justify-center text-primary-content text-xs">
+                        3
+                      </div>
+                    </div>
+                    <div className="">
+                      You can find interesting content, prepare posts, generate
+                      images and more
                     </div>
                   </div>
                 </motion.li>

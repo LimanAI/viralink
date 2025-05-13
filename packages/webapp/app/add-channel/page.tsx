@@ -144,7 +144,7 @@ function InfoBlock() {
         transition={{ delay: 0.3, duration: 0.5 }}
       >
         <div className="flex items-center">
-          <div className="w-8 h-8 bg-primary bg-opacity-20 rounded-full flex items-center justify-center text-primary">
+          <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center text-primary">
             <FiEdit />
           </div>
           <div className="ml-3">
@@ -163,7 +163,7 @@ function InfoBlock() {
         transition={{ delay: 0.4, duration: 0.5 }}
       >
         <div className="flex items-center">
-          <div className="w-8 h-8 bg-primary bg-opacity-20 rounded-full flex items-center justify-center text-primary">
+          <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center text-primary">
             <FiMessageSquare />
           </div>
           <div className="ml-3">
@@ -182,7 +182,7 @@ function InfoBlock() {
         transition={{ delay: 0.5, duration: 0.5 }}
       >
         <div className="flex items-center">
-          <div className="w-8 h-8 bg-primary bg-opacity-20 rounded-full flex items-center justify-center text-primary">
+          <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center text-primary">
             <FiPlay />
           </div>
           <div className="ml-3">

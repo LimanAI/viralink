@@ -2,16 +2,8 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import {
-  FiUsers,
-  FiFileText,
-  FiCheck,
-  FiLink,
-  FiLayout,
-  FiPlus,
-  FiType,
-  FiBook,
-} from "react-icons/fi";
+import { FiUsers, FiFileText, FiCheck, FiLink, FiBook } from "react-icons/fi";
+import Image from "next/image";
 
 import type { TgAgent } from "@viralink-ai/sdk";
 import { useRouter } from "next/navigation";
@@ -31,32 +23,53 @@ export default function AgentItem({ agent }: { agent: TgAgent }) {
     >
       <div className="card-body p-4 cursor-pointer" onClick={onCardClick}>
         <div className="flex items-center">
-          <div className="w-12 h-12 bg-primary text-primary-content rounded-md flex items-center justify-center text-lg font-semibold">
-            {agent.channel_metadata?.title?.charAt(0)}
+          <div>
+            <div className="w-12 h-12 relative bg-primary text-primary-content rounded-full overflow-hidden flex items-center justify-center text-lg font-semibold">
+              {agent.channel_metadata?.photo?.small_file_path ? (
+                <Image
+                  src={agent.channel_metadata?.photo?.small_file_path}
+                  alt={agent.channel_metadata?.title?.charAt(0) ?? ""}
+                  fill={true}
+                  className="rounded-md"
+                />
+              ) : (
+                agent.channel_metadata?.title?.charAt(0)
+              )}
+            </div>
           </div>
 
-          <div className="ml-3">
-            <h3 className="font-semibold">
-              @{agent.channel_metadata?.username || agent.channel_username}
+          <div className="ml-3 truncate">
+            <h3 className="font-semibold inline">
+              {agent.channel_metadata?.title}
             </h3>
+            <div className="text-xs opacity-80">
+              @{agent.channel_metadata?.username || agent.channel_username}
+            </div>
 
             <div className="flex items-center text-xs opacity-80 space-x-3 mt-1">
-              <span className="flex items-center">
-                <FiUsers className="mr-1" /> 0
-              </span>
+              {agent.channel_metadata?.member_count !== null && (
+                <span className="flex items-center">
+                  <FiUsers className="mr-1" />{" "}
+                  {agent.channel_metadata?.member_count || 0}
+                </span>
+              )}
+              {/*
               <span className="flex items-center">
                 <FiFileText className="mr-1" /> 0
               </span>
+              */}
             </div>
           </div>
           <AgentStatus agent={agent} />
         </div>
 
+        {/*
         {agent.channel_metadata?.description && (
-          <p className="text-sm opacity-80 mt-2">
+          <p className="text-sm opacity-80 mt-2 truncate">
             {agent.channel_metadata?.description}
           </p>
         )}
+        */}
       </div>
     </motion.div>
   );

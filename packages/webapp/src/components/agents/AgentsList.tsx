@@ -81,7 +81,7 @@ export function Skeleton() {
         >
           <div className="card-body p-4">
             <div className="flex items-center">
-              <div className="w-12 h-12 bg-base-300 rounded-md"></div>
+              <div className="w-12 h-12 bg-base-300 rounded-full"></div>
               <div className="ml-3 space-y-2">
                 <div className="h-4 w-24 bg-base-300 rounded"></div>
                 <div className="h-3 w-16 bg-base-300 rounded"></div>

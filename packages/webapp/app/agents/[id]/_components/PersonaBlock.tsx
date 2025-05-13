@@ -9,25 +9,18 @@ export default function PersonaBlock({
   className?: string;
 }) {
   const router = useRouter();
-
-  if (!agent.channel_profile?.persona_description) {
-    return (
-      <div className={className}>
-        <h3 className="font-medium mb-2">Content Persona</h3>
-        <p className="text-sm opacity-80">
-          This agent does not have a content persona set.
-        </p>
-      </div>
-    );
-  }
+  const persona_description = agent.channel_profile?.persona_description;
 
   return (
     <div className={className}>
       <h3 className="font-medium mb-2">Content Persona:</h3>
-      <div>{agent.channel_profile?.persona_description}</div>
+      <p className="whitespace-pre-wrap text-sm opacity-80">
+        {persona_description ||
+          "This agent does not have a content persona set."}
+      </p>
       <button
         onClick={() => router.push(`/add-channel/${agent.id}/describe-persona`)}
-        className="btn btn-sm btn-outline"
+        className="btn btn-sm btn-outline my-2 w-full"
       >
         Edit Persona Settings
       </button>
