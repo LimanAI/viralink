@@ -8,6 +8,7 @@ from telethon import TelegramClient
 from telethon.errors import SessionPasswordNeededError
 from telethon.sessions import StringSession
 
+from app.auth.dependencies import AuthAdmin
 from app.core.http_errors import HTTPError
 from app.models.base import ErrorSchema
 from app.openapi import generate_unique_id_function
@@ -36,6 +37,7 @@ router = APIRouter(
     responses={400: {"model": HTTPError}},
 )
 async def create(
+    _: AuthAdmin,
     data: CreateAccountRequest,
     tg_account_svc: Annotated[TGAccountService, Depends(TGAccountService.inject)],
 ) -> TGAccount:
@@ -57,6 +59,7 @@ async def create(
     responses={404: {"model": HTTPError}},
 )
 async def send_code(
+    _: AuthAdmin,
     data: CodeRequest,
     tg_account_svc: Annotated[TGAccountService, Depends(TGAccountService.inject)],
 ) -> TGAccount:
@@ -108,6 +111,7 @@ async def send_code(
     responses={404: {"model": HTTPError}, 400: {"model": HTTPError}},
 )
 async def signin(
+    _: AuthAdmin,
     data: SignInRequest,
     tg_account_svc: Annotated[TGAccountService, Depends(TGAccountService.inject)],
 ) -> TGAccount:
@@ -171,6 +175,7 @@ async def signin(
     responses={404: {"model": HTTPError}},
 )
 async def get(
+    _: AuthAdmin,
     tg_account_svc: Annotated[TGAccountService, Depends(TGAccountService.inject)],
     account_id: UUID,
 ) -> TGAccount:
@@ -189,6 +194,7 @@ async def get(
     generate_unique_id_function=lambda *_: "tg::accounts::list",
 )
 async def list_accounts(
+    _: AuthAdmin,
     tg_account_svc: Annotated[TGAccountService, Depends(TGAccountService.inject)],
 ) -> list[TGAccount]:
     tg_account_models = await tg_account_svc.list()
