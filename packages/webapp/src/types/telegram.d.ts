@@ -8,8 +8,10 @@ declare module "telegram" {
     version: string;
 
     // This method is only available for Web Apps launched via a [Keyboard button](https://core.telegram.org/bots/webapps#keyboard-button-web-apps)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     sendData(this: WebApp, data: any): void;
     showAlert(this: WebApp, data: string): void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     openLink(this: WebApp, link: string, options?: any): void;
     openTelegramLink(this: WebApp, link: string): void;
 
@@ -35,8 +37,11 @@ declare module "telegram" {
     BackButton: BackButton;
     MainButton: MainButton;
     SettingsButton: SettingsButton;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     HapticFeedback: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     CloudStorage: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     BiometricManager: any;
 
     isExpanded: boolean;

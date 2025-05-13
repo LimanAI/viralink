@@ -17,7 +17,7 @@ export const parseTGUserData = (initData?: string) => {
   const chunks = initData.split("&");
   const userRecord = chunks
     .map((chunk) => chunk.split("="))
-    .filter(([k, _]) => k == "user")[0];
+    .filter(([k]) => k == "user")[0];
   return JSON.parse(decodeURIComponent(userRecord[1]));
 };
 

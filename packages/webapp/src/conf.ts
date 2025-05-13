@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-("!! Pass only NEXT_PUBLIC_ variables to the client side !!");
+// !! Pass only NEXT_PUBLIC_ variables to the client side !!;
 
 const SettingsSchema = z.object({
   API_URL: z.string().url(),

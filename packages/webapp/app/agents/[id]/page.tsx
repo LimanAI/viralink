@@ -7,8 +7,6 @@ import {
   FiSettings,
   FiUsers,
   FiFileText,
-  FiEye,
-  FiTrendingUp,
   FiCheckCircle,
   FiAlertCircle,
   FiSave,
@@ -34,7 +32,6 @@ import { useApi } from "@/hooks/useApi";
 import BotBlock from "./_components/BotBlock";
 import PersonaBlock from "./_components/PersonaBlock";
 import ContentBlock from "./_components/ContentBlock";
-import RecommendationsBlock from "./_components/RecommendationsBlock";
 import { useCallback } from "react";
 
 export default function AgentPage() {
@@ -91,7 +88,7 @@ export default function AgentPage() {
   const onShowDeleteModal = useCallback(() => {
     const modal = document.getElementById("delete-channel-modal");
     if (!modal) return;
-    // @ts-ignore
+    // @ts-expect-error "showModal" is not a function
     modal.showModal();
   }, []);
 

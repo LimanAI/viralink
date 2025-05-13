@@ -23,15 +23,6 @@ import { getBotUsername, getChannelUsername } from "@/components/agents/utils";
 import { strError } from "@/utils/errors";
 import ProgressBar from "@/components/ProgressBar";
 
-// Tone options
-const toneOptions = [
-  { id: "professional", label: "Professional" },
-  { id: "friendly", label: "Friendly & Casual" },
-  { id: "humorous", label: "Humorous" },
-  { id: "inspirational", label: "Inspirational" },
-  { id: "educational", label: "Educational" },
-];
-
 const formSchema = z.object({
   personaDescription: z
     .string()
@@ -99,7 +90,7 @@ export default function DescribePersona() {
         personaDescription: agent.channel_profile.persona_description || "",
       });
     }
-  }, [agent]);
+  }, [agent, reset]);
 
   const onSubmit = useCallback(
     async (data: FormData) => {

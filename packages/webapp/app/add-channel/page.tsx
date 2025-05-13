@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { FiEdit, FiLink, FiMessageSquare, FiPlay } from "react-icons/fi";
 import { useMutation } from "@tanstack/react-query";
@@ -17,6 +17,7 @@ import { useApi } from "@/hooks/useApi";
 import { BackButton } from "@/components/BackButton";
 import ProgressBar from "@/components/ProgressBar";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const isValidInviteLink = (url: string) => {
   return /^(https?:\/\/)?(t\.me\/joinchat\/|t\.me\/\+)[a-zA-Z0-9_-]+$/.test(
     url

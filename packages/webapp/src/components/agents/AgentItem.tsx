@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { FiUsers, FiFileText, FiCheck, FiLink, FiBook } from "react-icons/fi";
+import { FiUsers, FiCheck, FiLink, FiBook } from "react-icons/fi";
 import Image from "next/image";
 
 import type { TgAgent } from "@viralink-ai/sdk";

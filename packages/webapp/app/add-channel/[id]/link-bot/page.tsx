@@ -101,10 +101,12 @@ export default function GrantAccess() {
                 Tips
               </h4>
               <ul className="space-y-2 text-sm opacity-80 list-disc ml-4">
-                <li>Bot doesn't need any permissions to generate content</li>
                 <li>
-                  To auto-publish, enable "Manage Messages &raquo; Post
-                  Messages" permissions
+                  Bot doesn&apos;t need any permissions to generate content
+                </li>
+                <li>
+                  To auto-publish, enable &quot;Manage Messages &raquo; Post
+                  Messages&quot; permissions
                 </li>
               </ul>
             </motion.div>
@@ -222,7 +224,7 @@ function AccessChecker({ agentId }: { agentId: string }) {
     return () => {
       clearInterval(interval);
     };
-  }, [agentId]);
+  }, [agentId, mutate]);
 
   return (
     <div className="card bg-base-300 p-5 text-center">
@@ -241,7 +243,7 @@ function AccessChecker({ agentId }: { agentId: string }) {
         </div>
 
         <p className="text-sm opacity-70 mb-4">
-          We're checking if the bot has been added to your channel
+          We&apos;re checking if the bot has been added to your channel
         </p>
 
         <button
@@ -257,6 +259,7 @@ function AccessChecker({ agentId }: { agentId: string }) {
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function LegacyInstructions({ channelUsername }: { channelUsername?: string }) {
   const stepVariants = {
     hidden: { opacity: 0, x: -20 },

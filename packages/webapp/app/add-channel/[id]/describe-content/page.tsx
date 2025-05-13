@@ -93,7 +93,7 @@ export default function DescribeContent() {
         contentDescription: agent.channel_profile.content_description,
       });
     }
-  }, [agent]);
+  }, [agent, reset]);
 
   const onSubmit = useCallback(
     async (data: FormData) => {
@@ -161,8 +161,8 @@ export default function DescribeContent() {
               <h3 className="font-semibold mb-2">What happens next:</h3>
               <p className="text-sm opacity-80">
                 After connecting, your bot will prepare content based on your
-                preferences. You'll be able to review and approve all posts
-                before they're published.
+                preferences. You&apos;ll be able to review and approve all posts
+                before they&apos;re published.
               </p>
             </motion.div>
 

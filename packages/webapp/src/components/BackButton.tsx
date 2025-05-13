@@ -26,7 +26,7 @@ export function BackButton({ href }: { href?: string }) {
       webApp.BackButton.offClick(onBackButtonClick);
       webApp.BackButton.hide();
     };
-  }, [onBackButtonClick]);
+  }, [onBackButtonClick, webApp]);
 
   if (webApp?.platform == "unknown") {
     return (

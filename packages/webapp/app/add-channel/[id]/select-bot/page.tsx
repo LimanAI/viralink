@@ -76,7 +76,7 @@ export default function SelectBot() {
       return;
     }
     attachBot(selectedBot);
-  }, [router, selectedBot, id]);
+  }, [router, selectedBot, id, attachBot]);
 
   return (
     <>
