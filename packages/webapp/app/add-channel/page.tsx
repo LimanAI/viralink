@@ -17,9 +17,8 @@ import { useApi } from "@/hooks/useApi";
 import { BackButton } from "@/components/BackButton";
 import ProgressBar from "@/components/ProgressBar";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const isValidInviteLink = (url: string) => {
-  return /^(https?:\/\/)?(t\.me\/joinchat\/|t\.me\/\+)[a-zA-Z0-9_-]+$/.test(
+  return /^(https?:\/\/)?(t\.me\/joinchat\/|t\.me\/)([a-zA-Z0-9_-]+)$/.test(
     url
   );
 };
@@ -28,10 +27,28 @@ const isValidChannelHandle = (handle: string) => {
   return /^(@)?[a-zA-Z][a-zA-Z0-9_]{3,}$/.test(handle);
 };
 
+const extractChannelUserName = (input: string): string | null => {
+  if (isValidChannelHandle(input)) {
+    return input.replace(/^@/, ""); // remove leading @ if exists
+  }
+
+  const match = input.match(
+    /^(https?:\/\/)?(t\.me\/joinchat\/|t\.me\/)([a-zA-Z0-9_-]+)$/
+  );
+  if (match) {
+    return match[3];
+  }
+
+  return null;
+};
+
 const formSchema = z.object({
   channelUsername: z
     .string({ required_error: "Channel name is required" })
-    .refine((val) => isValidChannelHandle(val), "Invalid channe name format"),
+    .refine(
+      (val) => isValidChannelHandle(val) || isValidInviteLink(val),
+      "Invalid channe name format"
+    ),
 });
 type formData = z.infer<typeof formSchema>;
 
@@ -50,8 +67,12 @@ export default function AddChannel() {
   const { mutate, isPending: isSubmitting } = useMutation({
     mutationFn: async (data: formData) => {
       if (!api) throw new Error("API not initialized");
+      const channelUsername = extractChannelUserName(data.channelUsername);
+      if (!channelUsername) {
+        return;
+      }
       const { data: agent } = await tgAgentsCreate({
-        body: { channel_username: data.channelUsername },
+        body: { channel_username: channelUsername },
       });
       return agent;
     },

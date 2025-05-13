@@ -43,13 +43,12 @@ handlers:
       general_text: |
         ...
       welcome_back_text: |
-        welcome_back: |
-          👋 Welcome back to BoostIQ!
+        👋 Welcome back to BoostIQ!
 
-          Great to see you again! Just a quick reminder of what you can do with BoostIQ:
-          • 🔍 Discover the latest news,
-          • ✍️ Create engaging and lively posts,
-          • 🖼️ Generate images that match your channel’s style,
-          • 📅 Schedule and publish everything with just a few clicks.
+        Great to see you again! Just a quick reminder of what you can do with BoostIQ:
+        • 🔍 Discover the latest news,
+        • ✍️ Create engaging and lively posts,
+        • 🖼️ Generate images that match your channel’s style,
+        • 📅 Schedule and publish everything with just a few clicks.
 
-          🚀 Keep growing your Telegram channel with BoostIQ!
+        🚀 Keep growing your Telegram channel with BoostIQ!
