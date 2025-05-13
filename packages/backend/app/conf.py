@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Literal, cast
 
 import tomllib
-from pydantic import SecretStr
+from pydantic import HttpUrl, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -46,9 +46,16 @@ class Settings(BaseSettings):
     TGBOT_TOKEN: SecretStr
     OPENAI_API_KEY: SecretStr
     REPLICATE_API_KEY: SecretStr
+    # Required -- Storage
+    STORAGE_URL: HttpUrl
+    STORAGE_BUCKET: str
+    STORAGE_ACCESS_KEY: SecretStr
+    STORAGE_SECRET_KEY: SecretStr
 
     # Optional
     TGBOT_POOLING: bool = True
+    TGBOT_SETUP_COMMANDS: bool = False
+    TGBOT_REQUIRES_INVITE: bool = False
     CORS_ALLOW_ORIGINS: list[str] = []
     LOGFIRE_TOKEN: SecretStr | None = None
 

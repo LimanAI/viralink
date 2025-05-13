@@ -5,23 +5,41 @@ import structlog
 from arq.connections import create_pool
 from telegram import BotCommand, Update
 
+from app.conf import settings
+from app.core.errors import ForbiddenError
 from app.db import AsyncSessionMaker
 from app.tgbot.app import TGApp, tg_app
 from app.tgbot.context import Context
-from app.tgbot.handlers import handlers
+from app.tgbot.handlers import TEXTS, handlers
+from app.tgbot.utils import extract_user_data, get_texts
 from app.worker.conf import WorkerSettings
 
 logger = structlog.get_logger()
 
 
-async def error_handler(_: object, context: Context) -> None:
-    logger.exception("Exception while handling update:", exc_info=context.error)
+async def error_handler(update: object, context: Context) -> None:
+    error = context.error
+    # Show welcome message to user if he is not authorized
+    if isinstance(error, ForbiddenError) and isinstance(update, Update):
+        user_data = extract_user_data(update)
+        if user_data:
+            chat = update.effective_chat
+            texts = get_texts(TEXTS, user_data.language_code)
+            if chat:
+                await context.bot.send_message(
+                    chat_id=chat.id,
+                    text=texts.start.welcome_text,
+                )
+    logger.exception("Exception while handling update:", exc_info=error)
 
 
 @asynccontextmanager
 async def start_tg_app(session_maker: AsyncSessionMaker) -> AsyncGenerator[TGApp, None]:
     tg_app.add_handlers(handlers)
     tg_app.add_error_handler(error_handler)
+    if settings.TGBOT_SETUP_COMMANDS:
+        await setup_commands(tg_app)
+
     Context.db_session_maker = session_maker
     Context.arq = await create_pool(
         WorkerSettings.redis_settings, default_queue_name=WorkerSettings.queue_name
@@ -52,12 +70,17 @@ async def start_tg_app(session_maker: AsyncSessionMaker) -> AsyncGenerator[TGApp
 
 async def setup_commands(tg_app: TGApp) -> None:
     commands = {
-        "start": "start",
-        "add_channel": "Add channel",
+        "en": {
+            "start": "start",
+        },
+        "ru": {
+            "start": "старт",
+        },
     }
     # localize
     for lang in ["en", "ru"]:
+        commands_lang = commands[lang]
         await tg_app.bot.set_my_commands(
-            [BotCommand(k, v) for k, v in commands.items()],
+            [BotCommand(k, v) for k, v in commands_lang.items()],
             language_code=lang,
         )

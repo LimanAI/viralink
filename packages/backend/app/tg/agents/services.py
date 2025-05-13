@@ -232,7 +232,7 @@ class TGAgentService(BaseService):
     async def update_channel_metadata(
         self,
         agent_id: UUID,
-        channel_metadata: ChatFullInfo,
+        channel_metadata: ChannelMetadata,
     ) -> TGAgent:
         async with self.tx():
             agent = await self.get(agent_id)
@@ -244,8 +244,16 @@ class TGAgentService(BaseService):
                     "Channel username does not match the agent's channel username"
                 )
 
-            agent.channel_id = channel_metadata.id
-            agent.channel_metadata = ChannelMetadata(**channel_metadata.to_dict())
+            result = await self.db_session.execute(
+                sql.update(TGAgent)
+                .filter_by(id=agent_id)
+                .values(
+                    channel_id=channel_metadata.id,
+                    channel_metadata=channel_metadata,
+                )
+                .returning(TGAgent)
+            )
+            agent = result.scalar_one()
         return agent
 
     async def update_channel_profile(

@@ -9,6 +9,7 @@ from app.models.base import utc_now
 
 def generate_jwt(
     user_id: UUID,
+    is_admin: bool = False,
     expires_in: timedelta = timedelta(minutes=settings.JWT.access_token_expire_minutes),
 ) -> str:
     header = {"alg": settings.JWT.algorithm, "typ": "JWT"}
@@ -17,6 +18,7 @@ def generate_jwt(
         "sub": str(user_id),
         "exp": utc_now() + expires_in,
         "iat": utc_now(),
+        "is_admin": is_admin,
     }
     b = jwt.encode(header, payload, settings.SECRET_KEY.get_secret_value())
     if not isinstance(b, bytes):

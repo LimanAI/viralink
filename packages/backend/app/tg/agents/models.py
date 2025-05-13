@@ -3,6 +3,8 @@ from datetime import datetime
 from typing import TypedDict
 from uuid import UUID
 
+import boto3
+import botocore.config
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy import BigInteger, Enum, ForeignKey
 from sqlalchemy.dialects.postgresql import JSONB
@@ -11,6 +13,7 @@ from sqlalchemy_utils.types import StringEncryptedType
 
 from app.conf import settings
 from app.core.errors import AppError
+from app.core.utils import get_s3_client
 from app.models.base import (
     ErrorSchema,
     PydanticJSON,
@@ -29,11 +32,48 @@ class TGAgentStatus(str, enum.Enum):
     DISABLED_NO_CREDIT = "disabled_no_credit"
 
 
+class ChannelPhoto(BaseModel):
+    small_file_id: str | None = None
+    small_file_path: str | None = None
+    big_file_id: str | None = None
+    big_file_path: str | None = None
+
+    def with_signed_urls(self) -> "ChannelPhoto":
+        s3_client = get_s3_client()
+
+        def sign_url(file_path: str | None) -> str | None:
+            if not file_path:
+                return None
+            signed_url = s3_client.generate_presigned_url(
+                ClientMethod="get_object",
+                Params={
+                    "Bucket": settings.STORAGE_BUCKET,
+                    "Key": file_path,
+                },
+                ExpiresIn=60 * 10,
+            )
+            return signed_url
+
+        return self.model_copy(
+            update={
+                "small_file_path": sign_url(self.small_file_path),
+                "big_file_path": sign_url(self.big_file_path),
+            }
+        )
+
+
 class ChannelMetadata(BaseModel):
     id: int
     username: str
     title: str | None = None
     description: str | None = None
+    member_count: int | None = None
+    photo: ChannelPhoto | None = None
+
+    def with_signed_urls(self) -> "ChannelMetadata":
+        return self.model_copy(
+            update={"photo": self.photo.with_signed_urls() if self.photo else None}
+        )
 
 
 class ChannelProfile(BaseModel):
@@ -127,8 +167,7 @@ class TGAgent(RecordModel):
     # Relationships
     user_bot: Mapped["TGUserBot"] = relationship(
         "TGUserBot",
-        # TODO
-        lazy="selectin",
+        lazy="noload",
     )
 
     def bot_is_connected(self) -> bool:

@@ -1,7 +1,9 @@
 import io
+from pathlib import Path
 from uuid import UUID
 
 import structlog
+from pydantic import BaseModel
 from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup, Update, WebAppInfo
 from telegram.constants import ParseMode
 from telegram.ext import CallbackQueryHandler, CommandHandler, MessageHandler, filters
@@ -9,6 +11,7 @@ from telethon.errors import re
 
 from app.conf import settings
 from app.core.errors import AppError
+from app.core.llm import load_prompts
 from app.tg.agents.models import (
     PostUpdateMetadata,
     TGAgentJobStatus,
@@ -16,14 +19,43 @@ from app.tg.agents.models import (
     TGAgentStatus,
 )
 from app.tg.agents.services import TGAgentJobService, TGAgentService
-from app.tgbot.auth.services import TGUserService
+from app.tgbot.auth.errors import InvalidInviteCodeError
+from app.tgbot.auth.services import TGInviteCodesService, TGUserService
 from app.tgbot.context import Context
 from app.tgbot.decorators import db_session, requires_auth
-from app.tgbot.utils import extract_user_data
-
-from .channels.handlers import handlers as channel_handlers
+from app.tgbot.utils import (
+    LocalizedTexts,
+    extract_user_data,
+    get_invite_code,
+    get_texts,
+)
 
 logger = structlog.get_logger()
+
+
+class StartTexts(BaseModel):
+    welcome_text: str
+    welcome_back_text: str
+
+
+class HandlersTexts(BaseModel):
+    start: StartTexts
+
+
+class Texts(LocalizedTexts[HandlersTexts]):
+    en: HandlersTexts
+    ru: HandlersTexts
+
+
+try:
+    TEXTS = load_prompts(
+        Path(__file__).parent / "texts.yaml",
+        Texts,
+        key="handlers",
+    )
+except:
+    logger.error("Failed to load PostGenerator prompts")
+    raise
 
 
 @db_session
@@ -31,18 +63,37 @@ async def start(update: Update, context: Context) -> None:
     user_data = extract_user_data(update)
     if user_data is None:
         raise ValueError("User data is None")
+    # TODO: provide in context
+    if not context.db_session:
+        raise ValueError("DB session is None")
 
+    texts = get_texts(TEXTS, user_data.language_code)
     chat = update.effective_chat
     if not chat:
         return
 
+    user_svc = TGUserService(context.db_session)
+    user = await user_svc.get_user_and_update(user_data)
+    if not user:
+        invite_code = get_invite_code(context)
+        try:
+            user = await user_svc.create(user_data, invite_code=invite_code)
+        except InvalidInviteCodeError as e:
+            logger.exception(e)
+            await chat.send_message(
+                text=texts.start.welcome_text,
+            )
+            return
     await chat.send_message(
-        text="Welcome to *ViraLink*\\!\n\n",
-        parse_mode=ParseMode.MARKDOWN_V2,
+        text=texts.start.welcome_back_text,
+        reply_markup=InlineKeyboardMarkup(
+            [[InlineKeyboardButton("Setup", web_app=WebAppInfo(settings.WEBAPP_URL))]]
+        ),
     )
 
 
 @db_session
+@requires_auth
 async def process_request(update: Update, context: Context) -> None:
     user_data = extract_user_data(update)
     if user_data is None:
@@ -225,14 +276,53 @@ async def cancel_publish_post(update: Update, context: Context) -> None:
     print("cancel_publish_post")
 
 
+@db_session
+@requires_auth
+async def generate_invites(update: Update, context: Context) -> None:
+    logger.info("Generating invites by admin")
+    # TODO: provide in context
+    if not context.db_session:
+        raise ValueError("DB session is None")
+    if not context.tg_user:
+        raise ValueError("TG user is None")
+
+    if not context.tg_user.is_admin:
+        logger.exception(
+            "[CRITICAL] User is not admin accessed private endpoint - generate_invites",
+            tg_user_id=context.tg_user.tg_id,
+        )
+        return
+
+    agent_job_svc = TGInviteCodesService(context.db_session)
+    invites = await agent_job_svc.create(
+        amount=10, uses=1, tg_user_id=context.tg_user.tg_id, is_created_by_admin=True
+    )
+
+    chat = update.effective_chat
+    if not chat:
+        return
+
+    invites_str = "\n".join(
+        [
+            f'{i + 1}. <a href="https://t.me/boostiq_bot?start={invite.code}">{invite.code}</a>'
+            for i, invite in enumerate(invites)
+        ]
+    )
+    message_text = f"<b>Invites:</b>\n\n{invites_str}"
+    await chat.send_message(
+        text=message_text,
+        parse_mode=ParseMode.HTML,
+    )
+
+
 UUID_PATTERN = r"[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}"
 
 handlers = [
     CommandHandler("start", start),
+    CommandHandler("generate_invites", generate_invites),
     CallbackQueryHandler(publish_post, pattern=f"^/publish-post/({UUID_PATTERN})"),
     CallbackQueryHandler(
         cancel_publish_post, pattern=f"^/cancel-publish-post/({UUID_PATTERN})"
     ),
     MessageHandler(filters.TEXT & ~filters.COMMAND, process_request),
-    *channel_handlers,
 ]

@@ -667,9 +667,7 @@
                         "description": "Successful Response",
                         "content": {
                             "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/TGAgent"
-                                }
+                                "schema": {}
                             }
                         }
                     },
@@ -1023,6 +1021,102 @@
                 }
             }
         },
+        "/tg/agents/{agent_id}/generate-post": {
+            "post": {
+                "tags": [
+                    "tg",
+                    "tg_agents"
+                ],
+                "summary": "Generate Post",
+                "operationId": "tg::agents::generate_post",
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "agent_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Agent Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TGAgent"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPUnauthorizedError"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPNotFoundError"
+                                }
+                            }
+                        },
+                        "description": "Not Found"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/tgbot/auth/": {
+            "get": {
+                "tags": [
+                    "tgbot",
+                    "tgbot_auth"
+                ],
+                "summary": "Me",
+                "operationId": "tgbot::auth::me",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TGUser"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ]
+            }
+        },
         "/": {
             "get": {
                 "summary": "Root",
@@ -1156,13 +1250,85 @@
                             }
                         ],
                         "title": "Description"
+                    },
+                    "member_count": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Member Count"
+                    },
+                    "photo": {
+                        "anyOf": [
+                            {
+                                "$ref": "#/components/schemas/ChannelPhoto"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ]
                     }
                 },
                 "type": "object",
                 "required": [
-                    "id"
+                    "id",
+                    "username"
                 ],
                 "title": "ChannelMetadata"
+            },
+            "ChannelPhoto": {
+                "properties": {
+                    "small_file_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Small File Id"
+                    },
+                    "small_file_path": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Small File Path"
+                    },
+                    "big_file_id": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Big File Id"
+                    },
+                    "big_file_path": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Big File Path"
+                    }
+                },
+                "type": "object",
+                "title": "ChannelPhoto"
             },
             "ChannelProfile": {
                 "properties": {
@@ -1505,6 +1671,49 @@
                     "disabled_no_credit"
                 ],
                 "title": "TGAgentStatus"
+            },
+            "TGUser": {
+                "properties": {
+                    "tg_id": {
+                        "type": "integer",
+                        "title": "Tg Id"
+                    },
+                    "username": {
+                        "type": "string",
+                        "title": "Username",
+                        "default": ""
+                    },
+                    "first_name": {
+                        "type": "string",
+                        "title": "First Name",
+                        "default": ""
+                    },
+                    "last_name": {
+                        "type": "string",
+                        "title": "Last Name",
+                        "default": ""
+                    },
+                    "language_code": {
+                        "type": "string",
+                        "title": "Language Code",
+                        "default": ""
+                    },
+                    "is_bot": {
+                        "type": "boolean",
+                        "title": "Is Bot",
+                        "default": false
+                    },
+                    "is_admin": {
+                        "type": "boolean",
+                        "title": "Is Admin",
+                        "default": false
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "tg_id"
+                ],
+                "title": "TGUser"
             },
             "TGUserBot": {
                 "properties": {

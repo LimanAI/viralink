@@ -129,7 +129,13 @@ async def refresh_token(
             max_age=settings.JWT.refresh_token_expire_days * 24 * 60 * 60,
         )
 
-    jwt_token = generate_jwt(session.user_id)
+    user = await user_svc.get_user(session.user_id)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+    jwt_token = generate_jwt(session.user_id, user.is_admin)
     return AccessToken(token=jwt_token)
 
 

@@ -6,7 +6,7 @@ from telegram.error import BadRequest as TelegramBadRequest
 from telegram.error import Forbidden as TelegramForbiddenError
 
 from app.core.errors import AppError, ForbiddenError, NotFoundError
-from app.tg.agents.models import BotPermissions, TGAgent, TGAgentStatus
+from app.tg.agents.models import BotPermissions, ChannelMetadata, TGAgent, TGAgentStatus
 from app.tg.agents.services import TGAgentService
 
 
@@ -42,10 +42,15 @@ async def check_agent_bot_permissions(
         if chat.type != ChatType.CHANNEL:
             raise AppError("Chat is not a channel")
 
+        member_count = await bot.get_chat_member_count(chat.id)
+
         async with agent_svc.tx():
+            channel_metadata = ChannelMetadata(
+                **{**chat.to_dict(), "member_count": member_count}
+            )
             await agent_svc.update_channel_metadata(
                 agent.id,
-                channel_metadata=chat,
+                channel_metadata=channel_metadata,
             )
 
             agent = await agent_svc.update_bot_permissions(

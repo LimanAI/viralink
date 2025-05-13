@@ -49,7 +49,7 @@ async def list_agents(
     agent_svc: Annotated[TGAgentService, Depends(TGAgentService.inject)],
 ) -> list[TGAgentSchema]:
     agents = await agent_svc.list_agents(tg_user_id=user.tg_id)
-    return [TGAgentSchema.model_validate(agent) for agent in agents]
+    return [TGAgentSchema.model_validate(agent).with_signed_urls() for agent in agents]
 
 
 @router.put("/", status_code=status.HTTP_201_CREATED)
@@ -62,7 +62,7 @@ async def create(
         tg_user_id=user.tg_id,
         channel_username=data.channel_username.lstrip("@"),
     )
-    return TGAgentSchema.model_validate(agent)
+    return TGAgentSchema.model_validate(agent).with_signed_urls()
 
 
 @router.get(
@@ -99,7 +99,8 @@ async def get(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You are not allowed to access the agent",
         )
-    return TGAgentSchema.model_validate(agent)
+
+    return TGAgentSchema.model_validate(agent).with_signed_urls()
 
 
 @router.delete(
@@ -144,12 +145,15 @@ async def check_bot_permissions(
     agent_id: UUID,
     user: AuthUser,
     agent_svc: Annotated[TGAgentService, Depends(TGAgentService.inject)],
+    arq: Annotated[ArqRedis, Depends(get_arq)],
 ) -> TGAgentSchema:
     """
     Long running endpoints that connects to the telegram and checks if the bot has sufficient permissions
     """
     try:
         agent = await check_agent_bot_permissions(user.tg_id, agent_id, agent_svc)
+        if agent.channel_metadata and agent.channel_metadata.photo:
+            await arq.enqueue_job("fetch_channel_photo", agent.id)
     except ForbiddenError as e:
         logger.exception(e)
         raise NotFoundError("Agent not found") from e
@@ -161,7 +165,7 @@ async def check_bot_permissions(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error checking bot permissions",
         ) from e
-    return TGAgentSchema.model_validate(agent)
+    return TGAgentSchema.model_validate(agent).with_signed_urls()
 
 
 @router.put(
@@ -203,7 +207,7 @@ async def createBot(
         data.bot_token,
         bot_metadata=BotMetadata.model_validate(bot_metadata),
     )
-    return TGAgentSchema.model_validate(agent)
+    return TGAgentSchema.model_validate(agent).with_signed_urls()
 
 
 @router.post(
@@ -245,7 +249,7 @@ async def link_bot(
             status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
         ) from e
 
-    return TGAgentSchema.model_validate(agent)
+    return TGAgentSchema.model_validate(agent).with_signed_urls()
 
 
 @router.post(
@@ -287,7 +291,7 @@ async def update_channel_profile(
         and agent.channel_profile.persona_description
     ):
         agent = await agent_svc.activate(agent.id)
-    return TGAgentSchema.model_validate(agent)
+    return TGAgentSchema.model_validate(agent).with_signed_urls()
 
 
 @router.post(
@@ -323,8 +327,8 @@ async def generate_post(
     job = await agent_job_svc.create(
         agent_id=agent.id,
         type_=TGAgentJobType.POST_GENERATION,
-        metadata={"user_prompt": "Create random post"},
+        metadata={"user_prompt": "Create relevant post"},
     )
     await arq.enqueue_job("generate_post", job.id)
 
-    return TGAgentSchema.model_validate(agent)
+    return TGAgentSchema.model_validate(agent).with_signed_urls()

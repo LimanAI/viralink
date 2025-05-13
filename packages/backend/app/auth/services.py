@@ -44,7 +44,7 @@ class AuthService(BaseService):
             if user.password != password:
                 raise InvalidPasswordError()
 
-            access_token = generate_jwt(user.id)
+            access_token = generate_jwt(user.id, user.is_admin)
             session = await user_svc.create_session(user.id, user_agent, ip_addr)
         return access_token, session.refresh_token
 

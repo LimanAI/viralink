@@ -36,6 +36,15 @@ class TGAgent(BaseModel):
 
     user_bot: TGUserBot | None = None
 
+    def with_signed_urls(self) -> "TGAgent":
+        return self.model_copy(
+            update={
+                "channel_metadata": self.channel_metadata.with_signed_urls()
+                if self.channel_metadata
+                else None,
+            }
+        )
+
 
 class CreateTGAgentRequest(BaseModel):
     channel_username: str

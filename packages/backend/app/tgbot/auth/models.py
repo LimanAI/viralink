@@ -17,9 +17,14 @@ class TGUser(TimestampModel):
 
     is_bot: Mapped[bool] = mapped_column(nullable=False, default=False)
     is_blocked: Mapped[bool] = mapped_column(nullable=False, default=False)
+    is_admin: Mapped[bool] = mapped_column(nullable=False, default=False)
 
+    # Foreign keys
     user = mapped_column(
         PostgresUUID, ForeignKey("auth_users.id"), nullable=True, index=True
+    )
+    invite_code: Mapped[str] = mapped_column(
+        ForeignKey("tgbot_tg_invite_codes.code"), nullable=True
     )
 
     def get_diff(self, user_data: UserTGData) -> dict[str, str | bool]:
@@ -34,3 +39,16 @@ class TGUser(TimestampModel):
             if getattr(self, field) != getattr(user_data, field):
                 diff[field] = getattr(user_data, field)
         return diff
+
+
+class TGInviteCode(TimestampModel):
+    __tablename__ = "tgbot_tg_invite_codes"
+
+    code: Mapped[str] = string_column(primary_key=True)
+    uses_left: Mapped[int] = mapped_column(default=1)
+    is_created_by_admin: Mapped[bool] = mapped_column(default=False)
+
+    # Foreign keys
+    tg_user_id = mapped_column(
+        BigInteger, ForeignKey("tgbot_tg_users.tg_id"), nullable=True, index=True
+    )

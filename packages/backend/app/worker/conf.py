@@ -51,7 +51,7 @@ class WorkerSettings:
     @staticmethod
     async def on_startup(ctx: WorkerContext) -> None:
         logger.info("Worker startup")
-        engine = ctx["engine"] = create_async_engine(settings.DATABASE_URL, "arq")
+        engine = ctx["engine"] = create_async_engine(settings.DATABASE_URL, "worker")
         ctx["db_session_maker"] = create_session_maker(engine)
 
     @staticmethod

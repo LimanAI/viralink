@@ -32,7 +32,7 @@ class Scraper(BaseTool):
         logger.debug(f"Scraping URL: {url}")
         return await asyncio.get_running_loop().run_in_executor(None, sync_scrape, url)
 
-    def _run(self) -> Any:
+    def _run(self, url: str) -> Any:
         raise AppError("This tool is not designed to be run synchronously.")
 
     async def _arun(

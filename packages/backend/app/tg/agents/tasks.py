@@ -7,7 +7,7 @@ from telegram import Bot
 from telegram.constants import ParseMode
 
 from app.conf import settings
-from app.core.errors import AppError
+from app.core.errors import AppError, NotFoundError
 from app.tg.agents.models import TGAgentJobStatus, TGAgentJobType
 from app.tg.agents.post_generator.post_generator import (
     PostGenerator,
@@ -26,7 +26,7 @@ async def generate_post(ctx: JobContext, job_id: UUID, from_chat_id: int) -> Non
 
     job = await agent_job_svc.get(job_id)
     if not job:
-        raise AppError("Job not found", job_id=job_id)
+        raise NotFoundError("Job not found", job_id=job_id)
 
     if job.type_ != TGAgentJobType.POST_GENERATION:
         raise AppError(
