@@ -47,6 +47,8 @@ def requires_auth(
                     raise ForbiddenError
                 if tg_user.is_blocked:
                     raise UserIsBlockedError
+                if is_admin and not tg_user.is_admin:
+                    raise ForbiddenError("User is not admin")
                 # TODO: swtich on dependency injection
                 # https://github.com/reagento/dishka/issues/450
                 context.tg_user = tg_user

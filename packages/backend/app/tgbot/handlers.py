@@ -277,7 +277,7 @@ async def cancel_publish_post(update: Update, context: Context) -> None:
 
 
 @db_session
-@requires_auth
+@requires_auth(is_admin=True)
 async def generate_invites(update: Update, context: Context) -> None:
     logger.info("Generating invites by admin")
     # TODO: provide in context
@@ -315,11 +315,69 @@ async def generate_invites(update: Update, context: Context) -> None:
     )
 
 
+@db_session
+@requires_auth(is_admin=True)
+async def generate_invite_1(update: Update, context: Context) -> None:
+    return await generate_invite(1, update, context)
+
+
+@db_session
+@requires_auth(is_admin=True)
+async def generate_invite_10(update: Update, context: Context) -> None:
+    return await generate_invite(1, update, context)
+
+
+@db_session
+@requires_auth(is_admin=True)
+async def generate_invite_30(update: Update, context: Context) -> None:
+    return await generate_invite(1, update, context)
+
+
+async def generate_invite(uses: int, update: Update, context: Context) -> None:
+    logger.info("Generating invite 1 by admin with {uses} uses")
+    # TODO: provide in context
+    if not context.db_session:
+        raise ValueError("DB session is None")
+    if not context.tg_user:
+        raise ValueError("TG user is None")
+
+    if not context.tg_user.is_admin:
+        logger.exception(
+            "[CRITICAL] User is not admin accessed private endpoint - generate_invites",
+            tg_user_id=context.tg_user.tg_id,
+        )
+        return
+
+    agent_job_svc = TGInviteCodesService(context.db_session)
+    invites = await agent_job_svc.create(
+        amount=1, uses=uses, tg_user_id=context.tg_user.tg_id, is_created_by_admin=True
+    )
+
+    chat = update.effective_chat
+    if not chat:
+        return
+
+    invites_str = "\n".join(
+        [
+            f'{i + 1}. <a href="https://t.me/boostiq_bot?start={invite.code}">https://t.me/boostiq_bot?start={invite.code}</a>'
+            for i, invite in enumerate(invites)
+        ]
+    )
+    message_text = f"<b>Invites:</b>\n\n{invites_str}"
+    await chat.send_message(
+        text=message_text,
+        parse_mode=ParseMode.HTML,
+    )
+
+
 UUID_PATTERN = r"[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}"
 
 handlers = [
     CommandHandler("start", start),
     CommandHandler("generate_invites", generate_invites),
+    CommandHandler("generate_invite_1", generate_invite_1),
+    CommandHandler("generate_invite_10", generate_invite_10),
+    CommandHandler("generate_invite_30", generate_invite_30),
     CallbackQueryHandler(publish_post, pattern=f"^/publish-post/({UUID_PATTERN})"),
     CallbackQueryHandler(
         cancel_publish_post, pattern=f"^/cancel-publish-post/({UUID_PATTERN})"
