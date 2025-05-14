@@ -6,6 +6,7 @@ from typing import Literal
 from uuid import UUID
 
 import structlog
+from bs4 import BeautifulSoup, Tag
 from langchain_core.prompts import ChatPromptTemplate
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -110,10 +111,8 @@ class PostGenerator:
 
         job = await agent_job_svc.in_progress(job.id)
 
-        output = await self._generate_post(job, agent)
-        # TODO:
-        # add tag cleaner for output
-        return output
+        message_post = await self._generate_post(job, agent)
+        return keep_only_allowed_tags(message_post)
 
     async def update(self, job: TGAgentJob) -> dict[str, str | None]:
         job = self._validate_job(job)
@@ -128,10 +127,8 @@ class PostGenerator:
 
         job = await agent_job_svc.in_progress(job.id)
 
-        output = await self._update_post(job, agent)
-        # TODO:
-        # add tag cleaner for output
-        return output
+        message_post = await self._update_post(job, agent)
+        return keep_only_allowed_tags(message_post)
 
     async def _generate_post(self, job: TGAgentJob, agent: TGAgent) -> str:
         metadata = PostGenerationMetadata.model_validate(job.metadata_)
@@ -274,3 +271,14 @@ def check_if_job_staled(job: TGAgentJob, minutes: int = 30) -> None:
         and job.status_changed_at < (utc_now() - timedelta(minutes=minutes))
     ):
         raise AppError("Job is staled", job_id=job.id)
+
+
+def keep_only_allowed_tags(html: str) -> str:
+    allowed_tags = {"a", "b", "i", "pre", "u", "s", "code"}
+    soup = BeautifulSoup(html, "html.parser")
+
+    for tag in soup.find_all(True):
+        if isinstance(tag, Tag) and tag.name not in allowed_tags:
+            tag.unwrap()
+
+    return str(soup)

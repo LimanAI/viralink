@@ -46,6 +46,8 @@ class Settings(BaseSettings):
     TGBOT_TOKEN: SecretStr
     OPENAI_API_KEY: SecretStr
     REPLICATE_API_KEY: SecretStr
+    GOOGLE_API_KEY: SecretStr
+    GOOGLE_CSE_ID: SecretStr
     # Required -- Storage
     STORAGE_URL: HttpUrl
     STORAGE_BUCKET: str
