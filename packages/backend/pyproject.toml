@@ -41,7 +41,7 @@ trafilatura = "^2.0.0"
 langchain-community = "^0.3.23"
 replicate = "^1.0.6"
 rich = "^14.0.0"
-logfire = "^3.15.0"
+logfire = {extras = ["fastapi", "sqlalchemy"], version = "^3.16.0"}
 boto3 = "<1.36.4"
 types-boto = {extras = ["boto3", "s3"], version = "^2.49.18.20241019"}
 langchain-google-community = "^2.0.7"
@@ -82,7 +82,7 @@ strict_equality = true
 exclude = ["^examples/", "legacy/"]
 
 [[tool.mypy.overrides]]
-module = ["sqlalchemy_utils.*", "telethon.*", "authlib.*", ]
+module = ["sqlalchemy_utils.*", "telethon.*", "authlib.*", "langchain_google_community.*"]
 ignore_missing_imports = true
 
 [tool.ruff]
