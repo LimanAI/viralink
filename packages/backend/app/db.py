@@ -1,5 +1,6 @@
 from collections.abc import AsyncGenerator
 
+import logfire
 from arq.connections import ArqRedis
 from fastapi import Request
 from pydantic import SecretStr
@@ -12,11 +13,14 @@ type AsyncSessionMaker = async_sessionmaker[AsyncSession]
 
 
 def create_async_engine(url: SecretStr, application_name: str) -> AsyncEngine:
-    return _create_async_engine(
+    engine = _create_async_engine(
         url.get_secret_value(),
         echo=settings.DEBUG_SQL,
         connect_args={"server_settings": {"application_name": application_name}},
     )
+    if settings.LOGFIRE_TOKEN:
+        logfire.instrument_sqlalchemy(engine)
+    return engine
 
 
 def create_session_maker(engine: AsyncEngine) -> AsyncSessionMaker:

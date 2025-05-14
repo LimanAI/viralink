@@ -2,6 +2,7 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import TypedDict
 
+import logfire
 from arq.connections import ArqRedis, create_pool
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.auth.api import router as auth_router
 from app.conf import settings
 from app.db import AsyncSessionMaker, create_async_engine, create_session_maker
+from app.logging import configure_logging
 from app.openapi import configure_openapi, generate_unique_id_function
 from app.tg.api import router as tg_router
 from app.tgbot.api import router as tgbot_router
@@ -61,4 +63,7 @@ async def root() -> dict[str, str]:
     return {"message": f"ViraLink v{settings.VERSION}"}
 
 
+configure_logging(name="api")
+if settings.LOGFIRE_TOKEN:
+    logfire.instrument_fastapi(app, capture_headers=False)
 configure_openapi(app)
