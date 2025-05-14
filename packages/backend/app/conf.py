@@ -55,9 +55,10 @@ class Settings(BaseSettings):
     STORAGE_SECRET_KEY: SecretStr
 
     # Optional
-    TGBOT_POOLING: bool = True
     TGBOT_SETUP_COMMANDS: bool = False
     TGBOT_REQUIRES_INVITE: bool = False
+    TGBOT_WEBHOOK_URL: str | None = None
+    TGBOT_WEBHOOK_SECRET_TOKEN: SecretStr | None = None
     CORS_ALLOW_ORIGINS: list[str] = []
     LOGFIRE_TOKEN: SecretStr | None = None
 

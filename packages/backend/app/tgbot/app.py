@@ -23,4 +23,6 @@ builder = (
 )
 
 
-tg_app = builder.build() if settings.TGBOT_POOLING else builder.updater(None).build()
+tg_app = (
+    builder.updater(None).build() if settings.TGBOT_WEBHOOK_URL else builder.build()
+)

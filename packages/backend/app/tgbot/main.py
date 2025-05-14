@@ -39,6 +39,12 @@ async def start_tg_app(session_maker: AsyncSessionMaker) -> AsyncGenerator[TGApp
     tg_app.add_error_handler(error_handler)
     if settings.TGBOT_SETUP_COMMANDS:
         await setup_commands(tg_app)
+    if settings.TGBOT_WEBHOOK_URL and settings.TGBOT_WEBHOOK_SECRET_TOKEN:
+        await tg_app.bot.set_webhook(
+            settings.TGBOT_WEBHOOK_URL,
+            secret_token=settings.TGBOT_WEBHOOK_SECRET_TOKEN.get_secret_value(),
+        )
+        logger.info(f"Telegram webhook is set as {settings.TGBOT_WEBHOOK_URL}")
 
     Context.db_session_maker = session_maker
     Context.arq = await create_pool(
