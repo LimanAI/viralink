@@ -23,3 +23,5 @@ class TGUser(BaseModel):
     language_code: str = ""
     is_bot: bool = False
     is_admin: bool = False
+
+    credits_balance: int

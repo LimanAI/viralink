@@ -1,4 +1,5 @@
 import secrets
+from uuid import UUID
 
 from sqlalchemy import sql
 
@@ -6,7 +7,8 @@ from app.conf import settings
 from app.core.errors import AppError
 from app.models.base import utc_now
 from app.services import BaseService
-from app.tgbot.auth.errors import InvalidInviteCodeError
+from app.tg.credits.models import CreditsTxStatus, TGUserCreditsTx
+from app.tgbot.auth.errors import InsufficientCreditsError, InvalidInviteCodeError
 from app.tgbot.auth.models import TGInviteCode, TGUser
 from app.tgbot.schemas import UserTGData
 
@@ -69,6 +71,76 @@ class TGUserService(BaseService):
                 tg_user = result.scalar_one()
 
         return tg_user
+
+    async def add_credits(self, tg_user_id: int, amount: int) -> TGUser:
+        async with self.tx():
+            result = await self.db_session.execute(
+                sql.update(TGUser)
+                .filter_by(tg_id=tg_user_id)
+                .values(credits_balance=TGUser.credits_balance + amount)
+                .returning(TGUser)
+            )
+            tg_user = result.scalar_one()
+        return tg_user
+
+    async def lock_credits(self, tg_user_id: int, amount: int) -> UUID:
+        async with self.tx():
+            if not await self.has_credits(tg_user_id):
+                raise InsufficientCreditsError
+
+            lock_tx = TGUserCreditsTx(
+                tg_user_id=tg_user_id, amount=amount, status=CreditsTxStatus.LOCKED
+            )
+            self.db_session.add(lock_tx)
+            await self.db_session.execute(
+                sql.update(TGUser)
+                .filter_by(tg_id=tg_user_id)
+                .values(credits_balance=TGUser.credits_balance - amount)
+            )
+        return lock_tx.id
+
+    async def unlock_credits(self, tg_user_id: int, locked_tx_id: UUID) -> None:
+        async with self.tx():
+            lock_result = await self.db_session.execute(
+                sql.select(TGUserCreditsTx).filter_by(
+                    id=locked_tx_id,
+                    tg_user_id=tg_user_id,
+                    status=CreditsTxStatus.LOCKED,
+                    deleted_at=None,
+                )
+            )
+            lock_tx = lock_result.scalar_one()
+            lock_tx.deleted_at = utc_now()
+
+            await self.db_session.execute(
+                sql.update(TGUser)
+                .filter_by(tg_id=tg_user_id)
+                .values(credits_balance=TGUser.credits_balance + lock_tx.amount)
+            )
+
+    async def confirm_locked_credits(self, tg_user_id: int, locked_tx_id: UUID) -> None:
+        async with self.tx():
+            if not await self.has_credits(tg_user_id):
+                raise InsufficientCreditsError
+
+            lock_result = await self.db_session.execute(
+                sql.select(TGUserCreditsTx).filter_by(
+                    id=locked_tx_id,
+                    tg_user_id=tg_user_id,
+                    status=CreditsTxStatus.LOCKED,
+                    deleted_at=None,
+                )
+            )
+            lock_tx = lock_result.scalar_one()
+            lock_tx.deleted_at = utc_now()
+
+    async def has_credits(self, tg_user_id: int) -> bool:
+        async with self.tx():
+            result = await self.db_session.execute(
+                sql.select(TGUser.credits_balance).filter_by(tg_id=tg_user_id)
+            )
+        credit = result.scalar_one()
+        return credit > 0
 
 
 class TGInviteCodesService(BaseService):

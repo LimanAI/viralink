@@ -40,6 +40,7 @@ from app.tg.agents.post_generator.tools.image_generator import (
 from app.tg.agents.post_generator.tools.publisher import Publisher
 from app.tg.agents.post_generator.tools.scraper import Scraper
 from app.tg.agents.services import TGAgentJobService, TGAgentService
+from app.tg.credits.services import spend_credits
 
 logger = structlog.get_logger()
 
@@ -109,7 +110,11 @@ class PostGenerator:
         agent = await agent_svc.get(job.agent_id, with_bot=True)
         agent = self._validate_agent(agent, job)
 
-        job = await agent_job_svc.in_progress(job.id)
+        if not agent.tg_user_id:
+            raise AppError("Agent is orphaned", agent_id=agent.id)
+
+        async with spend_credits(self.db_session, agent.tg_user_id, 1):
+            job = await agent_job_svc.in_progress(job.id)
 
         message_post = await self._generate_post(job, agent)
         return keep_only_allowed_tags(message_post)
@@ -169,6 +174,9 @@ class PostGenerator:
     async def _update_post(
         self, job: TGAgentJob, agent: TGAgent
     ) -> dict[str, str | None]:
+        tg_user_id = agent.tg_user_id
+        if not tg_user_id:
+            raise AppError("Agent is orphaned", agent_id=agent.id)
         metadata = PostUpdateMetadata.model_validate(job.metadata_)
         tools = {
             "publish": Publisher(
@@ -220,8 +228,20 @@ class PostGenerator:
                             code=2200,
                         )
                     tool_call["args"]["post"] = metadata.original_message
-                    result = await tool.ainvoke(tool_call)
-                    image = result.content if isinstance(result.content, str) else None
+                    try:
+                        async with spend_credits(self.db_session, tg_user_id, 2):
+                            result = await tool.ainvoke(tool_call)
+                            image = (
+                                result.content
+                                if isinstance(result.content, str)
+                                else None
+                            )
+                            if not image:
+                                raise AppError(
+                                    "Could not generate image", job_id=job.id
+                                )
+                    except Exception as e:
+                        logger.exception(e)
                     message = metadata.original_message
 
         if not isinstance(message, str):

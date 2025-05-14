@@ -1,4 +1,4 @@
-from sqlalchemy import BigInteger, ForeignKey
+from sqlalchemy import BigInteger, CheckConstraint, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import PostgresUUID, TimestampModel, string_column
@@ -7,6 +7,9 @@ from app.tgbot.schemas import UserTGData
 
 class TGUser(TimestampModel):
     __tablename__ = "tgbot_tg_users"
+    __table_args__ = (
+        CheckConstraint("credit > 0", name="tgbot_tg_users__credits_balance_positive"),
+    )
 
     tg_id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     username: Mapped[str] = string_column(64)
@@ -18,6 +21,8 @@ class TGUser(TimestampModel):
     is_bot: Mapped[bool] = mapped_column(nullable=False, default=False)
     is_blocked: Mapped[bool] = mapped_column(nullable=False, default=False)
     is_admin: Mapped[bool] = mapped_column(nullable=False, default=False)
+
+    credits_balance: Mapped[int] = mapped_column(default=0, server_default="0")
 
     # Foreign keys
     user = mapped_column(
