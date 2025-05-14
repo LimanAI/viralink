@@ -202,7 +202,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ]
             },
             "post": {
                 "tags": [
@@ -252,7 +257,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ]
             }
         },
         "/tg/accounts/send-code": {
@@ -304,7 +314,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ]
             }
         },
         "/tg/accounts/signin": {
@@ -366,7 +381,12 @@
                             }
                         }
                     }
-                }
+                },
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ]
             }
         },
         "/tg/accounts/{account_id}": {
@@ -377,6 +397,11 @@
                 ],
                 "summary": "Get",
                 "operationId": "tg::accounts::get",
+                "security": [
+                    {
+                        "HTTPBearer": []
+                    }
+                ],
                 "parameters": [
                     {
                         "name": "account_id",
@@ -1640,6 +1665,10 @@
                             }
                         ]
                     },
+                    "channel_profile_generated": {
+                        "type": "string",
+                        "title": "Channel Profile Generated"
+                    },
                     "user_bot": {
                         "anyOf": [
                             {
@@ -1655,7 +1684,8 @@
                 "required": [
                     "id",
                     "created_at",
-                    "status"
+                    "status",
+                    "channel_profile_generated"
                 ],
                 "title": "TGAgent"
             },

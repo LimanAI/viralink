@@ -6,7 +6,7 @@ from uuid import UUID
 import boto3
 import botocore.config
 from pydantic import BaseModel, ConfigDict
-from sqlalchemy import BigInteger, Enum, ForeignKey
+from sqlalchemy import BigInteger, Enum, ForeignKey, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy_utils.types import StringEncryptedType
@@ -117,6 +117,7 @@ class AgentSummary(TypedDict):
     channel_username: str
     channel_title: str
     channel_description: str | None
+    channel_profile_generated: str
     content_description: str
     persona_description: str
 
@@ -131,6 +132,9 @@ class TGAgent(RecordModel):
     )
     channel_profile: Mapped[ChannelProfile] = mapped_column(
         PydanticJSON(ChannelProfile), default=dict
+    )
+    channel_profile_generated: Mapped[str] = mapped_column(
+        Text, nullable=False, default="", server_default=""
     )
 
     bot_permissions: Mapped[BotPermissions] = mapped_column(
@@ -194,6 +198,7 @@ class TGAgent(RecordModel):
             "channel_username": self.channel_username,
             "channel_title": self.channel_metadata.title,
             "channel_description": self.channel_metadata.description,
+            "channel_profile_generated": self.channel_profile_generated,
             "content_description": self.channel_profile.content_description,
             "persona_description": self.channel_profile.persona_description,
         }

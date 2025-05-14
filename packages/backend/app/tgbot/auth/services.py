@@ -37,6 +37,14 @@ class TGUserService(BaseService):
             )
         return result.scalar_one()
 
+    async def get_user(self, tg_user_id: int) -> TGUser | None:
+        async with self.tx():
+            result = await self.db_session.execute(
+                sql.select(TGUser).filter_by(tg_id=tg_user_id)
+            )
+            tg_user = result.scalar_one_or_none()
+        return tg_user
+
     async def get_user_and_update(
         self,
         user_data: UserTGData,

@@ -24,6 +24,16 @@ export default function PersonaBlock({
       >
         Edit Persona Settings
       </button>
+      <div>
+        {agent.channel_profile_generated && (
+          <>
+            <h3 className="font-medium mb-2 mt-4">Collected Info:</h3>
+            <p className="whitespace-pre-wrap text-xs opacity-80">
+              {agent.channel_profile_generated}
+            </p>
+          </>
+        )}
+      </div>
     </div>
   );
 }

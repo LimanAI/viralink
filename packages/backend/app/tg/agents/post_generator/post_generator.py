@@ -1,7 +1,9 @@
+import asyncio
 from datetime import timedelta
 from logging import debug
 from pathlib import Path
 from typing import Literal
+from uuid import UUID
 
 import structlog
 from langchain_core.prompts import ChatPromptTemplate
@@ -149,9 +151,6 @@ class PostGenerator:
 
         messages = prompt_template.format_messages(**agent.get_summary())
         result = await llm.ainvoke(messages)
-        from pprint import pprint
-
-        pprint(result)
 
         # how to build messages?
         if tool_calls := getattr(result, "tool_calls", []):

@@ -33,6 +33,7 @@ class TGAgent(BaseModel):
     channel_username: str | None = None
     channel_metadata: ChannelMetadata | None = None
     channel_profile: ChannelProfile | None = None
+    channel_profile_generated: str
 
     user_bot: TGUserBot | None = None
 

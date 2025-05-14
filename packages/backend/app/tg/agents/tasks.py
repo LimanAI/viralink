@@ -14,6 +14,7 @@ from app.tg.agents.post_generator.post_generator import (
     check_if_job_staled,
 )
 from app.tg.agents.services import TGAgentJobService, TGAgentService
+from app.tgbot.auth.services import TGUserService
 from app.worker.conf import JobContext, task
 
 logger = structlog.get_logger()
@@ -46,6 +47,8 @@ async def generate_post(ctx: JobContext, job_id: UUID, from_chat_id: int) -> Non
     agent = await agent_svc.get(job.agent_id, with_bot=True)
     if not agent:
         raise AppError("Agent not found", job_id=job_id, agent_id=job.agent_id)
+    if not agent.tg_user_id:
+        raise AppError("Agent is orphaned", job_id=job_id, agent_id=job.agent_id)
 
     post_generator = PostGenerator(ctx.db_session_maker, ctx.db_session)
     post_text = await post_generator.generate(job)

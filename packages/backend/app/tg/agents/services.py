@@ -280,6 +280,20 @@ class TGAgentService(BaseService):
             )
         return agent
 
+    async def update_channel_profile_generated(
+        self,
+        agent_id: UUID,
+        channel_profile_generated: str,
+    ) -> TGAgent:
+        async with self.tx():
+            result = await self.db_session.execute(
+                sql.update(TGAgent)
+                .filter_by(id=agent_id)
+                .values(channel_profile_generated=channel_profile_generated)
+                .returning(TGAgent)
+            )
+        return result.scalar_one()
+
     async def save_status_error(self, agent_id: UUID, status_error: str) -> TGAgent:
         async with self.tx():
             result = await self.db_session.execute(

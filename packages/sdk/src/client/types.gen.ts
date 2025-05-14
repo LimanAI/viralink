@@ -102,6 +102,7 @@ export type TgAgent = {
   channel_username?: string | null;
   channel_metadata?: ChannelMetadata | null;
   channel_profile?: ChannelProfile | null;
+  channel_profile_generated: string;
   user_bot?: TgUserBot | null;
 };
 

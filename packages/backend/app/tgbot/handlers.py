@@ -1,8 +1,10 @@
+import asyncio
 import io
 from pathlib import Path
 from uuid import UUID
 
 import structlog
+from langchain_core.prompts import ChatPromptTemplate
 from pydantic import BaseModel
 from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup, Update, WebAppInfo
 from telegram.constants import ParseMode
@@ -11,7 +13,8 @@ from telethon.errors import re
 
 from app.conf import settings
 from app.core.errors import AppError
-from app.core.llm import load_prompts
+from app.core.llm import get_llm, load_prompts
+from app.db import AsyncSessionMaker
 from app.tg.agents.models import (
     PostUpdateMetadata,
     TGAgentJobStatus,
@@ -47,11 +50,30 @@ class Texts(LocalizedTexts[HandlersTexts]):
     ru: HandlersTexts
 
 
+class GenerateChannelProfilePrompts(BaseModel):
+    system_prompt: str
+    channel_profile_generated: str
+    post_message: str
+
+
+class LangPrompts(BaseModel):
+    generate_channel_profile: GenerateChannelProfilePrompts
+
+
+class Prompts(BaseModel):
+    ru: LangPrompts
+
+
 try:
     TEXTS = load_prompts(
         Path(__file__).parent / "texts.yaml",
         Texts,
         key="handlers",
+    )
+    PROMPTS = load_prompts(
+        Path(__file__).parent / "texts.yaml",
+        Prompts,
+        key="prompts",
     )
 except:
     logger.error("Failed to load PostGenerator prompts")
@@ -250,6 +272,7 @@ async def publish_post(update: Update, context: Context) -> None:
     await Bot(settings.TGBOT_TOKEN.get_secret_value()).send_message(
         chat_id=metadata.chat_id, text="Published"
     )
+
     # post in channel
     if metadata.photo_id:
         buffer = io.BytesIO()
@@ -269,6 +292,15 @@ async def publish_post(update: Update, context: Context) -> None:
             text=metadata.original_message,
             parse_mode=ParseMode.HTML,
         )
+
+    # update channel_profile_generated
+    asyncio.create_task(
+        _update_channel_profile_generated(
+            context.db_session_maker,
+            agent.id,
+            metadata.original_message,
+        )
+    )
 
 
 @db_session
@@ -368,6 +400,58 @@ async def generate_invite(uses: int, update: Update, context: Context) -> None:
         text=message_text,
         parse_mode=ParseMode.HTML,
     )
+
+
+async def _update_channel_profile_generated(
+    db_session_maker: AsyncSessionMaker,
+    agent_id: UUID,
+    post_message: str,
+) -> None:
+    async with db_session_maker() as db_session:
+        agent_svc = TGAgentService(db_session)
+        tg_user_svc = TGUserService(db_session)
+
+        agent = await agent_svc.get(agent_id)
+        if not agent:
+            raise AppError("Agent not found", agent_id=agent_id)
+        if not agent.tg_user_id:
+            raise AppError("Agent is orphaned", agent_id=agent_id)
+
+        user = await tg_user_svc.get_user(agent.tg_user_id)
+        if not user:
+            raise AppError("User not found", tg_user_id=agent.tg_user_id)
+
+        prompts = get_texts(PROMPTS, user.language_code)
+
+        llm = get_llm("o4-mini")
+
+        prompt_template = ChatPromptTemplate(
+            [
+                ("system", prompts.generate_channel_profile.system_prompt),
+                (
+                    "system",
+                    prompts.generate_channel_profile.channel_profile_generated,
+                ),
+                ("user", prompts.generate_channel_profile.post_message),
+            ]
+        )
+
+        messages = prompt_template.format_messages(
+            channel_profile_generated=agent.channel_profile_generated,
+            post_message=post_message,
+        )
+        result = await llm.ainvoke(messages)
+
+        channel_profile_generated = result.content
+        if channel_profile_generated:
+            if not isinstance(channel_profile_generated, str):
+                raise AppError(
+                    "channel_profile_generated is not a string", agent_id=agent_id
+                )
+
+            await agent_svc.update_channel_profile_generated(
+                agent_id, channel_profile_generated=channel_profile_generated
+            )
 
 
 UUID_PATTERN = r"[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[1-5][a-fA-F0-9]{3}-[89abAB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}"

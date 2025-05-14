@@ -202,6 +202,12 @@ export const tgAccountsList = <ThrowOnError extends boolean = false>(
     unknown,
     ThrowOnError
   >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
     url: "/tg/accounts/",
     ...options,
   });
@@ -218,6 +224,12 @@ export const tgAccountsCreate = <ThrowOnError extends boolean = false>(
     TgAccountsCreateError,
     ThrowOnError
   >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
     url: "/tg/accounts/",
     ...options,
     headers: {
@@ -238,6 +250,12 @@ export const tgAccountsSendCode = <ThrowOnError extends boolean = false>(
     TgAccountsSendCodeError,
     ThrowOnError
   >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
     url: "/tg/accounts/send-code",
     ...options,
     headers: {
@@ -258,6 +276,12 @@ export const tgAccountsSignin = <ThrowOnError extends boolean = false>(
     TgAccountsSigninError,
     ThrowOnError
   >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
     url: "/tg/accounts/signin",
     ...options,
     headers: {
@@ -278,6 +302,12 @@ export const tgAccountsGet = <ThrowOnError extends boolean = false>(
     TgAccountsGetError,
     ThrowOnError
   >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
     url: "/tg/accounts/{account_id}",
     ...options,
   });
