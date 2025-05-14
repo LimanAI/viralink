@@ -123,6 +123,7 @@ export type TgUser = {
   language_code?: string;
   is_bot?: boolean;
   is_admin?: boolean;
+  credits_balance: number;
 };
 
 export type TgUserBot = {
@@ -778,6 +779,29 @@ export type TgbotAuthMeResponses = {
 
 export type TgbotAuthMeResponse =
   TgbotAuthMeResponses[keyof TgbotAuthMeResponses];
+
+export type PostWebhookData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/tgbot/webhook";
+};
+
+export type PostWebhookErrors = {
+  /**
+   * Forbidden
+   */
+  403: HttpForbiddenError;
+};
+
+export type PostWebhookError = PostWebhookErrors[keyof PostWebhookErrors];
+
+export type PostWebhookResponses = {
+  /**
+   * Successful Response
+   */
+  200: unknown;
+};
 
 export type RootData = {
   body?: never;

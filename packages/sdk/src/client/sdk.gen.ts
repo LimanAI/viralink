@@ -63,6 +63,8 @@ import type {
   TgAgentsGeneratePostError,
   TgbotAuthMeData,
   TgbotAuthMeResponse,
+  PostWebhookData,
+  PostWebhookError,
   RootData,
   RootResponse,
 } from "./types.gen";
@@ -572,6 +574,22 @@ export const tgbotAuthMe = <ThrowOnError extends boolean = false>(
       },
     ],
     url: "/tgbot/auth/",
+    ...options,
+  });
+};
+
+/**
+ * Post Webhook
+ */
+export const postWebhook = <ThrowOnError extends boolean = false>(
+  options?: Options<PostWebhookData, ThrowOnError>,
+) => {
+  return (options?.client ?? _heyApiClient).post<
+    unknown,
+    PostWebhookError,
+    ThrowOnError
+  >({
+    url: "/tgbot/webhook",
     ...options,
   });
 };

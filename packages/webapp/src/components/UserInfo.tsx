@@ -25,7 +25,7 @@ const UserInfo = () => {
 
   return (
     <div className="flex items-center justify-between mb-5">
-      <CreditBlock />
+      <CreditBlock credits={user.credits_balance} />
 
       <motion.div
         initial={{ opacity: 0, x: 10 }}

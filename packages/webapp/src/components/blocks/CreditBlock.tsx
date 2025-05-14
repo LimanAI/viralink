@@ -5,10 +5,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { FiZap } from "react-icons/fi";
 
-export default function CreditBlock() {
+export default function CreditBlock({ credits }: { credits: number }) {
   const [showCreditPulse] = useState(false);
   //const router = useRouter();
-  const credits = 10;
 
   const coinAnimation = {
     pulse: {
