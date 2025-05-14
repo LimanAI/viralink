@@ -9,11 +9,12 @@ import {
   FiFileText,
   FiCheckCircle,
   FiAlertCircle,
-  FiSave,
   FiClock,
+  FiSave,
 } from "react-icons/fi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import Image from "next/image";
 
 import {
   TgAgent,
@@ -123,35 +124,45 @@ export default function AgentPage() {
   }
 
   return (
-    <PageTransition>
-      <BackButton href="/" />
+    <>
+      <PageTransition className="mb-10">
+        <BackButton href="/" />
 
-      <div className="container mx-auto max-w-md p-4">
-        <div className="card bg-base-200 p-5 mb-6">
-          <div className="flex flex-col justify-between items-end gap-4">
-            {/* Left side - Channel info */}
-            <div className="flex items-center w-full">
-              <div>
-                <div className="w-16 h-16 bg-primary text-primary-content rounded-md flex items-center justify-center text-2xl font-semibold">
-                  {agent.channel_username?.charAt(0)}
+        <div className="container mx-auto max-w-md p-4">
+          <div className="card bg-base-200 p-5 mb-6">
+            <div className="flex flex-col justify-between items-end gap-4">
+              {/* Left side - Channel info */}
+              <div className="flex items-center w-full">
+                <div>
+                  <div className="w-17 h-17 bg-primary text-primary-content rounded-full flex items-center relative overflow-hidden justify-center text-2xl font-semibold">
+                    {agent.channel_metadata?.photo?.small_file_path ? (
+                      <Image
+                        src={agent.channel_metadata?.photo?.small_file_path}
+                        alt={agent.channel_metadata?.title?.charAt(0) ?? ""}
+                        fill={true}
+                        className="rounded-md"
+                      />
+                    ) : (
+                      agent.channel_metadata?.title?.charAt(0)
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              <div className="ml-4 truncate">
-                <h1 className="text-2xl font-bold inline">
-                  {agent.channel_metadata?.title}
-                </h1>
-                <p className="text-sm opacity-70">
-                  {getChannelUsername(agent)}
-                </p>
-                <div className="flex flex-wrap gap-x-4 mt-1">
-                  {agent.channel_metadata?.member_count && (
-                    <span className="text-xs opacity-70 flex items-center">
-                      <FiUsers className="mr-1" />{" "}
-                      {agent.channel_metadata?.member_count} members
-                    </span>
-                  )}
-                  {/*
+                <div className="ml-4 truncate">
+                  <h1 className="text-2xl font-bold inline">
+                    {agent.channel_metadata?.title}
+                  </h1>
+                  <p className="text-sm opacity-70">
+                    {getChannelUsername(agent)}
+                  </p>
+                  <div className="flex flex-wrap gap-x-4 mt-1">
+                    {agent.channel_metadata?.member_count && (
+                      <span className="text-xs opacity-70 flex items-center">
+                        <FiUsers className="mr-1" />{" "}
+                        {agent.channel_metadata?.member_count} members
+                      </span>
+                    )}
+                    {/*
                   <span className="text-xs opacity-70 flex items-center">
                     <FiFileText className="mr-1" /> 11 posts
                   </span>
@@ -162,65 +173,65 @@ export default function AgentPage() {
                     <FiTrendingUp className="mr-1" /> 72% growth
                   </span>
                   */}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div>
-              {agent.status === "active" ? (
-                <div className="badge badge-success gap-1 py-3">
-                  <FiCheckCircle />
-                  <span>Active</span>
-                </div>
-              ) : (
-                <div className="badge badge-warning gap-1 py-3">
-                  <FiAlertCircle />
-                  <span>Not Connected</span>
-                </div>
-              )}
+              <div>
+                {agent.status === "active" ? (
+                  <div className="badge badge-success gap-1 py-3">
+                    <FiCheckCircle />
+                    <span>Active</span>
+                  </div>
+                ) : (
+                  <div className="badge badge-warning gap-1 py-3">
+                    <FiAlertCircle />
+                    <span>Not Connected</span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
 
-        {agent.channel_metadata?.description && (
+          {agent.channel_metadata?.description && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="card bg-base-100 border border-base-300 p-5 mb-6"
+            >
+              <h2 className="text-lg font-semibold mb-2 flex items-center">
+                <FiFileText className="mr-2 text-primary" /> About This Channel
+              </h2>
+              <p className="whitespace-pre-wrap opacity-80 text-sm">
+                {agent.channel_metadata?.description}
+              </p>
+            </motion.div>
+          )}
+
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
+            transition={{ delay: 0.2 }}
             className="card bg-base-100 border border-base-300 p-5 mb-6"
           >
-            <h2 className="text-lg font-semibold mb-2 flex items-center">
-              <FiFileText className="mr-2 text-primary" /> About This Channel
-            </h2>
-            <p className="whitespace-pre-wrap opacity-80 text-sm">
-              {agent.channel_metadata?.description}
-            </p>
+            <BotBlock agent={agent} />
           </motion.div>
-        )}
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="card bg-base-100 border border-base-300 p-5 mb-6"
-        >
-          <BotBlock agent={agent} />
-        </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="card bg-base-100 border border-base-300 p-5 mb-6"
+          >
+            <h2 className="text-lg font-semibold mb-4 flex items-center">
+              <FiSettings className="mr-2 text-primary" /> Content Settings
+            </h2>
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="card bg-base-100 border border-base-300 p-5 mb-6"
-        >
-          <h2 className="text-lg font-semibold mb-4 flex items-center">
-            <FiSettings className="mr-2 text-primary" /> Content Settings
-          </h2>
-
-          <ContentBlock agent={agent} className="my-3" />
-          <PersonaBlock agent={agent} className="my-3" />
-        </motion.div>
-        {/*
+            <ContentBlock agent={agent} className="my-3" />
+            <PersonaBlock agent={agent} className="my-3" />
+          </motion.div>
+          {/*
 
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -232,32 +243,33 @@ export default function AgentPage() {
         </motion.div>
         */}
 
-        <button
-          onClick={() => generatePost()}
-          className="btn btn-secondary w-full my-2"
-        >
-          <>
-            <FiClock />
-            Generate post
-          </>
-        </button>
+          <button
+            onClick={() => generatePost()}
+            className="btn btn-secondary w-full my-2"
+          >
+            <>
+              <FiClock />
+              Generate post
+            </>
+          </button>
 
-        <button onClick={() => {}} className="btn btn-primary w-full">
-          <>
-            <FiSave />
-            Save Changes
-          </>
-        </button>
-        <button
-          onClick={onShowDeleteModal}
-          className="btn btn-error btn-outline w-full my-2"
-        >
-          <>
-            <RiDeleteBin6Line />
-            Delete Channel
-          </>
-        </button>
-      </div>
+          <button onClick={() => {}} className="btn btn-primary w-full">
+            <>
+              <FiSave />
+              Save Changes
+            </>
+          </button>
+          <button
+            onClick={onShowDeleteModal}
+            className="btn btn-error btn-outline w-full my-2"
+          >
+            <>
+              <RiDeleteBin6Line />
+              Delete Channel
+            </>
+          </button>
+        </div>
+      </PageTransition>
       <dialog
         id="delete-channel-modal"
         className="modal modal-bottom sm:modal-middle"
@@ -282,7 +294,7 @@ export default function AgentPage() {
           </div>
         </div>
       </dialog>
-    </PageTransition>
+    </>
   );
 }
 
