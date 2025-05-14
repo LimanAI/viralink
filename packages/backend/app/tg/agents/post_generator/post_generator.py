@@ -127,8 +127,11 @@ class PostGenerator:
 
         job = await agent_job_svc.in_progress(job.id)
 
-        message_post = await self._update_post(job, agent)
-        return keep_only_allowed_tags(message_post)
+        output = await self._update_post(job, agent)
+        message_post = output.get("message")
+        if message_post:
+            output["message"] = keep_only_allowed_tags(message_post)
+        return output
 
     async def _generate_post(self, job: TGAgentJob, agent: TGAgent) -> str:
         metadata = PostGenerationMetadata.model_validate(job.metadata_)
