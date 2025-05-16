@@ -14,6 +14,7 @@ import {
 } from "react-icons/fi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useCallback } from "react";
 import Image from "next/image";
 
 import {
@@ -33,7 +34,6 @@ import { useApi } from "@/hooks/useApi";
 import BotBlock from "./_components/BotBlock";
 import PersonaBlock from "./_components/PersonaBlock";
 import ContentBlock from "./_components/ContentBlock";
-import { useCallback } from "react";
 
 export default function AgentPage() {
   const { id: agentId } = useParams<{ id: string }>();

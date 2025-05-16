@@ -16,6 +16,10 @@ export type BotMetadata = {
   description?: string | null;
 };
 
+export type BuyCreditsRequest = {
+  package_name: string;
+};
+
 export type ChannelMetadata = {
   id: number;
   username: string;
@@ -50,6 +54,12 @@ export type CreateAccountRequest = {
 
 export type CreateTgAgentRequest = {
   channel_username: string;
+};
+
+export type CreditsPackage = {
+  package_name: string;
+  credits_amount: number;
+  stars_amount: number;
 };
 
 export type HttpError = {
@@ -762,6 +772,61 @@ export type TgAgentsGeneratePostResponses = {
 
 export type TgAgentsGeneratePostResponse =
   TgAgentsGeneratePostResponses[keyof TgAgentsGeneratePostResponses];
+
+export type TgCreditsListPackagesData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/tg/credits/packages";
+};
+
+export type TgCreditsListPackagesErrors = {
+  /**
+   * Unauthorized
+   */
+  401: HttpUnauthorizedError;
+};
+
+export type TgCreditsListPackagesError =
+  TgCreditsListPackagesErrors[keyof TgCreditsListPackagesErrors];
+
+export type TgCreditsListPackagesResponses = {
+  /**
+   * Successful Response
+   */
+  200: Array<CreditsPackage>;
+};
+
+export type TgCreditsListPackagesResponse =
+  TgCreditsListPackagesResponses[keyof TgCreditsListPackagesResponses];
+
+export type TgCreditsSendInvoiceData = {
+  body: BuyCreditsRequest;
+  path?: never;
+  query?: never;
+  url: "/tg/credits/send_invoice";
+};
+
+export type TgCreditsSendInvoiceErrors = {
+  /**
+   * Unauthorized
+   */
+  401: HttpUnauthorizedError;
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type TgCreditsSendInvoiceError =
+  TgCreditsSendInvoiceErrors[keyof TgCreditsSendInvoiceErrors];
+
+export type TgCreditsSendInvoiceResponses = {
+  /**
+   * Successful Response
+   */
+  200: unknown;
+};
 
 export type TgbotAuthMeData = {
   body?: never;

@@ -20,6 +20,7 @@ def extract_user_data(update: Update) -> UserTGData | None:
                 "callback_query",
                 "poll",
                 "poll_answer",
+                "pre_checkout_query",
             ]
             if hasattr(update, attr) and getattr(update, attr) is not None
         ).from_user

@@ -1115,6 +1115,104 @@
                 }
             }
         },
+        "/tg/credits/packages": {
+            "get": {
+                "tags": [
+                    "tg",
+                    "tg_credits"
+                ],
+                "summary": "List Packages",
+                "description": "Get list of available packages",
+                "operationId": "tg::credits::list_packages",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/CreditsPackage"
+                                    },
+                                    "type": "array",
+                                    "title": "Response Tg::Credits::List Packages"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPUnauthorizedError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ]
+            }
+        },
+        "/tg/credits/send_invoice": {
+            "put": {
+                "tags": [
+                    "tg",
+                    "tg_credits"
+                ],
+                "summary": "Send Invoice",
+                "description": "Send payment invoice for user",
+                "operationId": "tg::credits::send_invoice",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BuyCreditsRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPUnauthorizedError"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "APIKeyHeader": []
+                    }
+                ]
+            }
+        },
         "/tgbot/auth/": {
             "get": {
                 "tags": [
@@ -1272,6 +1370,19 @@
                     "id"
                 ],
                 "title": "BotMetadata"
+            },
+            "BuyCreditsRequest": {
+                "properties": {
+                    "package_name": {
+                        "type": "string",
+                        "title": "Package Name"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "package_name"
+                ],
+                "title": "BuyCreditsRequest"
             },
             "ChannelMetadata": {
                 "properties": {
@@ -1466,6 +1577,29 @@
                     "channel_username"
                 ],
                 "title": "CreateTGAgentRequest"
+            },
+            "CreditsPackage": {
+                "properties": {
+                    "package_name": {
+                        "type": "string",
+                        "title": "Package Name"
+                    },
+                    "credits_amount": {
+                        "type": "integer",
+                        "title": "Credits Amount"
+                    },
+                    "stars_amount": {
+                        "type": "integer",
+                        "title": "Stars Amount"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "package_name",
+                    "credits_amount",
+                    "stars_amount"
+                ],
+                "title": "CreditsPackage"
             },
             "HTTPError": {
                 "properties": {

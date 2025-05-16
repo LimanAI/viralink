@@ -8,6 +8,7 @@ from telegram import BotCommand, Update
 from app.conf import settings
 from app.core.errors import ForbiddenError
 from app.db import AsyncSessionMaker
+from app.tg.credits.handlers import handlers as credits_handlers
 from app.tgbot.app import TGApp, tg_app
 from app.tgbot.context import Context
 from app.tgbot.handlers import TEXTS, handlers
@@ -36,6 +37,7 @@ async def error_handler(update: object, context: Context) -> None:
 @asynccontextmanager
 async def start_tg_app(session_maker: AsyncSessionMaker) -> AsyncGenerator[TGApp, None]:
     tg_app.add_handlers(handlers)
+    tg_app.add_handlers(credits_handlers)
     tg_app.add_error_handler(error_handler)
     if settings.TGBOT_SETUP_COMMANDS:
         await setup_commands(tg_app)

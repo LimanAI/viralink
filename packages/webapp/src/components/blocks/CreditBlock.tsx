@@ -1,13 +1,13 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-//import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { FiZap } from "react-icons/fi";
 
 export default function CreditBlock({ credits }: { credits: number }) {
   const [showCreditPulse] = useState(false);
-  //const router = useRouter();
+  const router = useRouter();
 
   const coinAnimation = {
     pulse: {
@@ -52,6 +52,7 @@ export default function CreditBlock({ credits }: { credits: number }) {
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       className="relative flex items-center bg-base-200 px-3 py-2 rounded-full cursor-pointer hover:bg-base-300 transition-colors overflow-hidden"
+      onClick={() => router.push("/payment")}
       animate={
         showCreditPulse
           ? {

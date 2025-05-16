@@ -229,7 +229,7 @@ class PostGenerator:
                         )
                     tool_call["args"]["post"] = metadata.original_message
                     try:
-                        async with spend_credits(self.db_session, tg_user_id, 2):
+                        async with spend_credits(self.db_session, tg_user_id, 1):
                             result = await tool.ainvoke(tool_call)
                             image = (
                                 result.content

@@ -61,6 +61,11 @@ import type {
   TgAgentsGeneratePostData,
   TgAgentsGeneratePostResponse,
   TgAgentsGeneratePostError,
+  TgCreditsListPackagesData,
+  TgCreditsListPackagesResponse,
+  TgCreditsListPackagesError,
+  TgCreditsSendInvoiceData,
+  TgCreditsSendInvoiceError,
   TgbotAuthMeData,
   TgbotAuthMeResponse,
   PostWebhookData,
@@ -553,6 +558,56 @@ export const tgAgentsGeneratePost = <ThrowOnError extends boolean = false>(
     ],
     url: "/tg/agents/{agent_id}/generate-post",
     ...options,
+  });
+};
+
+/**
+ * List Packages
+ * Get list of available packages
+ */
+export const tgCreditsListPackages = <ThrowOnError extends boolean = false>(
+  options?: Options<TgCreditsListPackagesData, ThrowOnError>,
+) => {
+  return (options?.client ?? _heyApiClient).get<
+    TgCreditsListPackagesResponse,
+    TgCreditsListPackagesError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        name: "x-telegram-auth",
+        type: "apiKey",
+      },
+    ],
+    url: "/tg/credits/packages",
+    ...options,
+  });
+};
+
+/**
+ * Send Invoice
+ * Send payment invoice for user
+ */
+export const tgCreditsSendInvoice = <ThrowOnError extends boolean = false>(
+  options: Options<TgCreditsSendInvoiceData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).put<
+    unknown,
+    TgCreditsSendInvoiceError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        name: "x-telegram-auth",
+        type: "apiKey",
+      },
+    ],
+    url: "/tg/credits/send_invoice",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
   });
 };
 

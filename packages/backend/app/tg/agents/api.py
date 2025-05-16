@@ -5,7 +5,6 @@ import structlog
 from arq.connections import ArqRedis
 from fastapi import APIRouter, Depends, HTTPException, status
 from telegram import Bot
-from telegram.constants import ParseMode
 from telegram.error import TelegramError
 
 from app.core.errors import AppError, ForbiddenError, NotFoundError
