@@ -5,6 +5,10 @@ import { FiUser } from "react-icons/fi";
 import { useQuery } from "@tanstack/react-query";
 import { tgbotAuthMe } from "@viralink-ai/sdk";
 import CreditBlock from "./blocks/CreditBlock";
+import { getLang } from "@/i18n/utils";
+import { cookieName } from "@/i18n/conf";
+import { getCookie, setCookie } from "cookies-next";
+import { useEffect } from "react";
 
 const UserInfo = () => {
   const { data: user, isPending } = useQuery({
@@ -16,6 +20,15 @@ const UserInfo = () => {
       return data;
     },
   });
+
+  // set language
+  useEffect(() => {
+    if (!user) return;
+    const lang = getLang(user.language_code);
+    if (lang !== getCookie(cookieName)) {
+      setCookie(cookieName, lang);
+    }
+  }, [user]);
 
   if (isPending || !user) {
     return <Skeleton />;
