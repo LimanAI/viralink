@@ -37,7 +37,7 @@ export default function CreateBot() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormData>({
+  } = useForm({
     resolver: zodResolver(formSchema),
   });
 
