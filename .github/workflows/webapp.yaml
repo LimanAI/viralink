@@ -46,12 +46,12 @@ jobs:
         run: pnpm install
 
       - name: Run lint
+        env:
+          NODE_OPTIONS: --max_old_space_size=4096
         run: |
           pnpm webapp:lint
           pnpm webapp:format:check
-          # Disabled because of
-          # FATAL ERROR: Ineffective mark-compacts near heap limit Allocation failed - JavaScript heap out of memory
-          # pnpm webapp:ts
+          pnpm webapp:ts
 
   deploy:
     name: deploy 🚀
