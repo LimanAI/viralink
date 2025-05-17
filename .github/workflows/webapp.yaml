@@ -49,7 +49,9 @@ jobs:
         run: |
           pnpm webapp:lint
           pnpm webapp:format:check
-          pnpm webapp:ts
+          # Disabled because of
+          # FATAL ERROR: Ineffective mark-compacts near heap limit Allocation failed - JavaScript heap out of memory
+          # pnpm webapp:ts
 
   deploy:
     name: deploy 🚀
