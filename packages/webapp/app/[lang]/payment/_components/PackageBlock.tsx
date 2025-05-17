@@ -16,17 +16,17 @@ type PackageInfo = {
 };
 
 const packages: Record<string, PackageInfo> = {
-  starter_1605: {
+  starter_1705: {
     name: "starter",
     popular: false,
     icon: <FiPackage />,
   },
-  business_1605: {
+  business_1705: {
     name: "business",
     popular: true,
     icon: <FiStar />,
   },
-  agency_1605: {
+  agency_1705: {
     name: "agency",
     popular: false,
     icon: <FiAward />,
