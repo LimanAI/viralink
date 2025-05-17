@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 
-import "./globals.css";
 import QueryClientProvider from "@/providers/QueryClientProvider";
 import { WebAppProvider } from "@/providers/WebAppProvider";
+import { Language } from "@/i18n/conf";
+
+import "../globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,13 +23,23 @@ export const metadata: Metadata = {
   description: "Manage and boost your Telegram channels with BoostIQ",
 };
 
-export default function RootLayout({
+export async function generateStaticParams() {
+  return ["en", "ru"].map((lang) => ({ lang }));
+}
+
+export default async function RootLayout({
+  params,
   children,
 }: Readonly<{
+  params: Promise<{
+    lang: Language;
+  }>;
   children: React.ReactNode;
 }>) {
+  const { lang } = await params;
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={lang} suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

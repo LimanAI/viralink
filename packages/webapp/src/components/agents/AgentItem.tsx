@@ -6,7 +6,9 @@ import { FiUsers, FiCheck, FiLink, FiBook } from "react-icons/fi";
 import Image from "next/image";
 
 import type { TgAgent } from "@viralink-ai/sdk";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { Language } from "@/i18n/conf";
+import { useTranslation } from "@/i18n/client";
 
 export default function AgentItem({ agent }: { agent: TgAgent }) {
   const router = useRouter();
@@ -76,10 +78,15 @@ export default function AgentItem({ agent }: { agent: TgAgent }) {
 }
 
 function AgentStatus({ agent }: { agent: TgAgent }) {
+  const { lang } = useParams<{ lang: Language }>();
+  const { t } = useTranslation(lang, "components", {
+    keyPrefix: "AgentStatus",
+  });
+
   if (agent.status === "active") {
     return (
       <div className="ml-auto badge badge-success gap-1">
-        <FiCheck /> Active
+        <FiCheck /> {t("active")}
       </div>
     );
   }
@@ -93,7 +100,7 @@ function AgentStatus({ agent }: { agent: TgAgent }) {
           e.stopPropagation();
         }}
       >
-        <FiLink /> Connect
+        <FiLink /> {t("connect")}
       </Link>
     );
   }
@@ -107,7 +114,7 @@ function AgentStatus({ agent }: { agent: TgAgent }) {
           e.stopPropagation();
         }}
       >
-        <FiLink /> Connect
+        <FiLink /> {t("connect")}
       </Link>
     );
   }
@@ -124,7 +131,7 @@ function AgentStatus({ agent }: { agent: TgAgent }) {
           e.stopPropagation();
         }}
       >
-        <FiBook className="h-3 w-3" /> Prompts
+        <FiBook className="h-3 w-3" /> {t("prompts")}
       </Link>
     );
   }
@@ -138,7 +145,7 @@ function AgentStatus({ agent }: { agent: TgAgent }) {
           e.stopPropagation();
         }}
       >
-        <FiBook className="h-3 w-3" /> Prompts
+        <FiBook className="h-3 w-3" /> {t("prompts")}
       </Link>
     );
   }

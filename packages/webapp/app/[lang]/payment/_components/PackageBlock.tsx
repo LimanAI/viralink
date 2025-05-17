@@ -1,8 +1,13 @@
+"use client";
+
 import { useMemo } from "react";
 import { FiZap, FiPackage, FiStar, FiAward } from "react-icons/fi";
 import { motion } from "framer-motion";
 import cn from "clsx";
+
 import { CreditsPackage } from "@viralink-ai/sdk";
+import { Language } from "@/i18n/conf";
+import { useTranslation } from "@/i18n/client";
 
 type PackageInfo = {
   name: string;
@@ -12,17 +17,17 @@ type PackageInfo = {
 
 const packages: Record<string, PackageInfo> = {
   starter_1605: {
-    name: "Starter",
+    name: "starter",
     popular: false,
     icon: <FiPackage />,
   },
   business_1605: {
-    name: "Business",
+    name: "business",
     popular: true,
     icon: <FiStar />,
   },
   agency_1605: {
-    name: "Agency",
+    name: "agency",
     popular: false,
     icon: <FiAward />,
   },
@@ -32,14 +37,19 @@ export function PackageBlock({
   pkg,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   index,
+  lang,
   onPackageSelect,
   isSelected,
 }: {
   pkg: CreditsPackage;
   index: number;
+  lang: Language;
   onPackageSelect: (pkg: CreditsPackage) => void;
   isSelected: boolean;
 }) {
+  const { t } = useTranslation(lang, "app", {
+    keyPrefix: "payment._components.PackageBlock",
+  });
   const pkgInfo = useMemo(() => {
     return packages[pkg.package_name];
   }, [pkg]);
@@ -65,7 +75,7 @@ export function PackageBlock({
     >
       {pkgInfo.popular && (
         <div className="absolute -top-3 -right-2 badge badge-primary badge-sm py-1">
-          Most Popular
+          {t("popular")}
         </div>
       )}
 
@@ -80,10 +90,13 @@ export function PackageBlock({
             {pkgInfo.icon}
           </div>
           <div>
-            <h3 className="font-semibold">{pkgInfo.name}</h3>
+            <h3 className="font-semibold">{t(pkgInfo.name)}</h3>
             <div className="flex items-center text-sm">
               <FiZap className="text-secondary-content mr-1" />
-              <span>{pkg.credits_amount.toLocaleString()} credits</span>
+              <span>
+                {pkg.credits_amount.toLocaleString()}{" "}
+                {t("credits", { count: pkg.credits_amount })}
+              </span>
             </div>
           </div>
           <div className="ml-auto">

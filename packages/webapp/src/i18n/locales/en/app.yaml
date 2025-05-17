@@ -1,0 +1,51 @@
+root:
+  title: Your Channels
+agents:
+  members: members
+  members_one: member
+  active_status: Active
+  disconnected_status: Not connected
+  about_channel_title: About This channel
+  content_settings_title: Content Settings
+  delete_channel_title: Delete {{channelUsername}} channel?
+  delete_channel_hint: Would you like to delete this channel? This action cannot be undone.
+  yes: Yes
+  no: No
+  button:
+    generate_post: Generate post
+    delete_channel: Delete channel
+  _components:
+    ContentBlock:
+      title: Content Description
+      empty_content_description: This agent does not have a content description.
+      button:
+        edit_content_description: Edit Content Preferences
+    PersonaBlock:
+      title: Content Persona
+      empty_persona_description: This agent does not have a content persona set.
+      collected_info_title: Collected Info
+      button:
+        edit_persona_description: Edit Persona Settings
+    BotBlock:
+      title: Bot Connection
+      not_connected_info: This channel is not connected to a bot
+      button_connect_bot: Connect a Bot
+      button_change_bot: Change Bot
+      autopublish_title: Auto-publish content (soon)
+      autopublish_on_hint: Content will be automatically published without your approval
+      autopublish_off_hint: You will need to approve content before it's published
+payment:
+  title: Credits
+  balance_title: Your current balance
+  balance_hint: Credits are used to generate content and power your bots
+  select_package: Select a package
+  buy_package: |
+    Buy {{credits}} Credits for ☆ {{stars}}
+  _components:
+    PackageBlock:
+      credits: credits
+      credits_one: credit
+      popular: Most Popular
+      starter: Starter
+      business: Business
+      agency: Agency

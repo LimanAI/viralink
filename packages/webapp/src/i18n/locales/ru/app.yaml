@@ -1,0 +1,59 @@
+root:
+  title: Ваши каналы
+agents:
+  members: участников
+  members_one: участник
+  members_few: участника
+  active_status: Активен
+  disconnected_status: Не подключен
+  about_channel_title: О канале
+  content_settings_title: Настройки контента
+  delete_channel_title: Удалить канал {{channelUsername}}?
+  delete_channel_hint: Вы действительно хотите удалить этот канал? Это действие нельзя отменить.
+  yes: Да
+  no: Нет
+  button:
+    generate_post: Сгенерировать пост
+    delete_channel: Удалить канал
+  _components:
+    ContentBlock:
+      title: Контент-описание
+      empty_content_description: Этот агент не имеет описания.
+      button:
+        edit_content_description: Изменить
+    PersonaBlock:
+      title: Контент-персона
+      empty_persona_description: Этот агент не имеет настроенной персоны.
+      collected_info_title: Собранная информация
+      button:
+        edit_persona_description: Изменить
+    BotBlock:
+      title: Бот-подключение
+      not_connected_info: Этот канал не подключен к боту
+      button_connect_bot: Подключить бота
+      button_change_bot: Сменить бота
+      autopublish_title: Автопубликация контента (скоро)
+      autopublish_on_hint: Контент будет автоматически опубликован без вашего одобрения
+      autopublish_off_hint: Вам нужно будет одобрить контент перед его публикацией
+payment:
+  title: Ваши кредиты
+  balance_title: Ваш текущий баланс
+  balance_hint: Кредиты используются для генерации контента и работы ваших ботов
+  select_package: Выберите пакет
+  buy_package_one: |
+    Купить {{credits}} кредит за ☆ {{stars}}
+  buy_package_few: |
+    Купить {{credits}} кредита за ☆ {{stars}}
+  buy_package_many: |
+    Купить {{credits}} кредитов за ☆ {{stars}}
+  processing: Обработка...
+  _components:
+    PackageBlock:
+      credits: кредиты
+      credits_one: кредит
+      credits_few: кредита
+      credits_many: кредитов
+      popular: Самый популярный
+      starter: Новичок
+      business: Бизнес
+      agency: Агентство

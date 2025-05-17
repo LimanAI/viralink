@@ -10,7 +10,6 @@ import {
   FiCheckCircle,
   FiAlertCircle,
   FiClock,
-  FiSave,
 } from "react-icons/fi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -34,9 +33,14 @@ import { useApi } from "@/hooks/useApi";
 import BotBlock from "./_components/BotBlock";
 import PersonaBlock from "./_components/PersonaBlock";
 import ContentBlock from "./_components/ContentBlock";
+import { Language } from "@/i18n/conf";
+import { useTranslation } from "@/i18n/client";
 
 export default function AgentPage() {
-  const { id: agentId } = useParams<{ id: string }>();
+  const { lang, id: agentId } = useParams<{ lang: Language; id: string }>();
+  const { t } = useTranslation(lang, "app", {
+    keyPrefix: "agents",
+  });
   const router = useRouter();
 
   const api = useApi();
@@ -159,7 +163,10 @@ export default function AgentPage() {
                     {agent.channel_metadata?.member_count && (
                       <span className="text-xs opacity-70 flex items-center">
                         <FiUsers className="mr-1" />{" "}
-                        {agent.channel_metadata?.member_count} members
+                        {agent.channel_metadata?.member_count}{" "}
+                        {t("members", {
+                          count: agent.channel_metadata?.member_count,
+                        })}
                       </span>
                     )}
                     {/*
@@ -181,12 +188,12 @@ export default function AgentPage() {
                 {agent.status === "active" ? (
                   <div className="badge badge-success gap-1 py-3">
                     <FiCheckCircle />
-                    <span>Active</span>
+                    <span>{t("active_status")}</span>
                   </div>
                 ) : (
                   <div className="badge badge-warning gap-1 py-3">
                     <FiAlertCircle />
-                    <span>Not Connected</span>
+                    <span>{t("disconnected_status")}</span>
                   </div>
                 )}
               </div>
@@ -201,7 +208,8 @@ export default function AgentPage() {
               className="card bg-base-100 border border-base-300 p-5 mb-6"
             >
               <h2 className="text-lg font-semibold mb-2 flex items-center">
-                <FiFileText className="mr-2 text-primary" /> About This Channel
+                <FiFileText className="mr-2 text-primary" />
+                {t("about_channel_title")}
               </h2>
               <p className="whitespace-pre-wrap opacity-80 text-sm">
                 {agent.channel_metadata?.description}
@@ -225,7 +233,8 @@ export default function AgentPage() {
             className="card bg-base-100 border border-base-300 p-5 mb-6"
           >
             <h2 className="text-lg font-semibold mb-4 flex items-center">
-              <FiSettings className="mr-2 text-primary" /> Content Settings
+              <FiSettings className="mr-2 text-primary" />
+              {t("content_settings_title")}
             </h2>
 
             <ContentBlock agent={agent} className="my-3" />
@@ -249,23 +258,25 @@ export default function AgentPage() {
           >
             <>
               <FiClock />
-              Generate post
+              {t("button.generate_post")}
             </>
           </button>
 
+          {/*
           <button onClick={() => {}} className="btn btn-primary w-full">
             <>
               <FiSave />
               Save Changes
             </>
           </button>
+          */}
           <button
             onClick={onShowDeleteModal}
             className="btn btn-error btn-outline w-full my-2"
           >
             <>
               <RiDeleteBin6Line />
-              Delete Channel
+              {t("button.delete_channel")}
             </>
           </button>
         </div>
@@ -276,19 +287,19 @@ export default function AgentPage() {
       >
         <div className="modal-box">
           <h3 className="font-bold text-lg">
-            Delete {getChannelUsername(agent)} channel?
+            {t("delete_channel_title", {
+              channelUsername: getChannelUsername(agent),
+            })}
           </h3>
-          <p className="py-4">
-            Would you like to delete this channel? This action cannot be undone.
-          </p>
+          <p className="py-4">{t("delete_channel_hint")}</p>
           <div className="modal-action">
             <form method="dialog">
-              <button className="btn mx-2">No</button>
+              <button className="btn mx-2">{t("no")}</button>
               <button
                 className="btn btn-error btn-outline"
                 onClick={() => deleteAgent()}
               >
-                Yes
+                {t("yes")}
               </button>
             </form>
           </div>

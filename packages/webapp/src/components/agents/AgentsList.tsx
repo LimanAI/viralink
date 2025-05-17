@@ -9,8 +9,13 @@ import { useApi } from "@/hooks/useApi";
 import { tgAgentsList } from "@viralink-ai/sdk";
 
 import AgentItem from "./AgentItem";
+import { useParams } from "next/navigation";
+import { Language } from "@/i18n/conf";
+import { useTranslation } from "@/i18n/client";
 
 export function AgentsList() {
+  const { lang } = useParams<{ lang: Language }>();
+  const { t } = useTranslation(lang, "components", { keyPrefix: "AgentList" });
   const api = useApi();
 
   const {
@@ -64,7 +69,7 @@ export function AgentsList() {
         className="mt-6"
       >
         <Link href="/add-channel" className="btn btn-primary btn-block gap-2">
-          <FiPlus /> Add New Channel
+          <FiPlus /> {t("buttons.add_channel")}
         </Link>
       </motion.div>
     </div>

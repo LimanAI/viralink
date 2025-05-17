@@ -1,0 +1,12 @@
+AgentList:
+  buttons:
+    add_channel: Добавить новый канал
+AgentStatus:
+  active: Активен
+  connect: Подключить
+  prompts: Описание
+CreditsBlock:
+  credits: кредиты
+  credits_one: кредит
+  credits_few: кредита
+  credits_many: кредитов

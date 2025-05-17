@@ -1,12 +1,18 @@
 "use client";
 
+import { useTranslation } from "@/i18n/client";
+import { Language } from "@/i18n/conf";
 import { AnimatePresence, motion } from "framer-motion";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { FiZap } from "react-icons/fi";
 
-export default function CreditBlock({ credits }: { credits: number }) {
+export default function CreditsBlock({ credits }: { credits: number }) {
+  const { lang } = useParams<{ lang: Language }>();
   const [showCreditPulse] = useState(false);
+  const { t } = useTranslation(lang, "components", {
+    keyPrefix: "CreditsBlock",
+  });
   const router = useRouter();
 
   const coinAnimation = {
@@ -86,7 +92,7 @@ export default function CreditBlock({ credits }: { credits: number }) {
         </motion.div>
       </AnimatePresence>
       <span className="font-semibold text-sm relative z-10">
-        {credits.toLocaleString()} credits
+        {credits.toLocaleString()} {t("credits")}
       </span>
     </motion.div>
   );

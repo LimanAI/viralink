@@ -16,11 +16,16 @@ import {
 } from "@viralink-ai/sdk";
 
 import { PackageBlock } from "./_components/PackageBlock";
+import { Language } from "@/i18n/conf";
+import { useTranslation } from "@/i18n/client";
+import { useParams } from "next/navigation";
 
 export default function Payment() {
+  const { lang } = useParams<{ lang: Language }>();
   const [selectedPackage, setSelectedPackage] = useState<CreditsPackage | null>(
     null
   );
+  const { t } = useTranslation(lang, "app", { keyPrefix: "payment" });
   // TODO:
   const success = false;
 
@@ -80,14 +85,14 @@ export default function Payment() {
       <BackButton href="/" />
       <div className="container mx-auto max-w-md p-4">
         <div className="flex items-center mb-6">
-          <h1 className="text-2xl font-bold">Credits</h1>
+          <h1 className="text-2xl font-bold">{t("title")}</h1>
         </div>
 
         <div className="card bg-base-200 p-4 mb-8">
           <div className="flex justify-center items-center mb-2">
             <div className="text-3xl text-secondary-content mr-3"></div>
             <div className="text-center">
-              <div className="text-sm opacity-70">Your current balance</div>
+              <div className="text-sm opacity-70">{t("balance_title")}</div>
               <div className="flex flex-row text-4xl my-2">
                 <FiZap className="h-10 w-10 text-secondary-content mr-2" />
                 <div className="font-bold">
@@ -96,9 +101,7 @@ export default function Payment() {
               </div>
             </div>
           </div>
-          <p className="text-center text-sm opacity-70">
-            Credits are used to generate content and power your bots
-          </p>
+          <p className="text-center text-sm opacity-70">{t("balance_hint")}</p>
         </div>
 
         {/* Success message */}
@@ -114,7 +117,7 @@ export default function Payment() {
           </motion.div>
         )}
 
-        <h2 className="text-xl font-semibold mb-4">Select a package</h2>
+        <h2 className="text-xl font-semibold mb-4">{t("select_package")}</h2>
         <motion.div
           variants={container}
           initial="hidden"
@@ -126,6 +129,7 @@ export default function Payment() {
               key={pkg.package_name}
               pkg={pkg}
               index={i}
+              lang={lang}
               isSelected={selectedPackage?.package_name === pkg.package_name}
               onPackageSelect={(pkg: CreditsPackage) => setSelectedPackage(pkg)}
             />
@@ -141,14 +145,18 @@ export default function Payment() {
             {processing ? (
               <>
                 <span className="loading loading-spinner loading-sm mr-2"></span>
-                Processing...
+                {t("processing")}
               </>
             ) : (
               <>
                 <FiPlus className="mr-2" />
                 {selectedPackage
-                  ? `Buy ${selectedPackage.credits_amount.toLocaleString()} Credits for ☆ ${selectedPackage.stars_amount.toLocaleString()}`
-                  : "Select a package"}
+                  ? t("buy_package", {
+                      credits: selectedPackage.credits_amount.toLocaleString(),
+                      stars: selectedPackage.stars_amount.toLocaleString(),
+                      count: selectedPackage.credits_amount,
+                    })
+                  : t("select_package")}
               </>
             )}
           </button>

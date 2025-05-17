@@ -9,6 +9,7 @@
     "lint": "next lint --max-warnings=0",
     "format": "prettier --write **/*.ts",
     "format:check": "prettier --check **/*.ts",
+    "i18next": "i18next 'src/**/*.{ts,tsx}' 'app/**/*.{ts,tsx}'",
     "ts": "tsc --noEmit",
     "tsw": "tsc --noEmit --watch"
   },
@@ -17,14 +18,21 @@
     "@hookform/resolvers": "^5.0.1",
     "@tanstack/react-query": "^5.75.1",
     "@viralink-ai/sdk": "workspace:*",
+    "accept-language": "^3.0.20",
     "canvas-confetti": "^1.9.3",
     "clsx": "^2.1.1",
+    "cookies-next": "^5.1.0",
     "framer-motion": "^12.9.2",
-    "next": "15.3.1",
+    "i18next": "^25.1.3",
+    "i18next-browser-languagedetector": "^8.1.0",
+    "i18next-resources-to-backend": "^1.2.1",
+    "next": "15.3.2",
+    "next-i18next": "^15.4.2",
     "next-themes": "^0.4.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.56.1",
+    "react-i18next": "^15.5.1",
     "react-icons": "^5.5.0",
     "tailwind-merge": "^3.2.0",
     "zod": "^3.24.3"
@@ -40,8 +48,10 @@
     "daisyui": "^5.0.28",
     "eslint": "^9",
     "eslint-config-next": "15.3.1",
+    "i18next-parser": "^9.3.0",
     "prettier": "3.5.3",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "yaml-loader": "^0.8.1"
   }
 }

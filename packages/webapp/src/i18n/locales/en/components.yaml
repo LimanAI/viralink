@@ -1,0 +1,10 @@
+AgentList:
+  buttons:
+    add_channel: Add New Channel
+AgentStatus:
+  active: Active
+  connect: Connect
+  prompts: Prompts
+CreditsBlock:
+  credits: credits
+  credits_one: credit
