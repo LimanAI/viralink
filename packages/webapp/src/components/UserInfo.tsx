@@ -1,16 +1,20 @@
 "use client";
 
+import { getCookie, setCookie } from "cookies-next";
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { FiUser } from "react-icons/fi";
 import { useQuery } from "@tanstack/react-query";
+
 import { tgbotAuthMe } from "@viralink-ai/sdk";
 import CreditBlock from "./blocks/CreditBlock";
 import { getLang } from "@/i18n/utils";
 import { cookieName } from "@/i18n/conf";
-import { getCookie, setCookie } from "cookies-next";
-import { useEffect } from "react";
+import { useApi } from "@/hooks/useApi";
 
 const UserInfo = () => {
+  const api = useApi();
+
   const { data: user, isPending } = useQuery({
     queryKey: ["me"],
     queryFn: async () => {
@@ -19,6 +23,7 @@ const UserInfo = () => {
       });
       return data;
     },
+    enabled: !!api,
   });
 
   // set language
