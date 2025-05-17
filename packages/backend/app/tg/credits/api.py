@@ -8,7 +8,6 @@ from telegram import Bot, LabeledPrice
 from app.conf import settings
 from app.core.http_errors import HTTPUnauthorizedError
 from app.openapi import generate_unique_id_function
-from app.tg.agents.services import TGAgentService
 from app.tg.credits.schemas import BuyCreditsRequest, CreditsPackage
 from app.tg.credits.services import TGUserCreditsService
 from app.tgbot.dependencies import AuthUser
@@ -26,9 +25,9 @@ router = APIRouter(
 1 tg star costs 0.2 $
 """
 packages = [
-    CreditsPackage(package_name="starter_1605", credits_amount=10, stars_amount=999),
-    CreditsPackage(package_name="business_1605", credits_amount=30, stars_amount=2550),
-    CreditsPackage(package_name="agency_1605", credits_amount=100, stars_amount=7500),
+    CreditsPackage(package_name="starter_1705", credits_amount=10, stars_amount=500),
+    CreditsPackage(package_name="business_1705", credits_amount=30, stars_amount=1250),
+    CreditsPackage(package_name="agency_1705", credits_amount=100, stars_amount=3750),
 ]
 
 
