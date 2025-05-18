@@ -9,7 +9,7 @@ import {
 import resourcesToBackend from "i18next-resources-to-backend";
 import LanguageDetector from "i18next-browser-languagedetector";
 
-import { getCookie, setCookie } from "cookies-next";
+import { getCookie } from "cookies-next";
 
 import {
   cookieName,
@@ -19,6 +19,7 @@ import {
   Namespace,
 } from "./conf";
 import { Options } from ".";
+import { getLang } from "./utils";
 
 const isServer = typeof window === "undefined";
 
@@ -41,31 +42,19 @@ i18next
   });
 
 export function useTranslation(
-  lang: Language,
+  _lang: Language,
   ns: Namespace,
   options: Options = {}
 ) {
   const ret = useTranslationOrg(ns, options);
   const { i18n } = ret;
-  const i18nextCookie = getCookie(cookieName);
+  const lang = getLang(getCookie(cookieName) as string | undefined);
 
-  // update i18n
   useEffect(() => {
-    if (isServer) return;
-    if (!lang || i18n.resolvedLanguage === lang) return;
-    i18n.changeLanguage(lang);
+    if (i18n.resolvedLanguage !== lang) {
+      i18n.changeLanguage(lang);
+    }
   }, [lang, i18n]);
-
-  // update cookie
-  useEffect(() => {
-    if (isServer) return;
-    if (i18nextCookie === lang) return;
-    setCookie(cookieName, lang, { path: "/" });
-  }, [lang, i18nextCookie]);
-
-  if (isServer && lang && i18n.resolvedLanguage !== lang) {
-    i18n.changeLanguage(lang);
-  }
 
   return ret;
 }
