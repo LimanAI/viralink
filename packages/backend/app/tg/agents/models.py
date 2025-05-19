@@ -240,8 +240,10 @@ class TGAgentJobType(str, enum.Enum):
 
 class PostGenerationMetadata(BaseModel):
     user_prompt: str
-    notify_message_id: int
+    notify_message_id: int | None = None
     chat_id: int
+    photo_id: str | None = None
+    photo_path: str | None = None
 
 
 class PostUpdateMetadata(BaseModel):

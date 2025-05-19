@@ -1,4 +1,4 @@
-from typing import Any, Literal
+from typing import Any, Literal, overload
 from uuid import UUID
 
 from sqlalchemy import sql
@@ -13,7 +13,6 @@ from app.tg.agents.models import (
     BotPermissions,
     ChannelMetadata,
     ChannelProfile,
-    PostGenerationMetadata,
     TGAgent,
     TGAgentJob,
     TGAgentJobStatus,
@@ -24,13 +23,32 @@ from app.tg.agents.models import (
 
 
 class TGAgentService(BaseService):
-    async def get(self, agent_id: UUID, *, with_bot: bool = False) -> TGAgent | None:
+    @overload
+    async def get(
+        self, agent_id: UUID, *, required: Literal[True], with_bot: bool = False
+    ) -> TGAgent: ...
+    @overload
+    async def get(
+        self,
+        agent_id: UUID,
+        *,
+        required: Literal[False] = False,
+        with_bot: bool = False,
+    ) -> TGAgent | None: ...
+
+    async def get(
+        self, agent_id: UUID, *, required: bool = False, with_bot: bool = False
+    ) -> TGAgent | None:
         query = sql.select(TGAgent).filter_by(id=agent_id, deleted_at=None)
         if with_bot:
             query = query.options(selectinload(TGAgent.user_bot))
         async with self.tx():
             result = await self.db_session.execute(query)
-            return result.scalar_one_or_none()
+
+        agent = result.scalar_one_or_none()
+        if not agent and required:
+            raise NotFoundError("Agent not found", agent_id=agent_id)
+        return agent
 
     async def get_for_channel(self, channel_id: int, tg_user_id: int) -> TGAgent | None:
         async with self.tx():
@@ -328,12 +346,46 @@ class TGAgentJobService(BaseService):
             )
         return result.scalar_one()
 
-    async def get(self, job_id: UUID) -> TGAgentJob | None:
+    @overload
+    async def get(
+        self,
+        job_id: UUID,
+        *,
+        required: Literal[True],
+        type_: TGAgentJobType | None = None,
+    ) -> TGAgentJob: ...
+    @overload
+    async def get(
+        self,
+        job_id: UUID,
+        *,
+        required: Literal[False] = False,
+        type_: TGAgentJobType | None = None,
+    ) -> TGAgentJob | None: ...
+
+    async def get(
+        self,
+        job_id: UUID,
+        *,
+        required: bool = False,
+        type_: TGAgentJobType | None = None,
+    ) -> TGAgentJob | None:
+        query = sql.select(TGAgentJob).filter_by(id=job_id, deleted_at=None)
         async with self.tx():
-            result = await self.db_session.execute(
-                sql.select(TGAgentJob).filter_by(id=job_id, deleted_at=None)
+            result = await self.db_session.execute(query)
+        job = result.scalar_one_or_none()
+
+        if not job:
+            if required:
+                raise NotFoundError("Agent job not found", job_id=job_id)
+            return None
+
+        if type_ and job.type_ != type_:
+            raise AppError(
+                f"Agent job type mismatch, expected_type: {type_}, actual_type: {job.type_}",
+                job_id=job_id,
             )
-        return result.scalar_one_or_none()
+        return job
 
     async def in_progress(self, job_id: UUID) -> TGAgentJob:
         async with self.tx():

@@ -1,5 +1,6 @@
 import tempfile
 import urllib.request
+from typing import TypeGuard
 from uuid import UUID
 
 import structlog
@@ -7,52 +8,68 @@ from telegram import Bot
 from telegram.constants import ParseMode
 
 from app.conf import settings
-from app.core.errors import AppError, NotFoundError
+from app.core.errors import AppError
 from app.tg.agents.models import TGAgentJobStatus, TGAgentJobType
 from app.tg.agents.post_generator.post_generator import (
     PostGenerator,
     check_if_job_staled,
 )
+from app.tg.agents.post_generator.tools.image_generator import ImageGenerator
 from app.tg.agents.services import TGAgentJobService, TGAgentService
-from app.tgbot.auth.services import TGUserService
+from app.tg.credits.services import spend_credits
 from app.worker.conf import JobContext, task
 
 logger = structlog.get_logger()
 
 
 @task("generate_post")
-async def generate_post(ctx: JobContext, job_id: UUID, from_chat_id: int) -> None:
+async def generate_post(
+    ctx: JobContext, job_id: UUID, from_chat_id: int, *, with_photo: bool = False
+) -> None:
     agent_svc = TGAgentService(ctx.db_session)
     agent_job_svc = TGAgentJobService(ctx.db_session)
 
-    job = await agent_job_svc.get(job_id)
-    if not job:
-        raise NotFoundError("Job not found", job_id=job_id)
-
-    if job.type_ != TGAgentJobType.POST_GENERATION:
-        raise AppError(
-            f"Job is not a root job with POST_GENERATION type, actual {job.type_}",
-            job_id=job_id,
-        )
+    job = await agent_job_svc.get(
+        job_id, required=True, type_=TGAgentJobType.POST_GENERATION
+    )
 
     check_if_job_staled(job)
     if job.status != TGAgentJobStatus.INITIAL:
         raise AppError(
             "Job is not in INITIAL status, acutal {job.status}", job_id=job_id
         )
-
     if not job.agent_id:
         raise AppError("Job is detached from agent", job_id=job_id)
+    if not job.tg_user_id:
+        raise AppError("Job is detached from user", job_id=job_id)
 
-    agent = await agent_svc.get(job.agent_id, with_bot=True)
-    if not agent:
-        raise AppError("Agent not found", job_id=job_id, agent_id=job.agent_id)
+    agent = await agent_svc.get(job.agent_id, required=True, with_bot=True)
     if not agent.tg_user_id:
-        raise AppError("Agent is orphaned", job_id=job_id, agent_id=job.agent_id)
+        raise AppError(
+            "Agent is detached from user", job_id=job_id, agent_id=job.agent_id
+        )
 
-    post_generator = PostGenerator(ctx.db_session_maker, ctx.db_session)
-    post_text = await post_generator.generate(job)
+    async with spend_credits(ctx.db_session, agent.tg_user_id, 1):
+        post_generator = PostGenerator(ctx.db_session_maker, ctx.db_session)
+        post_text = await post_generator.generate(job)
 
+        if with_photo:
+            image_generator = ImageGenerator(
+                model=post_generator.model,
+                image_model=post_generator.image_model,
+                prompts=post_generator.prompts.image_generator_query_builder,
+            )
+            image = await image_generator.ainvoke(post_text)
+            image_path = await download_image(image)
+
+            await agent_job_svc.complete(job.id, post_text)
+            await Bot(settings.TGBOT_TOKEN.get_secret_value()).send_photo(
+                from_chat_id,
+                photo=image_path,
+                caption=post_text,
+                parse_mode=ParseMode.HTML,
+            )
+            return
     await agent_job_svc.complete(job.id, post_text)
 
     await Bot(settings.TGBOT_TOKEN.get_secret_value()).send_message(

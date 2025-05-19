@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from telegram import Bot
 from telegram.error import TelegramError
 
+from app.conf import settings
 from app.core.errors import AppError, ForbiddenError, NotFoundError
 from app.core.http_errors import (
     HTTPForbiddenError,
@@ -312,9 +313,14 @@ async def generate_post(
             detail="Agent not found",
         )
 
+    if not agent.tg_user_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Agent is not linked to user",
+        )
     if agent.tg_user_id != user.tg_id:
         logger.exception(
-            f"User {user.tg_id} tried to update channel profile of agent {agent_id} that belongs to user {agent.tg_user_id}",
+            f"[CRITICAL] User {user.tg_id} tried to generate post of agent {agent_id} that belongs to user {agent.tg_user_id}",
             tg_user_id=user.tg_id,
             agent_id=agent_id,
         )
@@ -326,8 +332,14 @@ async def generate_post(
     job = await agent_job_svc.create(
         agent_id=agent.id,
         type_=TGAgentJobType.POST_GENERATION,
-        metadata={"user_prompt": "Create relevant post"},
+        metadata={
+            "user_prompt": "Create relevant post, the length should be less 1000 symbols. Use language of the channel",
+            "chat_id": agent.tg_user_id,
+        },
     )
-    await arq.enqueue_job("generate_post", job.id)
+    await Bot(settings.TGBOT_TOKEN.get_secret_value()).send_message(
+        chat_id=agent.tg_user_id, text="Generating post..."
+    )
+    await arq.enqueue_job("generate_post", job.id, agent.tg_user_id, with_photo=True)
 
     return TGAgentSchema.model_validate(agent).with_signed_urls()
