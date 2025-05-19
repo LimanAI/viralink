@@ -13,7 +13,7 @@ import {
 } from "react-icons/fi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useCallback } from "react";
+import { useCallback, useContext } from "react";
 import Image from "next/image";
 
 import {
@@ -35,6 +35,7 @@ import PersonaBlock from "./_components/PersonaBlock";
 import ContentBlock from "./_components/ContentBlock";
 import { Language } from "@/i18n/conf";
 import { useTranslation } from "@/i18n/client";
+import { WebAppContext } from "@/providers/WebAppProvider";
 
 export default function AgentPage() {
   const { lang, id: agentId } = useParams<{ lang: Language; id: string }>();
@@ -42,6 +43,7 @@ export default function AgentPage() {
     keyPrefix: "agents",
   });
   const router = useRouter();
+  const webapp = useContext(WebAppContext);
 
   const api = useApi();
 
@@ -78,7 +80,7 @@ export default function AgentPage() {
     }, [router]),
   });
 
-  const { mutate: generatePost } = useMutation({
+  const { mutate: generatePostMutation } = useMutation({
     mutationFn: async () => {
       await tgAgentsGeneratePost({
         path: {
@@ -89,6 +91,13 @@ export default function AgentPage() {
     },
     retry: 0,
   });
+
+  const generatePost = useCallback(async () => {
+    generatePostMutation();
+    if (webapp) {
+      webapp.close();
+    }
+  }, [generatePostMutation, webapp]);
 
   const onShowDeleteModal = useCallback(() => {
     const modal = document.getElementById("delete-channel-modal");
