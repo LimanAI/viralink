@@ -329,8 +329,8 @@ async def generate_invites(update: Update, context: Context) -> None:
         )
         return
 
-    agent_job_svc = TGInviteCodesService(context.db_session)
-    invites = await agent_job_svc.create(
+    invites_svc = TGInviteCodesService(context.db_session)
+    invites = await invites_svc.create(
         amount=10, uses=1, tg_user_id=context.tg_user.tg_id, is_created_by_admin=True
     )
 
