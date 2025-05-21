@@ -329,6 +329,7 @@ class TGAgentService(BaseService):
 class TGAgentJobService(BaseService):
     async def create(
         self,
+        tg_user_id: int,
         agent_id: UUID,
         metadata: dict[Any, Any],
         type_: Literal[TGAgentJobType.POST_GENERATION, TGAgentJobType.POST_UPDATE],
@@ -337,6 +338,7 @@ class TGAgentJobService(BaseService):
             result = await self.db_session.execute(
                 sql.insert(TGAgentJob)
                 .values(
+                    tg_user_id=tg_user_id,
                     agent_id=agent_id,
                     metadata_=metadata,
                     status=TGAgentJobStatus.INITIAL,

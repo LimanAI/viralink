@@ -330,6 +330,7 @@ async def generate_post(
         )
 
     job = await agent_job_svc.create(
+        tg_user_id=agent.tg_user_id,
         agent_id=agent.id,
         type_=TGAgentJobType.POST_GENERATION,
         metadata={

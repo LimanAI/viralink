@@ -168,7 +168,9 @@ async def process_request(update: Update, context: Context) -> None:
     # TODO: generate for the first active agent
     agent = await agent_svc.get(active_agents[0].id, with_bot=True)
     if not agent:
-        raise ValueError(f"There is no needful agent {agents[0]}")
+        raise AppError(f"There is no needful agent {agents[0]}")
+    if not agent.tg_user_id:
+        raise AppError("Agent is detached from user", agent_id=agent.id)
 
     agent_job_svc = TGAgentJobService(db_session)
     message_text = message.text
@@ -186,6 +188,7 @@ async def process_request(update: Update, context: Context) -> None:
         )
         photos = message.reply_to_message.photo
         job = await agent_job_svc.create(
+            tg_user_id=agent.tg_user_id,
             agent_id=agent.id,
             metadata={
                 "user_prompt": message_text,
@@ -200,6 +203,7 @@ async def process_request(update: Update, context: Context) -> None:
     else:
         notify_message = await message.reply_text(text="Generating post...")
         job = await agent_job_svc.create(
+            tg_user_id=agent.tg_user_id,
             agent_id=agent.id,
             metadata={
                 "user_prompt": message_text,
